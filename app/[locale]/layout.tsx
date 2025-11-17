@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { locales } from '@/i18n';
+import { Header } from '@/components/header';
+import { ThemeProvider } from '@/components/theme-provider';
 import "../globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -133,7 +135,10 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={`font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <ThemeProvider>
+            <Header />
+            {children}
+          </ThemeProvider>
         </NextIntlClientProvider>
         <Analytics />
       </body>

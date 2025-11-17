@@ -5,12 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cloudflare": "npx opennextjs-cloudflare build",
+    "preview:cloudflare": "npx opennextjs-cloudflare preview",
+    "deploy:cloudflare": "npx opennextjs-cloudflare deploy",
     "start": "next start",
     "lint": "eslint ."
   },
   "dependencies": {
     "@codemirror/lang-markdown": "6.5.0",
     "@codemirror/view": "6.38.6",
+    "@directus/sdk": "^20.1.1",
     "@hookform/resolvers": "^3.10.0",
     "@opennextjs/cloudflare": "^1.12.0",
     "@radix-ui/react-accordion": "1.2.2",
@@ -75,6 +79,7 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.47.0"
   }
 }

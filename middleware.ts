@@ -8,10 +8,10 @@ export default createMiddleware({
   // 默认语言
   defaultLocale,
 
-  // 语言前缀策略：始终在 URL 中包含语言前缀
-  localePrefix: 'always',
+  // 语言前缀策略：仅非默认语言需要前缀（默认日语无前缀，英文/中文有前缀）
+  localePrefix: 'as-needed',
 
-  // 从 Cookie 中读取和存储用户的语言选择
+  // 禁用自动语言检测，始终使用默认语言 ja
   localeDetection: true,
 });
 

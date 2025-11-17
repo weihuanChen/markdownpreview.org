@@ -1,6 +1,8 @@
 import { createNavigation } from 'next-intl/navigation';
-import { locales } from './i18n';
+import { locales, defaultLocale } from './i18n';
 
 export const { Link, redirect, usePathname, useRouter } = createNavigation({
-  locales
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed' // 与 middleware.ts 保持一致
 });
