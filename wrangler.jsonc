@@ -1,0 +1,77 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "markdownpreview-org",
+  "compatibility_date": "2025-11-12",
+  "workers_dev": true,
+
+  // 主 Worker（OpenNext 构建输出）
+  "main": ".open-next/worker.js",
+
+  // 静态资产目录
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // 兼容性标志（支持 Node.js API）
+  "compatibility_flags": ["nodejs_compat"],
+    // R2 bucket used by OpenNext to back incremental cache data
+    "r2_buckets": [
+      {
+        "binding": "NEXT_INC_CACHE_R2_BUCKET",
+        "bucket_name": "cache"
+      }
+    ],
+    "services": [
+      {
+        "binding": "WORKER_SELF_REFERENCE",
+        "service": "markdownpreview-org"
+      }
+    ],
+  // Durable Objects 绑定（用于缓存）
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "DO_QUEUE",
+        "class_name": "DOQueueHandler",
+        "script_name": "markdownpreview-org"
+      },
+      {
+        "name": "DO_TAG_CACHE",
+        "class_name": "DOShardedTagCache",
+        "script_name": "markdownpreview-org"
+      }
+    ]
+  },
+     // D1 Tag Cache (Next mode)
+  // This is only required if you use On-demand revalidation
+  "d1_databases": [
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_id": "a908f521-8267-489f-803b-1265a964adf3",
+      "database_name": "next-zentimer"
+    }
+  ],
+  // 迁移配置
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["DOQueueHandler", "DOShardedTagCache", "BucketCachePurge"]
+    }
+  ],
+
+  // 变量
+  "vars": {
+    "DIRECTUS_URL": "https://directus.lzyinglian.com/",
+    "NEXT_PUBLIC_SITE_ID": 5
+  },
+
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
+}

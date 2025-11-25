@@ -1,6 +1,7 @@
 "use client"
 
 import { useTranslations } from 'next-intl'
+import { Link } from '@/navigation'
 
 export function Footer() {
   const t = useTranslations()
@@ -34,6 +35,11 @@ export function Footer() {
                 <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   {t("footer_contact")}
                 </a>
+              </li>
+              <li>
+                <Link href="/user-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {t("footer_terms")}
+                </Link>
               </li>
             </ul>
           </div>

@@ -45,5 +45,14 @@
   "blog_cta_title": "Ready to Try Our Markdown Editor?",
   "blog_cta_description": "Experience the power of real-time preview, syntax highlighting, and math support with our free online Markdown editor. Streamline your document creation today.",
   "blog_cta_button": "Try the Editor",
-  "blog_cta_hint": "Free • No Registration • Works in Your Browser"
+  "blog_cta_hint": "Free • No Registration • Works in Your Browser",
+  "user_service_title": "User Service Agreement",
+  "user_service_meta_title": "User Service Agreement - markdownpreview.org",
+  "user_service_meta_description": "Terms that govern your use of markdownpreview.org.",
+  "user_service_effective_date": "Effective date: {date}",
+  "user_service_disclaimer_title": "Translation notice",
+  "user_service_disclaimer_body": "The authoritative version of this agreement is in {language}. If any differences arise between translations and the English version, the English version prevails.",
+  "user_service_disclaimer_note": "Translations are provided for convenience. Updates may appear on the English version first.",
+  "user_service_contact_title": "Contact the markdownpreview.org team",
+  "footer_terms": "User Service Agreement"
 }

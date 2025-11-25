@@ -45,5 +45,14 @@
   "blog_cta_title": "立即体验 Markdown 编辑器",
   "blog_cta_description": "使用我们功能强大的免费在线 Markdown 编辑器，享受实时预览、语法高亮和数学公式支持，让您的文档创作更高效。",
   "blog_cta_button": "试用编辑器",
-  "blog_cta_hint": "免费 • 无需注册 • 浏览器直接使用"
+  "blog_cta_hint": "免费 • 无需注册 • 浏览器直接使用",
+  "user_service_title": "用户服务协议",
+  "user_service_meta_title": "用户服务协议 - markdownpreview.org",
+  "user_service_meta_description": "适用于您使用 markdownpreview.org 的条款。",
+  "user_service_effective_date": "生效日期：{date}",
+  "user_service_disclaimer_title": "多语言提示",
+  "user_service_disclaimer_body": "本协议的权威版本为 {language}。如翻译与英文版本存在差异，请以英文版本为准。",
+  "user_service_disclaimer_note": "翻译仅供参考，更新可能会先出现在英文版本。",
+  "user_service_contact_title": "联系 markdownpreview.org 团队",
+  "footer_terms": "用户服务协议"
 }

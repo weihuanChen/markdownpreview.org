@@ -45,5 +45,14 @@
   "blog_cta_title": "Markdownエディターを今すぐ試してみませんか？",
   "blog_cta_description": "リアルタイムプレビュー、シンタックスハイライト、数式サポートなど、強力な機能を備えた無料のオンラインMarkdownエディターで、あなたの文書作成を効率化しましょう。",
   "blog_cta_button": "エディターを試す",
-  "blog_cta_hint": "無料・登録不要・ブラウザ上で完結"
+  "blog_cta_hint": "無料・登録不要・ブラウザ上で完結",
+  "user_service_title": "ユーザーサービス規約",
+  "user_service_meta_title": "ユーザーサービス規約 - markdownpreview.org",
+  "user_service_meta_description": "markdownpreview.org の利用規約です。",
+  "user_service_effective_date": "施行日：{date}",
+  "user_service_disclaimer_title": "多言語に関する注意",
+  "user_service_disclaimer_body": "本規約の正本は {language} です。翻訳と英語版に差異がある場合は、英語版が優先されます。",
+  "user_service_disclaimer_note": "翻訳は便宜的なもので、更新は英語版が先行する場合があります。",
+  "user_service_contact_title": "markdownpreview.org チームへのお問い合わせ",
+  "footer_terms": "ユーザーサービス規約"
 }

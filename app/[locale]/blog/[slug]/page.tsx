@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/navigation'
 import { Button } from '@/components/ui/button'
+import { defaultLocale } from '@/i18n'
 
 export const revalidate = 43200 // 12 小时
 
@@ -51,8 +52,71 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     day: 'numeric',
   })
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+  const isDefaultLocale = resolvedParams.locale === defaultLocale
+  const articleUrl = `${siteUrl}${isDefaultLocale ? '' : `/${resolvedParams.locale}`}/blog/${post.slug}`
+  const imageUrl = post.image || `${siteUrl}/android-chrome-512x512.png`
+  const datePublished = new Date(post.date).toISOString()
+  const dateModified = new Date(post.updatedAt || post.date).toISOString()
+
+  const jsonLdGraph: Record<string, unknown>[] = [
+    {
+      '@type': 'Article',
+      '@id': `${articleUrl}#article`,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': articleUrl,
+      },
+      headline: post.title,
+      image: imageUrl,
+      datePublished,
+      dateModified,
+      author: {
+        '@type': 'Person',
+        name: post.author,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'markdownpreview.org',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${siteUrl}/android-chrome-512x512.png`,
+          width: 512,
+          height: 512,
+        },
+      },
+      description: post.description,
+      keywords: post.tags && post.tags.length > 0 ? post.tags.join(', ') : undefined,
+      inLanguage: resolvedParams.locale,
+      url: articleUrl,
+    },
+  ]
+
+  if (post.faq && post.faq.length > 0) {
+    jsonLdGraph.push({
+      '@type': 'FAQPage',
+      mainEntity: post.faq.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    })
+  }
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': jsonLdGraph,
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">

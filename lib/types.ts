@@ -15,12 +15,14 @@ export interface BlogPost {
   title: string
   description: string
   date: string
+  updatedAt?: string
   author: string
   tags: string[]
   tagDetails?: TagInfo[]
   content: string
   readingTime: number
   locale: Locale
+  image?: string
   faq?: FAQItem[]
   viewCount?: number
   uniqueViewCount?: number

@@ -8,6 +8,9 @@ const SITE_AUTHOR = 'markdownpreview.org'
 // 默认分页大小
 const PAGE_SIZE = 10
 
+const DIRECTUS_ASSET_BASE =
+  (process.env.DIRECTUS_URL || 'https://directus.lzyinglian.com/').replace(/\/+$/, '')
+
 /**
  * 计算文章阅读时间（分钟）
  */
@@ -67,17 +70,23 @@ async function transformDirectusPost(
   const title = translation?.title || post.title
   const description = translation?.description || post.description
   const content = translation?.content || post.content
+  const publishedAt =
+    post.published_at || post.date_created || new Date().toISOString()
+  const image = post.image ? `${DIRECTUS_ASSET_BASE}/assets/${post.image}` : undefined
+  const updatedAt = post.date_updated || post.published_at || post.date_created
 
   return {
     slug: post.slug,
     title,
     description,
-    date: post.published_at || post.date_created || new Date().toISOString(),
+    date: publishedAt,
+    updatedAt,
     author: SITE_AUTHOR,
     tags,
     content,
     readingTime: calculateReadingTime(content),
     locale,
+    image,
     viewCount: post.view_count,
     uniqueViewCount: post.unique_view_count,
   }
@@ -127,6 +136,8 @@ export async function getPaginatedPosts(
           'content',
           'published_at',
           'date_created',
+          'date_updated',
+          'image',
           'post_tags.tags_id',
           'view_count',
           'unique_view_count',
@@ -202,6 +213,8 @@ export async function getPostBySlug(
           'content',
           'published_at',
           'date_created',
+          'date_updated',
+          'image',
           'post_tags.tags_id',
           'view_count',
           'unique_view_count',

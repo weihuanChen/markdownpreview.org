@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cloudflare": "npx opennextjs-cloudflare build",
-    "preview:cloudflare": "npx opennextjs-cloudflare preview",
-    "deploy:cloudflare": "npx opennextjs-cloudflare deploy",
+    "build:cf": "npx opennextjs-cloudflare build",
+    "preview:cf": "npx opennextjs-cloudflare preview",
+    "deploy:cf": "npx opennextjs-cloudflare deploy",
     "start": "next start",
     "lint": "eslint ."
   },
