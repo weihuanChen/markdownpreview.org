@@ -9,11 +9,16 @@ interface FaqItem {
   answer: string
 }
 
-export function Faq() {
+interface FaqProps {
+  titleKey?: string
+  faqData?: FaqItem[]
+}
+
+export function Faq({ titleKey = "faq_title", faqData: customFaqData }: FaqProps = {}) {
   const t = useTranslations()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  const faqData: FaqItem[] = [
+  const defaultFaqData: FaqItem[] = [
     {
       question: t("faq_q1"),
       answer: t("faq_a1"),
@@ -32,6 +37,8 @@ export function Faq() {
     },
   ]
 
+  const faqData = customFaqData || defaultFaqData
+
   const toggleItem = (index: number) => {
     setOpenIndex(openIndex === index ? null : index)
   }
@@ -39,7 +46,7 @@ export function Faq() {
   return (
     <section className="py-16 px-4 bg-muted/30">
       <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 text-foreground">{t("faq_title")}</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-foreground">{t(titleKey)}</h2>
         <div className="space-y-4">
           {faqData.map((item, index) => (
             <div key={index} className="border border-border rounded-lg bg-card overflow-hidden">
