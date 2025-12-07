@@ -1,5 +1,6 @@
 import { readItems, aggregate } from '@directus/sdk'
 import { directus, SITE_ID, type DirectusPost, type PostTranslation, type Tag } from './directus'
+import { defaultLocale } from '@/i18n'
 import type { BlogPost, PaginatedPosts, Locale } from './types'
 
 // 固定作者名称
@@ -119,7 +120,6 @@ export async function getPaginatedPosts(
     )
 
     const total = totalResult[0]?.count || 0
-    const totalPages = Math.ceil(total / PAGE_SIZE)
 
     // 获取文章列表
     const posts = await directus.request<DirectusPost[]>(
@@ -163,17 +163,30 @@ export async function getPaginatedPosts(
           )
         : []
 
+    const translationsMap = new Map(
+      translations.map((translation) => [translation.post_id, translation])
+    )
+
+    // 对非默认语言，只展示已翻译的文章
+    const filteredPosts =
+      locale === defaultLocale
+        ? posts
+        : posts.filter((post) => translationsMap.has(post.id))
+
     // 转换文章
     const blogPosts = await Promise.all(
-      posts.map((post) => {
-        const translation = translations.find((t) => t.post_id === post.id)
+      filteredPosts.map((post) => {
+        const translation = translationsMap.get(post.id)
         return transformDirectusPost(post, translation, locale)
       })
     )
 
+    const totalForLocale = locale === defaultLocale ? total : filteredPosts.length
+    const totalPages = Math.ceil(totalForLocale / PAGE_SIZE)
+
     return {
       posts: blogPosts,
-      total,
+      total: totalForLocale,
       page,
       pageSize: PAGE_SIZE,
       totalPages,

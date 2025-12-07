@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 
@@ -14,18 +14,11 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
   const t = useTranslations()
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (page === 1) {
-      params.delete('page')
-    } else {
-      params.set('page', page.toString())
-    }
-    const queryString = params.toString()
-    const url = queryString ? `${pathname}?${queryString}` : pathname
-    router.push(url)
+    const basePath = pathname.replace(/\/page\/\d+(?:\/)?$/, '')
+    const targetPath = page === 1 ? basePath : `${basePath}/page/${page}`
+    router.push(targetPath)
   }
 
   // 生成页码数组

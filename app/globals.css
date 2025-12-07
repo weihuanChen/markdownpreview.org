@@ -120,7 +120,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground m-0;
   }
 }
 
@@ -222,4 +222,17 @@ pre.shiki {
 
 .dark :not(pre) > code {
   background-color: oklch(0.25 0 0);
+}
+
+/* Diff intra-line emphasis */
+.diff-code-insert-edit {
+  background-color: #97f295 !important; /* green for additions */
+}
+
+.diff-code-delete-edit {
+  background-color: #ffb6ba !important; /* red for deletions */
+}
+
+.diff-hunk-anchor {
+  height: 1px;
 }

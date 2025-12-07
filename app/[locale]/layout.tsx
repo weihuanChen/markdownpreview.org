@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { Analytics } from "@vercel/analytics/next"
 import { locales } from '@/i18n';
 import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
 import "../globals.css"
 
@@ -134,6 +135,7 @@ export default async function LocaleLayout({
           <ThemeProvider>
             <Header />
             {children}
+            <Footer />
           </ThemeProvider>
         </NextIntlClientProvider>
         <Analytics />

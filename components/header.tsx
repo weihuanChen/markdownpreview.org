@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslations } from 'next-intl'
-import { Moon, Sun, BookOpen } from "lucide-react"
+import { Moon, Sun, BookOpen, GitCompare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Link } from '@/navigation'
@@ -18,6 +18,17 @@ export function Header() {
       </Link>
 
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          aria-label={t("markdown_diff_label")}
+        >
+          <Link href="/diff">
+            <GitCompare className="h-5 w-5 text-[#0075de]" />
+          </Link>
+        </Button>
+
         {/* Blog Navigation */}
         <Button
           variant="ghost"

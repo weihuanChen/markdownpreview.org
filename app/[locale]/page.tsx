@@ -8,8 +8,8 @@ import { useTranslations, useLocale } from 'next-intl'
 import { GripHorizontal, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MarkdownPreview } from "@/components/markdown-preview"
+import { MarkdownQuickStart } from "@/components/markdown-quickstart"
 import { Faq } from "@/components/faq"
-import { Footer } from "@/components/footer"
 import { useTheme } from "@/components/theme-provider"
 
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
@@ -200,9 +200,9 @@ export default function MarkdownEditorPage() {
         </div>
       </div>
 
-      <Faq />
+      <MarkdownQuickStart />
 
-      <Footer />
+      <Faq />
     </div>
   )
 }

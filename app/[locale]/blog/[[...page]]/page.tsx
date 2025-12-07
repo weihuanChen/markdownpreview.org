@@ -3,29 +3,45 @@ import type { Locale } from '@/lib/types'
 import { BlogCard } from '@/components/blog/blog-card'
 import { Pagination } from '@/components/blog/pagination'
 import { getTranslations } from 'next-intl/server'
+import { defaultLocale } from '@/i18n'
 
 export const revalidate = 43200 // 12 小时
 
 interface BlogPageProps {
-  params: { locale: Locale }
-  searchParams: { page?: string }
+  params: { locale: Locale; page?: string[] }
+}
+
+const resolvePage = (segments?: string[]) => {
+  if (!segments?.length) {
+    return 1
+  }
+
+  const [segment, pageParam] = segments
+  if (segment !== 'page') {
+    return 1
+  }
+
+  const parsed = parseInt(pageParam || '1', 10)
+  return Number.isNaN(parsed) || parsed < 1 ? 1 : parsed
 }
 
 export async function generateMetadata({ params }: BlogPageProps) {
-  // 这里可以根据需要动态生成元数据
+  await params
+
   return {
     title: 'Blog',
     description: 'Latest articles and tutorials',
   }
 }
 
-export default async function BlogPage({ params, searchParams }: BlogPageProps) {
-  const resolvedSearchParams = await searchParams
-  const page = parseInt(resolvedSearchParams.page || '1', 10)
+export default async function BlogPage({ params }: BlogPageProps) {
   const resolvedParams = await params
-  const { posts, total, totalPages } = await getPaginatedPosts(resolvedParams.locale, page)
+  const page = resolvePage(resolvedParams.page)
+  const { posts, totalPages } = await getPaginatedPosts(resolvedParams.locale, page)
 
   const t = await getTranslations()
+  const isDefaultLocale = resolvedParams.locale === defaultLocale
+  const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +58,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
 
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">{t('blog_no_posts')}</p>
+            <p className="text-muted-foreground text-lg">{t(emptyMessageKey)}</p>
           </div>
         ) : (
           <>
