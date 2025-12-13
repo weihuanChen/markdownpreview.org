@@ -24,9 +24,7 @@ export default function CodeEditor({ value, onChange, theme }: CodeEditorProps) 
       onChange={onChange}
       basicSetup={{
         lineNumbers: true,
-        highlightActiveLineGutter: true,
         highlightActiveLine: true,
-        foldGutter: true,
       }}
       className="h-full text-base"
       style={{ height: "100%", fontSize: "14px" }}

@@ -35,45 +35,68 @@ export async function generateMetadata({ params }: BlogPageProps) {
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
-  const resolvedParams = await params
-  const page = resolvePage(resolvedParams.page)
-  const { posts, totalPages } = await getPaginatedPosts(resolvedParams.locale, page)
+  try {
+    const resolvedParams = await params
+    const page = resolvePage(resolvedParams.page)
+    const { posts, totalPages } = await getPaginatedPosts(resolvedParams.locale, page)
 
-  const t = await getTranslations()
-  const isDefaultLocale = resolvedParams.locale === defaultLocale
-  const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
+    const t = await getTranslations()
+    const isDefaultLocale = resolvedParams.locale === defaultLocale
+    const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Content */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            {t('blog_title')}
-          </h1>
-          <p className="text-muted-foreground">
-            {t('blog_list_title')}
-          </p>
-        </div>
-
-        {posts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">{t(emptyMessageKey)}</p>
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Content */}
+        <main className="container mx-auto px-4 py-12">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              {t('blog_title')}
+            </h1>
+            <p className="text-muted-foreground">
+              {t('blog_list_title')}
+            </p>
           </div>
-        ) : (
-          <>
-            {/* 文章列表 */}
-            <div className="grid gap-6 mb-8">
-              {posts.map((post) => (
-                <BlogCard key={post.slug} post={post} />
-              ))}
-            </div>
 
-            {/* 分页 */}
-            <Pagination currentPage={page} totalPages={totalPages} />
-          </>
-        )}
-      </main>
-    </div>
-  )
+          {posts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">{t(emptyMessageKey)}</p>
+            </div>
+          ) : (
+            <>
+              {/* 文章列表 */}
+              <div className="grid gap-6 mb-8">
+                {posts.map((post) => (
+                  <BlogCard key={post.slug} post={post} />
+                ))}
+              </div>
+
+              {/* 分页 */}
+              <Pagination currentPage={page} totalPages={totalPages} />
+            </>
+          )}
+        </main>
+      </div>
+    )
+  } catch (error) {
+    console.error('Error in BlogPage:', error)
+    // 返回空列表而不是抛出异常
+    const t = await getTranslations()
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container mx-auto px-4 py-12">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              {t('blog_title')}
+            </h1>
+            <p className="text-muted-foreground">
+              {t('blog_list_title')}
+            </p>
+          </div>
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">{t('blog_no_posts')}</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
 }

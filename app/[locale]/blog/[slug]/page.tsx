@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/navigation'
 import { Button } from '@/components/ui/button'
 import { defaultLocale } from '@/i18n'
+import { cache } from 'react'
 
 export const revalidate = 43200 // 12 小时
 
@@ -16,32 +17,62 @@ interface BlogPostPageProps {
   params: { slug: string; locale: Locale }
 }
 
+// 使用 React cache 确保同一请求中 generateMetadata 和 page 共享数据
+const getCachedPost = cache(async (slug: string, locale: Locale) => {
+  try {
+    return await getPostBySlug(slug, locale)
+  } catch (error) {
+    console.error('Error in getCachedPost:', error)
+    return null
+  }
+})
+
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs()
-  return slugs.map((slug) => ({ slug }))
+  try {
+    const slugs = await getAllPostSlugs()
+    return slugs.map((slug) => ({ slug }))
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error)
+    // 返回空数组而不是抛出异常，避免构建失败
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
-  const resolvedParams = await params
-  const post = await getPostBySlug(resolvedParams.slug, resolvedParams.locale)
+  try {
+    const resolvedParams = await params
+    const post = await getCachedPost(resolvedParams.slug, resolvedParams.locale)
 
-  if (!post) {
-    return {}
-  }
+    if (!post) {
+      return {
+        title: 'Post Not Found',
+        description: 'The requested blog post could not be found.',
+      }
+    }
 
-  return {
-    title: post.title,
-    description: post.description,
+    return {
+      title: post.title,
+      description: post.description,
+    }
+  } catch (error) {
+    console.error('Error in generateMetadata:', error)
+    // 返回默认元数据而不是抛出异常
+    return {
+      title: 'Blog Post',
+      description: 'Blog post on markdownpreview.org',
+    }
   }
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const resolvedParams = await params
-  const post = await getPostBySlug(resolvedParams.slug, resolvedParams.locale)
+  try {
+    const resolvedParams = await params
+    // 使用缓存的 post，避免与 generateMetadata 重复查询
+    const post = await getCachedPost(resolvedParams.slug, resolvedParams.locale)
 
-  if (!post) {
-    notFound()
-  }
+    if (!post) {
+      notFound()
+    }
 
   const t = await getTranslations()
 
@@ -199,4 +230,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </main>
     </div>
   )
+  } catch (error) {
+    console.error('Error in BlogPostPage:', error)
+    // 如果发生错误，返回 404 而不是 500
+    notFound()
+  }
 }
