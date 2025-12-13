@@ -7,6 +7,7 @@ import { locales } from '@/i18n';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
+import { EditorActionsProvider } from '@/components/editor-actions-provider';
 import "../globals.css"
 
 export function generateStaticParams() {
@@ -133,9 +134,11 @@ export default async function LocaleLayout({
       <body className={`font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <Header />
-            {children}
-            <Footer />
+            <EditorActionsProvider>
+              <Header />
+              {children}
+              <Footer />
+            </EditorActionsProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
         <Analytics />

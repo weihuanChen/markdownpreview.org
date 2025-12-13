@@ -76,12 +76,12 @@ d) Engage in excessive automated activity that overburdens the Website's infrast
 
 8.1 This Agreement shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to its conflict of law provisions.
 
-8.2 Any disputes arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, both parties agree to submit the dispute to the competent courts located in HangZhou, China for resolution.
+8.2 Any dispute arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, the parties agree to submit the dispute to the courts of competent jurisdiction in the operator's location.
 
 ## 9. Contact Information
 
 If you have any questions about this User Service Agreement, please contact us at:
 
-- **Email:** [shendongloving123@gmail.com]
+- **Email:** [support@markdownpreview.org]
 
 [markdownpreview.org]

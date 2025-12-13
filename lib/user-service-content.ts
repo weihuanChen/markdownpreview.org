@@ -4,7 +4,7 @@ export const USER_SERVICE_PRIMARY_LOCALE: Locale = 'en'
 
 export const userServiceMeta = {
   siteName: 'markdownpreview.org',
-  contactEmail: 'shendongloving123@gmail.com',
+  contactEmail: 'support@markdownpreview.org',
   effectiveDate: 'November 25, 2025',
 }
 
@@ -95,8 +95,8 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       {
         title: '8. Governing Law and Jurisdiction',
         paragraphs: [
-          'This Agreement is governed by the laws of the People’s Republic of China, without regard to conflict-of-law provisions.',
-          'Disputes shall first be resolved through good-faith negotiation. If negotiations fail, both parties agree to submit disputes to the competent courts located in Hangzhou, China.',
+          'This Agreement shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to its conflict of law provisions.',
+          'Any dispute arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, the parties agree to submit the dispute to the courts of competent jurisdiction in the operator's location.',
         ],
       },
       {

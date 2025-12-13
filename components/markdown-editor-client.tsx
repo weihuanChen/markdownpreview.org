@@ -5,7 +5,7 @@ import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
-import { GripHorizontal, Copy, Check } from "lucide-react"
+import { GripHorizontal, Copy, Check, Sparkles } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
@@ -151,6 +151,30 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
     document.body.style.userSelect = ""
   }, [])
 
+  const handleQuickStart = useCallback(() => {
+    // 滚动到 Quick Start 区块
+    setTimeout(() => {
+      const quickStartSection = document.getElementById("quickstart-section")
+      if (quickStartSection) {
+        quickStartSection.scrollIntoView({ behavior: "smooth", block: "start" })
+        // 触发高亮事件
+        window.dispatchEvent(
+          new CustomEvent("quickstart:highlight", {
+            detail: { highlight: true },
+          })
+        )
+        // 3秒后取消高亮
+        setTimeout(() => {
+          window.dispatchEvent(
+            new CustomEvent("quickstart:highlight", {
+              detail: { highlight: false },
+            })
+          )
+        }, 3000)
+      }
+    }, 100)
+  }, [])
+
   useEffect(() => {
     if (!isDragging) return
 
@@ -164,11 +188,20 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
   }, [handleDragEnd, handleDragMove, isDragging])
 
   return (
-    <div className="flex overflow-hidden border-b-2 border-border relative" style={{ height: `${editorHeight}vh` }}>
+    <div id="markdown-editor" className="flex overflow-hidden border-b-2 border-border relative" style={{ height: `${editorHeight}vh` }}>
       <div className="w-full md:w-1/2 border-r border-border flex flex-col h-full">
         <div className="px-4 py-2 border-b border-border bg-muted/30 flex items-center justify-between">
           <h2 className="text-sm font-medium text-muted-foreground">{t("editor_title")}</h2>
           <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleQuickStart}
+              aria-label={t("editor_quickstart")}
+            >
+              <Sparkles className="h-4 w-4 mr-1.5" />
+              {t("editor_quickstart")}
+            </Button>
             <Button
               variant="secondary"
               size="sm"

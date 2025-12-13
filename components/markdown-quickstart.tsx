@@ -1,10 +1,16 @@
 "use client"
 
-import { ArrowUpRight } from "lucide-react"
+import { useState, useCallback, useEffect } from "react"
+import { ArrowUpRight, Play, Plus, Copy, Check } from "lucide-react"
 import { useTranslations } from 'next-intl'
+import { useEditorActions } from "@/components/editor-actions-provider"
+import { Button } from "@/components/ui/button"
 
 export function MarkdownQuickStart() {
   const t = useTranslations()
+  const { replaceContent, insertAtCursor } = useEditorActions()
+  const [copiedCard, setCopiedCard] = useState<string | null>(null)
+  const [isHighlighted, setIsHighlighted] = useState(false)
 
   const cards = [
     {
@@ -45,8 +51,48 @@ export function MarkdownQuickStart() {
     },
   ]
 
+  const handleCopy = useCallback(async (snippet: string, cardKey: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(snippet)
+        setCopiedCard(cardKey)
+        setTimeout(() => setCopiedCard(null), 2000)
+        return
+      }
+
+      const textarea = document.createElement("textarea")
+      textarea.value = snippet
+      textarea.style.position = "fixed"
+      textarea.style.opacity = "0"
+      document.body.appendChild(textarea)
+      textarea.select()
+
+      const success = document.execCommand("copy")
+      document.body.removeChild(textarea)
+
+      if (success) {
+        setCopiedCard(cardKey)
+        setTimeout(() => setCopiedCard(null), 2000)
+      }
+    } catch (error) {
+      console.error("Failed to copy:", error)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleHighlight = (e: CustomEvent<{ highlight: boolean }>) => {
+      setIsHighlighted(e.detail.highlight)
+    }
+
+    window.addEventListener("quickstart:highlight", handleHighlight as EventListener)
+
+    return () => {
+      window.removeEventListener("quickstart:highlight", handleHighlight as EventListener)
+    }
+  }, [])
+
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-muted/20 via-background to-background border-b border-border">
+    <section id="quickstart-section" className="py-16 px-4 bg-gradient-to-b from-muted/20 via-background to-background border-b border-border">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-3">
@@ -77,14 +123,56 @@ export function MarkdownQuickStart() {
           {cards.map((card) => (
             <div
               key={card.key}
-              className="rounded-xl border border-border bg-card/70 shadow-sm hover:shadow-md transition-shadow"
+              className={`rounded-xl border bg-card/70 shadow-sm hover:shadow-md transition-all relative ${
+                isHighlighted
+                  ? "border-[#0075de] border-2 shadow-lg shadow-[#0075de]/20"
+                  : "border-border"
+              }`}
             >
+              <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="h-7 w-7"
+                  onClick={() => replaceContent(card.snippet)}
+                  title={t("quickstart_try_in_editor")}
+                  aria-label={t("quickstart_try_in_editor")}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="h-7 w-7"
+                  onClick={() => insertAtCursor(card.snippet)}
+                  title={t("quickstart_insert")}
+                  aria-label={t("quickstart_insert")}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="h-7 w-7"
+                  onClick={() => handleCopy(card.snippet, card.key)}
+                  title={copiedCard === card.key ? t("copied") : t("copy")}
+                  aria-label={copiedCard === card.key ? t("copied") : t("copy")}
+                >
+                  {copiedCard === card.key ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </Button>
+              </div>
               <div className="p-5 space-y-3">
-                <h3 className="text-lg font-semibold text-foreground">{card.title}</h3>
+                <h3 className="text-lg font-semibold text-foreground pr-20">{card.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
-                <pre className="bg-muted/50 border border-border/60 rounded-lg p-4 text-sm font-mono text-foreground whitespace-pre-wrap">
-                  <code>{card.snippet}</code>
-                </pre>
+                <div className="relative">
+                  <pre className="bg-muted/50 border border-border/60 rounded-lg p-4 text-sm font-mono text-foreground whitespace-pre-wrap">
+                    <code>{card.snippet}</code>
+                  </pre>
+                </div>
               </div>
             </div>
           ))}
