@@ -95,8 +95,8 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       {
         title: '8. Governing Law and Jurisdiction',
         paragraphs: [
-          'This Agreement shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to its conflict of law provisions.',
-          'Any dispute arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, the parties agree to submit the dispute to the courts of competent jurisdiction in the operator's location.',
+          'This Agreement shall be governed by the laws of the jurisdiction in which the Website operator is located, without regard to its conflict of law provisions.',
+          "Any dispute arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, the parties agree to submit the dispute to the courts of competent jurisdiction in the operator's location.",
         ],
       },
       {
@@ -179,8 +179,8 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       {
         title: '8. 适用法律与管辖',
         paragraphs: [
-          '本协议受中华人民共和国法律管辖，不考虑法律冲突原则。',
-          '争议应先行友好协商；协商不成的，双方同意提交中国杭州的有管辖权法院解决。',
+          '本协议受网站运营者所在司法管辖区的法律管辖，不考虑法律冲突原则。',
+          '因本协议产生或与之相关的任何争议应首先通过友好协商解决。如协商失败，双方同意将争议提交运营者所在地有管辖权的法院解决。',
         ],
       },
       {
@@ -263,8 +263,8 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       {
         title: '8. 準拠法と管轄',
         paragraphs: [
-          '本規約は中華人民共和国の法律に準拠し、抵触法の原則は適用されません。',
-          '紛争はまず誠実に協議し、解決しない場合は中国杭州市の管轄裁判所に提起することで合意します。',
+          '本規約は、ウェブサイト運営者が所在する司法管轄区の法律に準拠し、抵触法の原則は適用されません。',
+          '本規約から生じる、または本規約に関連する紛争は、まず誠実に協議して解決するものとします。協議が失敗した場合、当事者は紛争を運営者所在地の管轄裁判所に提起することに合意します。',
         ],
       },
       {

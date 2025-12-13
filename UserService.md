@@ -74,7 +74,7 @@ d) Engage in excessive automated activity that overburdens the Website's infrast
 
 ## 8. Governing Law and Jurisdiction
 
-8.1 This Agreement shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to its conflict of law provisions.
+8.1 This Agreement shall be governed by the laws of the jurisdiction in which the Website operator is located, without regard to its conflict of law provisions.
 
 8.2 Any dispute arising out of or relating to this Agreement shall first be resolved through good-faith negotiation. If negotiation fails, the parties agree to submit the dispute to the courts of competent jurisdiction in the operator's location.
 
