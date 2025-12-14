@@ -22,19 +22,24 @@ export function Footer() {
             <h4 className="font-medium text-sm mb-3 text-foreground">{t("footer_quicklinks")}</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  {t("footer_about")}
-                </a>
+                <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {t("support_title")}
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {t("privacy_title")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   {t("footer_guide")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   {t("footer_contact")}
-                </a>
+                </Link>
               </li>
               <li>
                 <Link href="/user-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

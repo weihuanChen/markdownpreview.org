@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from '@/navigation'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 

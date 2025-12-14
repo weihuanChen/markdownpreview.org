@@ -246,6 +246,100 @@ export async function getPaginatedPosts(
 }
 
 /**
+ * 获取所有博客文章（内部实现，无缓存）
+ */
+async function getAllPostsInternal(locale: Locale): Promise<BlogPost[]> {
+  try {
+    const posts = await directus.request<DirectusPost[]>(
+      readItems('posts', {
+        filter: {
+          status: { _eq: 'published' },
+          site_id: { _eq: SITE_ID },
+        },
+        fields: [
+          'id',
+          'slug',
+          'title',
+          'description',
+          'content',
+          'published_at',
+          'date_created',
+          'date_updated',
+          'image',
+          'post_tags.tags_id',
+          'view_count',
+          'unique_view_count',
+        ],
+        sort: ['-published_at'],
+      })
+    )
+
+    if (posts.length === 0) {
+      return []
+    }
+
+    // 获取翻译和标签（并行执行）
+    const postIds = posts.map((p) => p.id)
+    const allTagIds = posts.flatMap((p) => p.post_tags?.map((pt) => pt.tags_id) || [])
+
+    const [translations, tagMap] = await Promise.all([
+      directus.request<PostTranslation[]>(
+        readItems('post_translation', {
+          filter: {
+            post_id: { _in: postIds },
+            language_code: { _eq: locale },
+          },
+          fields: ['post_id', 'title', 'description', 'content'],
+        })
+      ),
+      getTranslatedTagsBatch(allTagIds, locale),
+    ])
+
+    const translationsMap = new Map(
+      translations.map((translation) => [translation.post_id, translation])
+    )
+
+    // 对非默认语言，只展示已翻译的文章
+    const filteredPosts =
+      locale === defaultLocale
+        ? posts
+        : posts.filter((post) => translationsMap.has(post.id))
+
+    // 转换文章
+    const blogPosts = filteredPosts.map((post) => {
+      const translation = translationsMap.get(post.id)
+      return transformDirectusPost(post, translation, locale, tagMap)
+    })
+
+    return blogPosts
+  } catch (error) {
+    console.error('Error fetching all posts:', error)
+    return []
+  }
+}
+
+/**
+ * 获取所有博客文章（带缓存）
+ */
+export async function getAllPosts(locale: Locale): Promise<BlogPost[]> {
+  // 如果禁用缓存，直接调用内部函数
+  if (process.env.DISABLE_BLOG_CACHE === 'true') {
+    return getAllPostsInternal(locale)
+  }
+
+  const cached = unstable_cache(
+    (loc: Locale) => getAllPostsInternal(loc),
+    ['blog-all-posts', locale, String(SITE_ID)],
+    {
+      revalidate: 43200, // 12 小时
+      tags: ['blog-posts', `blog-posts:${locale}`],
+    }
+  )
+
+  return cached(locale)
+}
+
+/**
  * 根据 slug 获取单篇文章（内部实现，无缓存）
  */
 async function getPostBySlugInternal(

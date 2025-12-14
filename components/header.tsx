@@ -14,7 +14,10 @@ export function Header() {
   return (
     <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
       <Link href="/" className="hover:opacity-80 transition-opacity">
-        <h1 className="text-xl font-semibold text-foreground">{t("app_title")}</h1>
+        <div className="flex flex-col">
+          <h1 className="text-xl font-semibold text-foreground">{t("app_title")}</h1>
+          <p className="text-xs text-muted-foreground">{t("app_subtitle")}</p>
+        </div>
       </Link>
 
       <div className="flex items-center gap-2">

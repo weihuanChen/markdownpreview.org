@@ -2,7 +2,6 @@ import { Mail, Globe2 } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 
 import { Disclaimer } from "@/components/disclaimer"
-import { Footer } from "@/components/footer"
 import { getUserServiceContent, USER_SERVICE_PRIMARY_LOCALE } from "@/lib/user-service-content"
 import type { Locale } from "@/lib/types"
 
@@ -93,8 +92,6 @@ export default async function UserServicePage({ params }: UserServicePageProps) 
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

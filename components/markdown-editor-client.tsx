@@ -52,6 +52,34 @@ function greet(name) {
   return \`Hi, \${name}!\`
 }
 \`\`\`
+
+## Links
+
+Here are some link examples:
+- [Markdown Guide](https://www.markdownguide.org) - A comprehensive guide to Markdown
+- [GitHub](https://github.com) - Code hosting platform
+- [Example with title](https://example.com "Example Website")
+
+## Math Formulas
+
+Inline math: \\(E = mc^2\\) and \\(a^2 + b^2 = c^2\\)
+
+Display math:
+$$
+\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+$$
+
+Quadratic formula:
+$$
+x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+$$
+
+## Footnotes
+
+This is a sentence with a footnote[^1]. You can also add multiple footnotes[^2] in the same document.
+
+[^1]: This is the first footnote definition.
+[^2]: This is the second footnote with more details about the topic.
 `
 
 export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps) {

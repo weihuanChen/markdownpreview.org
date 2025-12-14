@@ -5,6 +5,7 @@ import { ArrowUpRight, Play, Plus, Copy, Check } from "lucide-react"
 import { useTranslations } from 'next-intl'
 import { useEditorActions } from "@/components/editor-actions-provider"
 import { Button } from "@/components/ui/button"
+import { Link } from '@/navigation'
 
 export function MarkdownQuickStart() {
   const t = useTranslations()
@@ -176,6 +177,17 @@ export function MarkdownQuickStart() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="text-center pt-8">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span>Want to learn more Markdown?</span>
+            <span className="text-primary">Explore the full guides</span>
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
