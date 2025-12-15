@@ -79,8 +79,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 }
 
-export default async function MarkdownEditorPage({ params }: { params: { locale: string } }) {
-  const locale = locales.includes(params.locale as any) ? params.locale : "en"
+export default async function MarkdownEditorPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: rawLocale } = await params
+  const locale = locales.includes(rawLocale as any) ? rawLocale : "en"
   const initialMarkdown = await loadTemplate(locale)
 
   return (

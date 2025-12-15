@@ -1,0 +1,57 @@
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H8","location":"next.config.mjs","message":"next.config loaded","data":{"note":"withNextIntl applied"},"timestamp":1765804561328}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H8","location":"next.config.mjs","message":"next.config loaded","data":{"note":"withNextIntl applied"},"timestamp":1765804564717}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765804565714}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H5","location":"middleware.ts","message":"middleware module loaded","data":{"locales":["ja","en","zh"],"defaultLocale":"ja"},"timestamp":1765804565714}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"middleware.ts","message":"imported next-intl.config.js","data":{"hasConfig":true},"timestamp":1765804565714}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765804569052}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765804569084}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages start","data":{"locale":"ja"},"timestamp":1765804569099}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages success","data":{"locale":"ja","keys":["app_title","app_subtitle","hero_title"]},"timestamp":1765804569103}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"enter getRequestConfig","data":{"requestLocale":"ja"},"timestamp":1765804569247}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"resolved locale","data":{"resolvedLocale":"ja"},"timestamp":1765804569249}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10a","location":"use-diff-worker.ts:createWorker","message":"worker constructed","data":{},"timestamp":1765804571225}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10","location":"use-diff-worker.ts:createWorker","message":"worker created (effect)","data":{},"timestamp":1765804571226}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H11","location":"use-diff-worker.ts:runDiff","message":"postMessage","data":{"requestId":"diff-0","oldLen":1039,"newLen":954},"timestamp":1765804579344}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765804980639}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages start","data":{"locale":"ja"},"timestamp":1765804980648}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages success","data":{"locale":"ja","keys":["app_title","app_subtitle","hero_title"]},"timestamp":1765804980654}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"enter getRequestConfig","data":{"requestLocale":"ja"},"timestamp":1765804980781}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"resolved locale","data":{"resolvedLocale":"ja"},"timestamp":1765804980783}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765804981127}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10a","location":"use-diff-worker.ts:createWorker","message":"worker constructed","data":{},"timestamp":1765804982638}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10","location":"use-diff-worker.ts:createWorker","message":"worker created (effect)","data":{},"timestamp":1765804982639}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H0","location":"line-diff-worker.ts:init","message":"worker loaded","data":{},"timestamp":1765804982718}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H11","location":"use-diff-worker.ts:runDiff","message":"postMessage","data":{"requestId":"diff-0","oldLen":1039,"newLen":954},"timestamp":1765804993361}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"line-diff-worker.ts:onmessage","message":"start onmessage","data":{"oldLen":1039,"newLen":954},"timestamp":1765804993363}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H6","location":"line-diff-worker.ts:onmessage","message":"postMessage success","data":{"changes":2,"ranges":1},"timestamp":1765804993366}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10msg","location":"use-diff-worker.ts:createWorker:message","message":"worker message","data":{"keys":["ranges","files","diffText","requestId"]},"timestamp":1765804993394}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H12","location":"use-diff-worker.ts:runDiff","message":"worker message resolved","data":{"requestId":"diff-0","ranges":1,"files":1},"timestamp":1765804993395}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H8","location":"next.config.mjs","message":"next.config loaded","data":{"note":"withNextIntl applied"},"timestamp":1765805139515}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H8","location":"next.config.mjs","message":"next.config loaded","data":{"note":"withNextIntl applied"},"timestamp":1765805141601}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765805142384}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H5","location":"middleware.ts","message":"middleware module loaded","data":{"locales":["ja","en","zh"],"defaultLocale":"ja"},"timestamp":1765805142384}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"middleware.ts","message":"imported next-intl.config.js","data":{"hasConfig":true},"timestamp":1765805142384}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765805144906}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H6","location":"next-intl.config.js","message":"config file loaded (CJS)","data":{"note":"cjs"},"timestamp":1765805144935}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages start","data":{"locale":"ja"},"timestamp":1765805144951}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"app/[locale]/layout.tsx","message":"load messages success","data":{"locale":"ja","keys":["app_title","app_subtitle","hero_title"]},"timestamp":1765805144955}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"enter getRequestConfig","data":{"requestLocale":"ja"},"timestamp":1765805145168}
+{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"i18n.ts:getRequestConfig","message":"resolved locale","data":{"resolvedLocale":"ja"},"timestamp":1765805145171}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10a","location":"use-diff-worker.ts:createWorker","message":"worker constructed","data":{},"timestamp":1765805147462}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10","location":"use-diff-worker.ts:createWorker","message":"worker created (effect)","data":{},"timestamp":1765805147464}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H0","location":"line-diff-worker.ts:init","message":"worker loaded","data":{},"timestamp":1765805147722}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H11","location":"use-diff-worker.ts:runDiff","message":"postMessage","data":{"requestId":"diff-0","oldLen":1039,"newLen":954},"timestamp":1765805163365}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"line-diff-worker.ts:onmessage","message":"start onmessage","data":{"oldLen":1039,"newLen":954,"alignedOld":false,"alignedNew":false},"timestamp":1765805163366}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H6","location":"line-diff-worker.ts:onmessage","message":"postMessage success","data":{"changes":2,"ranges":1},"timestamp":1765805163368}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10msg","location":"use-diff-worker.ts:createWorker:message","message":"worker message","data":{"keys":["ranges","files","diffText","requestId"]},"timestamp":1765805163395}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H12","location":"use-diff-worker.ts:runDiff","message":"worker message resolved","data":{"requestId":"diff-0","ranges":1,"files":1},"timestamp":1765805163395}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H11","location":"use-diff-worker.ts:runDiff","message":"postMessage","data":{"requestId":"diff-1","oldLen":1039,"newLen":954},"timestamp":1765805170767}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"line-diff-worker.ts:onmessage","message":"start onmessage","data":{"oldLen":1039,"newLen":954,"alignedOld":false,"alignedNew":false},"timestamp":1765805170768}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H6","location":"line-diff-worker.ts:onmessage","message":"postMessage success","data":{"changes":2,"ranges":1},"timestamp":1765805170769}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10msg","location":"use-diff-worker.ts:createWorker:message","message":"worker message","data":{"keys":["ranges","files","diffText","requestId"]},"timestamp":1765805170807}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H12","location":"use-diff-worker.ts:runDiff","message":"worker message resolved","data":{"requestId":"diff-1","ranges":1,"files":1},"timestamp":1765805170807}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H11","location":"use-diff-worker.ts:runDiff","message":"postMessage","data":{"requestId":"diff-2","oldLen":228,"newLen":83},"timestamp":1765805276677}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"line-diff-worker.ts:onmessage","message":"start onmessage","data":{"oldLen":228,"newLen":83,"alignedOld":false,"alignedNew":false},"timestamp":1765805276679}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H6","location":"line-diff-worker.ts:onmessage","message":"postMessage success","data":{"changes":8,"ranges":3},"timestamp":1765805276680}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H10msg","location":"use-diff-worker.ts:createWorker:message","message":"worker message","data":{"keys":["ranges","files","diffText","requestId"]},"timestamp":1765805276714}
+{"sessionId":"debug-session","runId":"run1","hypothesisId":"H12","location":"use-diff-worker.ts:runDiff","message":"worker message resolved","data":{"requestId":"diff-2","ranges":3,"files":1},"timestamp":1765805276714}

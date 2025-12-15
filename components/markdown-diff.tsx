@@ -16,6 +16,7 @@ import type {
   DiffWorkerResponse,
   LineChangeRange,
 } from "@/lib/workers/line-diff-worker"
+import { buildAlignedText } from "@/lib/markdown-blocks"
 
 const getRangeSize = (start: number | null, end: number | null) => {
   if (!start || !end) return 0
@@ -172,9 +173,12 @@ export function MarkdownDiff() {
     setError(null)
 
     try {
+      const { normalizedOldText, normalizedNewText } = buildAlignedText(source, target, options)
       const diffResult = await runDiff({
         oldText: source,
         newText: target,
+        alignedOldText: normalizedOldText,
+        alignedNewText: normalizedNewText,
         options: { ...options, contextLines: computeContext(mode, collapse, ctx) },
       })
       setResult(diffResult)

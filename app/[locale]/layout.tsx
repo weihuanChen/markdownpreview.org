@@ -1,9 +1,9 @@
 import type React from "react"
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Analytics } from "@vercel/analytics/next"
 import { locales } from '@/i18n';
+import '../../next-intl.config.js'; // ensure config is bundled/visible to runtime (Turbopack)
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -126,13 +126,19 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // 获取翻译消息 - 在 next-intl v4 中需要传递 locale
-  const messages = await getMessages({ locale });
+  // 直接按 locale 加载静态消息，避免依赖全局 next-intl 配置探测。
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/[locale]/layout.tsx',message:'load messages start',data:{locale},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+  const messages = (await import(`../../messages/${locale}.json`)).default;
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/[locale]/layout.tsx',message:'load messages success',data:{locale,keys:Object.keys(messages||{})?.slice(0,3)},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   return (
     <html lang={locale}>
       <body className={`font-sans antialiased`}>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             <EditorActionsProvider>
               <Header />
