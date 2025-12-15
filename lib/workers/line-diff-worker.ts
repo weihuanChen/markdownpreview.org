@@ -5,6 +5,7 @@ import { parse, type File } from 'gitdiff-parser';
 export type DiffWorkerRequest = {
   oldText: string;
   newText: string;
+  options?: DiffWorkerOptions;
   requestId?: string;
 };
 
@@ -21,6 +22,15 @@ export type DiffWorkerResponse = {
   files: File[];
   diffText: string;
   requestId?: string;
+};
+
+export type DiffWorkerOptions = {
+  ignoreWhitespace?: boolean;
+  ignoreBlankLines?: boolean;
+  ignoreLineEndings?: boolean;
+  trimTrailingSpaces?: boolean;
+  caseInsensitive?: boolean;
+  contextLines?: number;
 };
 
 const countLines = (value: string) => {
@@ -95,13 +105,55 @@ const buildRanges = (changes: Change[]): LineChangeRange[] => {
 };
 
 self.onmessage = (event: MessageEvent<DiffWorkerRequest>) => {
-  const { oldText = '', newText = '', requestId } = event.data ?? {};
-  const changes = diffLines(oldText, newText);
-  const ranges = buildRanges(changes);
-  const basePatch = createTwoFilesPatch('Original.md', 'Revised.md', oldText, newText, '', '', {
-    // Only include changed blocks so the UI can focus on differing paragraphs/lines
-    context: 0,
+  const { oldText = '', newText = '', options = {}, requestId } = event.data ?? {};
+
+  const normalizeText = (input: string) => {
+    const safeInput = input ?? '';
+    const normalizedLineEndings = options.ignoreLineEndings
+      ? safeInput.replace(/\r\n|\r/g, '\n')
+      : safeInput;
+
+    const processedLines = normalizedLineEndings.split('\n').map((line) => {
+      let currentLine = line;
+
+      if (options.trimTrailingSpaces) {
+        currentLine = currentLine.replace(/\s+$/, '');
+      }
+
+      if (options.ignoreWhitespace) {
+        currentLine = currentLine.replace(/[ \t]+/g, ' ');
+      }
+
+      return currentLine;
+    });
+
+    const withoutBlankLines = options.ignoreBlankLines
+      ? processedLines.filter((line) => line.trim().length > 0)
+      : processedLines;
+
+    const joined = withoutBlankLines.join('\n');
+    return options.caseInsensitive ? joined.toLowerCase() : joined;
+  };
+
+  const normalizedOldText = normalizeText(oldText);
+  const normalizedNewText = normalizeText(newText);
+
+  const changes = diffLines(normalizedOldText, normalizedNewText, {
+    ignoreWhitespace: Boolean(options.ignoreWhitespace),
   });
+  const ranges = buildRanges(changes);
+  const basePatch = createTwoFilesPatch(
+    'Original.md',
+    'Revised.md',
+    normalizedOldText,
+    normalizedNewText,
+    '',
+    '',
+    {
+      // Only include changed blocks so the UI can focus on differing paragraphs/lines
+      context: options.contextLines ?? 0,
+    },
+  );
   const diffText = `diff --git a/Original.md b/Revised.md\nindex 000000..000000 100644\n${basePatch}`;
   const files = parse(diffText);
 

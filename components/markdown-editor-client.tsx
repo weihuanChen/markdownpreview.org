@@ -226,6 +226,7 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
               size="sm"
               onClick={handleQuickStart}
               aria-label={t("editor_quickstart")}
+              className="border border-[#0075de] text-[#0075de] bg-[#e8f2ff] hover:bg-[#dbeaff] shadow-[0_1px_0_rgba(0,117,222,0.22)]"
             >
               <Sparkles className="h-4 w-4 mr-1.5" />
               {t("editor_quickstart")}
@@ -235,6 +236,7 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
               size="sm"
               onClick={() => setMarkdown(SAMPLE_MARKDOWN)}
               aria-label={t("insert_sample")}
+              className="border border-[#0075de] text-[#0075de] bg-[#e8f2ff] hover:bg-[#dbeaff] shadow-[0_1px_0_rgba(0,117,222,0.22)]"
             >
               {t("insert_sample")}
             </Button>
@@ -244,6 +246,7 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
               onClick={handleCopy}
               title={copied ? t("copied") : t("copy")}
               aria-label={copied ? t("copied") : t("copy")}
+              className="text-[#0075de] hover:bg-[#0075de]/10"
             >
               {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
             </Button>

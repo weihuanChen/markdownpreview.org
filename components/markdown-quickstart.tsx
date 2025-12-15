@@ -93,7 +93,7 @@ export function MarkdownQuickStart() {
   }, [])
 
   return (
-    <section id="quickstart-section" className="py-16 px-4 bg-gradient-to-b from-muted/20 via-background to-background border-b border-border">
+    <section id="quickstart-section" className="py-16 px-4 bg-linear-to-b from-muted/20 via-background to-background border-b border-border">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-3">
@@ -134,7 +134,7 @@ export function MarkdownQuickStart() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7"
+                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
                   onClick={() => replaceContent(card.snippet)}
                   title={t("quickstart_try_in_editor")}
                   aria-label={t("quickstart_try_in_editor")}
@@ -144,7 +144,7 @@ export function MarkdownQuickStart() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7"
+                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
                   onClick={() => insertAtCursor(card.snippet)}
                   title={t("quickstart_insert")}
                   aria-label={t("quickstart_insert")}
@@ -154,7 +154,7 @@ export function MarkdownQuickStart() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7"
+                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
                   onClick={() => handleCopy(card.snippet, card.key)}
                   title={copiedCard === card.key ? t("copied") : t("copy")}
                   aria-label={copiedCard === card.key ? t("copied") : t("copy")}
@@ -182,10 +182,10 @@ export function MarkdownQuickStart() {
         <div className="text-center pt-8">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 font-medium text-[#0075de] hover:text-[#005bb1] transition-colors"
           >
             <span>Want to learn more Markdown?</span>
-            <span className="text-primary">Explore the full guides</span>
+            <span className="text-[#005bb1]">Explore the full guides</span>
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>

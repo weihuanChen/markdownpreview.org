@@ -33,6 +33,14 @@ export async function generateMetadata({ params }: BlogPageProps) {
   return {
     title: t('blog_meta_title'),
     description: t('blog_list_title'),
+    robots: {
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+      },
+    },
   }
 }
 
