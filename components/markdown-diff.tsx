@@ -111,39 +111,36 @@ export function MarkdownDiff() {
   )
   const [currentHunk, setCurrentHunk] = useState(0)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const isEnglishLocale = locale === "en"
   const optionList = useMemo(
     () =>
-      isEnglishLocale
-        ? [
-            {
-              key: "ignoreWhitespace" as const,
-              title: t("markdown_diff_option_ignore_whitespace"),
-              description: t("markdown_diff_option_ignore_whitespace_hint"),
-            },
-            {
-              key: "ignoreBlankLines" as const,
-              title: t("markdown_diff_option_ignore_blank_lines"),
-              description: t("markdown_diff_option_ignore_blank_lines_hint"),
-            },
-            {
-              key: "ignoreLineEndings" as const,
-              title: t("markdown_diff_option_ignore_line_endings"),
-              description: t("markdown_diff_option_ignore_line_endings_hint"),
-            },
-            {
-              key: "trimTrailingSpaces" as const,
-              title: t("markdown_diff_option_trim_trailing_spaces"),
-              description: t("markdown_diff_option_trim_trailing_spaces_hint"),
-            },
-            {
-              key: "caseInsensitive" as const,
-              title: t("markdown_diff_option_case_insensitive"),
-              description: t("markdown_diff_option_case_insensitive_hint"),
-            },
-          ]
-        : [],
-    [isEnglishLocale, t],
+      [
+        {
+          key: "ignoreWhitespace" as const,
+          title: t("markdown_diff_option_ignore_whitespace"),
+          description: t("markdown_diff_option_ignore_whitespace_hint"),
+        },
+        {
+          key: "ignoreBlankLines" as const,
+          title: t("markdown_diff_option_ignore_blank_lines"),
+          description: t("markdown_diff_option_ignore_blank_lines_hint"),
+        },
+        {
+          key: "ignoreLineEndings" as const,
+          title: t("markdown_diff_option_ignore_line_endings"),
+          description: t("markdown_diff_option_ignore_line_endings_hint"),
+        },
+        {
+          key: "trimTrailingSpaces" as const,
+          title: t("markdown_diff_option_trim_trailing_spaces"),
+          description: t("markdown_diff_option_trim_trailing_spaces_hint"),
+        },
+        {
+          key: "caseInsensitive" as const,
+          title: t("markdown_diff_option_case_insensitive"),
+          description: t("markdown_diff_option_case_insensitive_hint"),
+        },
+      ],
+    [t],
   )
 
   const diffThemeStyles = useMemo<CSSProperties>(() => {
@@ -377,39 +374,37 @@ export function MarkdownDiff() {
           </div>
         </div>
 
-        {isEnglishLocale && (
-          <div className="rounded-xl border border-border bg-card/70 shadow-sm p-4 space-y-3">
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-semibold text-foreground">
-                {t("markdown_diff_options_title")}
-              </p>
-              <p className="text-xs text-muted-foreground max-w-2xl">
-                {t("markdown_diff_options_hint")}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {optionList.map((option) => (
-                <label
-                  key={option.key}
-                  className="flex items-start gap-3 rounded-lg border border-border/80 bg-muted/30 px-3 py-3 hover:border-primary/50 transition-colors cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={Boolean(options[option.key])}
-                    onChange={() => toggleOption(option.key)}
-                    className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{option.title}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {option.description}
-                    </p>
-                  </div>
-                </label>
-              ))}
-            </div>
+        <div className="rounded-xl border border-border bg-card/70 shadow-sm p-4 space-y-3">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-foreground">
+              {t("markdown_diff_options_title")}
+            </p>
+            <p className="text-xs text-muted-foreground max-w-2xl">
+              {t("markdown_diff_options_hint")}
+            </p>
           </div>
-        )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {optionList.map((option) => (
+              <label
+                key={option.key}
+                className="flex items-start gap-3 rounded-lg border border-border/80 bg-muted/30 px-3 py-3 hover:border-primary/50 transition-colors cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={Boolean(options[option.key])}
+                  onChange={() => toggleOption(option.key)}
+                  className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{option.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {option.description}
+                  </p>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="rounded-xl border border-border bg-card/70 shadow-sm overflow-hidden">

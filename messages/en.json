@@ -53,7 +53,7 @@
   "markdown_diff_result": "Diff result",
   "markdown_diff_result_hint": "We only render differences after you click the button.",
   "markdown_diff_options_title": "Diff options",
-  "markdown_diff_options_hint": "Normalize text before diffing to ignore whitespace noise. Options are currently only available on the English route.",
+  "markdown_diff_options_hint": "Normalize text before diffing to ignore whitespace noise.",
   "markdown_diff_option_ignore_whitespace": "Ignore whitespace",
   "markdown_diff_option_ignore_whitespace_hint": "Collapse spaces and tabs so alignment changes do not count as differences.",
   "markdown_diff_option_ignore_blank_lines": "Ignore blank lines",
