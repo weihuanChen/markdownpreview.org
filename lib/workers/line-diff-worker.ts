@@ -191,7 +191,14 @@ const buildRanges = (changes: Change[]): LineChangeRange[] => {
 };
 
 self.onmessage = (event: MessageEvent<DiffWorkerRequest>) => {
-  const { oldText = '', newText = '', options = {}, requestId } = event.data ?? {};
+  const {
+    oldText = '',
+    newText = '',
+    alignedOldText,
+    alignedNewText,
+    options = {},
+    requestId,
+  } = event.data ?? {};
 
   const safeRespond = (payload: Omit<DiffWorkerResponse, 'requestId'>) => {
     self.postMessage({ ...payload, requestId } satisfies DiffWorkerResponse);

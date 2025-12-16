@@ -18,6 +18,8 @@ export type MarkdownBlock = {
     | 'other';
   depth?: number;
   text: string;
+  // Optional structured data for specialized diff strategies
+  cells?: string[][];
 };
 
 const resolveBlockType = (node: Content): MarkdownBlock['type'] => {
@@ -34,6 +36,38 @@ const resolveBlockType = (node: Content): MarkdownBlock['type'] => {
 
 const sliceByLines = (lines: string[], start: number, end: number) =>
   lines.slice(Math.max(0, start - 1), Math.min(lines.length, end)).join('\n');
+
+const stripListMarker = (line: string) => line.replace(/^(\s*)(?:[-*+]|\d+\.)\s+/, '$1');
+
+const normalizeListItemLines = (rawLines: string[]) => {
+  if (!rawLines.length) return rawLines;
+
+  const [first, ...rest] = rawLines;
+  const firstLine = stripListMarker(first);
+
+  const minIndent = rest.reduce<number | null>((acc, line) => {
+    if (!line.trim()) return acc;
+    const current = line.match(/^(\s*)/)?.[1]?.length ?? 0;
+    return acc === null ? current : Math.min(acc, current);
+  }, null);
+
+  const trimmedRest =
+    minIndent && minIndent > 0 ? rest.map((line) => line.slice(minIndent)) : rest;
+
+  return [firstLine, ...trimmedRest];
+};
+
+const flattenText = (node: Content): string => {
+  if ('value' in node && typeof (node as any).value === 'string') {
+    return String((node as any).value);
+  }
+
+  if ('children' in node && Array.isArray((node as any).children)) {
+    return (node as any).children.map((child: Content) => flattenText(child)).join('');
+  }
+
+  return '';
+};
 
 const normalizeText = (input: string, options: DiffWorkerOptions) => {
   const safeInput = input ?? '';
@@ -77,6 +111,25 @@ export const parseMarkdownToBlocks = (markdown: string): MarkdownBlock[] => {
     const position = node.position;
     if (!position?.start || !position?.end) continue;
 
+    if (node.type === 'list') {
+      const list = node;
+      const listItems = (list as any).children ?? [];
+
+      for (const item of listItems) {
+        const itemPosition = item?.position;
+        if (!itemPosition?.start || !itemPosition?.end) continue;
+        const startLine = itemPosition.start.line || 1;
+        const endLine = itemPosition.end.line || startLine;
+        const itemLines = sliceByLines(lines, startLine, endLine).split('\n');
+        const normalizedLines = normalizeListItemLines(itemLines);
+        blocks.push({
+          type: 'list',
+          text: normalizedLines.join('\n'),
+        });
+      }
+      continue;
+    }
+
     let type = resolveBlockType(node);
     let depth = node.type === 'heading' ? (node as Heading).depth : undefined;
 
@@ -89,7 +142,20 @@ export const parseMarkdownToBlocks = (markdown: string): MarkdownBlock[] => {
 
     const startLine = position.start.line || 1;
     const endLine = position.end.line || startLine;
-    const text = sliceByLines(lines, startLine, endLine);
+    const text =
+      type === 'code' && 'value' in node && typeof (node as any).value === 'string'
+        ? String((node as any).value)
+        : sliceByLines(lines, startLine, endLine);
+
+    if (type === 'table') {
+      const rows = (node as any).children ?? [];
+      const cells: string[][] = rows.map((row: any) => {
+        const rowCells = row?.children ?? [];
+        return rowCells.map((cell: any) => flattenText(cell as Content));
+      });
+      blocks.push({ type, depth, text, cells });
+      continue;
+    }
 
     blocks.push({ type, depth, text });
   }
@@ -109,13 +175,34 @@ export const buildAlignedText = (
   newText: string,
   options: DiffWorkerOptions,
 ) => {
+  const normalizeBlock = (block: MarkdownBlock) => {
+    if (block.type === 'table' && block.cells?.length) {
+      const lines = block.cells.flatMap((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          const normalizedCell = normalizeText(cell, options);
+          return `row:${rowIndex + 1}|col:${cellIndex + 1}|${normalizedCell}`;
+        }),
+      );
+      return lines.join('\n');
+    }
+
+    if (block.type === 'code') {
+      return normalizeText(block.text, {
+        ...options,
+        ignoreLineEndings: true,
+      });
+    }
+
+    return normalizeText(block.text, options);
+  };
+
   const oldBlocks = parseMarkdownToBlocks(oldText).map((block) => ({
     ...block,
-    normalized: normalizeText(block.text, options),
+    normalized: normalizeBlock(block),
   }));
   const newBlocks = parseMarkdownToBlocks(newText).map((block) => ({
     ...block,
-    normalized: normalizeText(block.text, options),
+    normalized: normalizeBlock(block),
   }));
 
   const oldSegments: string[] = [];
@@ -134,4 +221,3 @@ export const buildAlignedText = (
     blockCount: Math.max(oldBlocks.length, newBlocks.length),
   };
 };
-
