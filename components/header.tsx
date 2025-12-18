@@ -1,11 +1,17 @@
 "use client"
 
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { Moon, Sun, BookOpen, GitCompare, Wand2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageSwitcher } from "@/components/language-switcher"
 import { Link } from '@/navigation'
 import { useTheme } from "@/components/theme-provider"
+
+// 动态导入 LanguageSwitcher 以避免 Radix UI 的水合错误
+const LanguageSwitcher = dynamic(
+  () => import('@/components/language-switcher').then(mod => mod.LanguageSwitcher),
+  { ssr: false }
+)
 
 export function Header() {
   const t = useTranslations()

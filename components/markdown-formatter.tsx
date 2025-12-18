@@ -22,6 +22,7 @@ import {
   Sparkles,
   ToggleLeft,
   ToggleRight,
+  AlertTriangle,
 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
@@ -193,6 +194,29 @@ const RULE_CATEGORIES: { id: RuleCategory; label: string; icon: string }[] = [
 // 预设顺序
 const PRESET_ORDER: PresetName[] = ['standard', 'github', 'writing', 'strict']
 
+type LintSeverity = 'error' | 'warning' | 'info'
+
+interface LintResult {
+  id: string
+  ruleId: FormatRuleId
+  severity: LintSeverity
+  message: string
+}
+
+const LINT_SEVERITY_META: Record<LintSeverity, { label: string; tone: string }> = {
+  error: { label: 'Error', tone: 'text-red-600 dark:text-red-300 border-red-500/30 bg-red-500/5' },
+  warning: { label: 'Warning', tone: 'text-amber-700 dark:text-amber-300 border-amber-500/30 bg-amber-500/5' },
+  info: { label: 'Info', tone: 'text-blue-700 dark:text-blue-300 border-blue-500/30 bg-blue-500/5' },
+}
+
+const RULE_SEVERITY_BY_CATEGORY: Record<RuleCategory, LintSeverity> = {
+  whitespace: 'info',
+  heading: 'warning',
+  list: 'warning',
+  blockquote: 'info',
+  code: 'warning',
+}
+
 export function MarkdownFormatter() {
   const { theme } = useTheme()
   
@@ -202,6 +226,7 @@ export function MarkdownFormatter() {
     setContent,
     result,
     runFormat,
+    runFormatWithRules,
     applyFormat,
     undo,
     canUndo,
@@ -224,6 +249,7 @@ export function MarkdownFormatter() {
   const [copied, setCopied] = useState(false)
   const [diffType, setDiffType] = useState<"word" | "block">("word")
   const [showAdvancedPanel, setShowAdvancedPanel] = useState(false)
+  const [selectedRuleIds, setSelectedRuleIds] = useState<FormatRuleId[]>([])
   
   // 解析 diff
   const diffData = useMemo(() => {
@@ -326,6 +352,68 @@ export function MarkdownFormatter() {
     [ruleStates]
   )
 
+  const lintResults = useMemo<LintResult[]>(() => {
+    if (!result?.appliedRules?.length) return []
+    return result.appliedRules.map((ruleId, index) => {
+      const rule = allRules.find(r => r.id === ruleId)
+      const severity = rule ? RULE_SEVERITY_BY_CATEGORY[rule.category] : 'warning'
+      return {
+        id: `${ruleId}-${index}`,
+        ruleId,
+        severity,
+        message: 'Auto-fixable formatting issue.',
+      }
+    })
+  }, [result])
+
+  const lintSummary = useMemo(() => {
+    const bySeverity: Record<LintSeverity, number> = {
+      error: 0,
+      warning: 0,
+      info: 0,
+    }
+    for (const item of lintResults) {
+      bySeverity[item.severity] += 1
+    }
+    return {
+      total: lintResults.length,
+      bySeverity,
+    }
+  }, [lintResults])
+
+  const lintGroups = useMemo(() => {
+    const grouped: Record<LintSeverity, Record<FormatRuleId, LintResult[]>> = {
+      error: {} as Record<FormatRuleId, LintResult[]>,
+      warning: {} as Record<FormatRuleId, LintResult[]>,
+      info: {} as Record<FormatRuleId, LintResult[]>,
+    }
+    for (const item of lintResults) {
+      const bucket = grouped[item.severity]
+      if (!bucket[item.ruleId]) {
+        bucket[item.ruleId] = []
+      }
+      bucket[item.ruleId].push(item)
+    }
+    return grouped
+  }, [lintResults])
+
+  const lintRuleIds = useMemo(() => new Set(lintResults.map((item) => item.ruleId)), [lintResults])
+
+  useEffect(() => {
+    setSelectedRuleIds((prev) => prev.filter((ruleId) => lintRuleIds.has(ruleId)))
+  }, [lintRuleIds])
+
+  const toggleSelectedRule = useCallback((ruleId: FormatRuleId) => {
+    setSelectedRuleIds((prev) =>
+      prev.includes(ruleId) ? prev.filter((id) => id !== ruleId) : [...prev, ruleId]
+    )
+  }, [])
+
+  const handleFixSelected = useCallback(() => {
+    if (!selectedRuleIds.length) return
+    runFormatWithRules(selectedRuleIds)
+  }, [runFormatWithRules, selectedRuleIds])
+
   return (
     <section className="w-full py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -407,7 +495,7 @@ export function MarkdownFormatter() {
                 </Button>
               </div>
             </div>
-            <div className="flex-1 min-h-[400px] lg:min-h-[500px]">
+            <div className="h-[400px] lg:h-[500px] overflow-hidden">
               <CodeMirrorEditor
                 value={content}
                 onChange={setContent}
@@ -499,7 +587,7 @@ export function MarkdownFormatter() {
               </Button>
             </div>
             
-            <div className="flex-1 min-h-[400px] lg:min-h-[500px] overflow-auto">
+            <div className="h-[400px] lg:h-[500px] overflow-auto">
               {viewMode === "diff" ? (
                 result?.hasChanges && diffData ? (
                   <div style={diffThemeStyles} className="text-sm">
@@ -682,6 +770,139 @@ export function MarkdownFormatter() {
             Show Rule Configuration ({enabledCount}/{ruleStates.length} enabled)
             <ChevronDown className="h-4 w-4 ml-2" />
           </Button>
+        )}
+
+        {/* Lint Results Panel */}
+        {mode === "advanced" && (
+          <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-primary" />
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Lint Results</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Grouped by rule and severity
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="px-2 py-1 rounded border border-border bg-muted/50">
+                  {lintSummary.total} total
+                </span>
+                <span className="px-2 py-1 rounded border border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-300">
+                  {lintSummary.bySeverity.error} error
+                </span>
+                <span className="px-2 py-1 rounded border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-300">
+                  {lintSummary.bySeverity.warning} warning
+                </span>
+                <span className="px-2 py-1 rounded border border-blue-500/30 bg-blue-500/5 text-blue-700 dark:text-blue-300">
+                  {lintSummary.bySeverity.info} info
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span>Selected</span>
+                  <span className="px-2 py-0.5 rounded border border-border bg-background text-foreground">
+                    {selectedRuleIds.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={runFormat}
+                    disabled={!content || isFormatting}
+                    className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                  >
+                    Fix All
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleFixSelected}
+                    disabled={!content || isFormatting || selectedRuleIds.length === 0}
+                    className="text-xs !bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                  >
+                    Fix Selected
+                  </Button>
+                </div>
+              </div>
+
+              {lintResults.length === 0 ? (
+                <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-6 text-center">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      {result ? "No lint issues detected" : "Run Format to generate lint results"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {result ? "Your current content passes all enabled rules." : "Lint results will appear after formatting."}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                (['error', 'warning', 'info'] as LintSeverity[]).map((severity) => {
+                  const byRule = lintGroups[severity]
+                  const entries = Object.entries(byRule)
+                  if (!entries.length) return null
+
+                  const meta = LINT_SEVERITY_META[severity]
+                  const severityCount = lintSummary.bySeverity[severity]
+
+                  return (
+                    <div key={severity} className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <AlertTriangle
+                          className={`h-4 w-4 ${
+                            severity === 'error'
+                              ? 'text-red-500'
+                              : severity === 'warning'
+                              ? 'text-amber-500'
+                              : 'text-blue-500'
+                          }`}
+                        />
+                        {meta.label} · {severityCount}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {entries.map(([ruleId, items]) => (
+                          <button
+                            key={ruleId}
+                            type="button"
+                            onClick={() => toggleSelectedRule(ruleId as FormatRuleId)}
+                            className={`rounded-lg border px-3 py-2 text-left text-xs transition-colors ${meta.tone} ${
+                              selectedRuleIds.includes(ruleId as FormatRuleId)
+                                ? 'ring-1 ring-[var(--brand-blue)]'
+                                : 'hover:bg-muted/30'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[11px] text-foreground truncate">
+                                {ruleId}
+                              </span>
+                              <span className="text-[10px] font-semibold">
+                                {items.length} issue{items.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {selectedRuleIds.includes(ruleId as FormatRuleId) && (
+                              <div className="mt-1 flex items-center gap-1 text-[10px] text-[var(--brand-blue)]">
+                                <Check className="h-3 w-3" />
+                                Selected
+                              </div>
+                            )}
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                              {items[0]?.message}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
         )}
 
         {/* Action Bar */}

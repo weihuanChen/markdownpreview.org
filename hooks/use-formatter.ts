@@ -42,6 +42,8 @@ export interface UseFormatterReturn {
   result: FormatResult | null
   /** 执行格式化 */
   runFormat: () => FormatResult
+  /** 使用指定规则执行格式化 */
+  runFormatWithRules: (ruleIds: FormatRuleId[]) => FormatResult
   /** 应用格式化结果到内容 */
   applyFormat: () => void
   /** 撤销上一次操作 */
@@ -232,6 +234,23 @@ export function useFormatter(options?: UseFormatterOptions): UseFormatterReturn 
     }
   }, [content, formatOptions, enabledRuleIds])
 
+  const runFormatWithRules = useCallback((ruleIds: FormatRuleId[]): FormatResult => {
+    ensureRulesInitialized()
+    setIsFormatting(true)
+
+    try {
+      const mergedOptions: FormatEngineOptions = {
+        ...formatOptions,
+        enabledRules: ruleIds,
+      }
+      const formatResult = format(content, mergedOptions)
+      setResult(formatResult)
+      return formatResult
+    } finally {
+      setIsFormatting(false)
+    }
+  }, [content, formatOptions])
+
   // 应用格式化结果
   const applyFormat = useCallback(() => {
     if (!result || !result.hasChanges) return
@@ -300,6 +319,7 @@ export function useFormatter(options?: UseFormatterOptions): UseFormatterReturn 
     setContent,
     result,
     runFormat,
+    runFormatWithRules,
     applyFormat,
     undo,
     canUndo,
