@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic"
+import { useTranslations } from "next-intl"
 import { Diff, Decoration, Hunk, markEdits, tokenize } from "react-diff-view"
 import "react-diff-view/style/index.css"
 import { parse as parseDiff } from "gitdiff-parser"
@@ -35,7 +36,7 @@ const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-      Loading editor...
+      Loading...
     </div>
   ),
 })
@@ -46,7 +47,7 @@ const MarkdownPreview = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Loading preview...
+        Loading...
       </div>
     ),
   }
@@ -183,12 +184,12 @@ function createUnifiedDiff(original: string, formatted: string): string {
 // ============================================================================
 
 // 规则分类信息
-const RULE_CATEGORIES: { id: RuleCategory; label: string; icon: string }[] = [
-  { id: 'whitespace', label: 'Whitespace', icon: '⎵' },
-  { id: 'heading', label: 'Headings', icon: '#' },
-  { id: 'list', label: 'Lists', icon: '•' },
-  { id: 'blockquote', label: 'Blockquotes', icon: '>' },
-  { id: 'code', label: 'Code', icon: '`' },
+const RULE_CATEGORIES: { id: RuleCategory; labelKey: string; icon: string }[] = [
+  { id: 'whitespace', labelKey: 'formatter_category_whitespace', icon: '⎵' },
+  { id: 'heading', labelKey: 'formatter_category_heading', icon: '#' },
+  { id: 'list', labelKey: 'formatter_category_list', icon: '•' },
+  { id: 'blockquote', labelKey: 'formatter_category_blockquote', icon: '>' },
+  { id: 'code', labelKey: 'formatter_category_code', icon: '`' },
 ]
 
 // 预设顺序
@@ -218,6 +219,7 @@ const RULE_SEVERITY_BY_CATEGORY: Record<RuleCategory, LintSeverity> = {
 }
 
 export function MarkdownFormatter() {
+  const t = useTranslations()
   const { theme } = useTheme()
   
   // 使用 formatter hook
@@ -352,6 +354,7 @@ export function MarkdownFormatter() {
     [ruleStates]
   )
 
+  const autoFixMessage = t("formatter_auto_fix_message")
   const lintResults = useMemo<LintResult[]>(() => {
     if (!result?.appliedRules?.length) return []
     return result.appliedRules.map((ruleId, index) => {
@@ -361,10 +364,10 @@ export function MarkdownFormatter() {
         id: `${ruleId}-${index}`,
         ruleId,
         severity,
-        message: 'Auto-fixable formatting issue.',
+        message: autoFixMessage,
       }
     })
-  }, [result])
+  }, [result, autoFixMessage])
 
   const lintSummary = useMemo(() => {
     const bySeverity: Record<LintSeverity, number> = {
@@ -423,7 +426,7 @@ export function MarkdownFormatter() {
             <div className="flex items-center gap-2">
               <Wand2 className="h-6 w-6 text-primary" />
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                Markdown Formatter
+                {t("formatter_title")}
               </h1>
             </div>
             
@@ -441,7 +444,7 @@ export function MarkdownFormatter() {
                   }
                 >
                   <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                  Simple
+                  {t("formatter_mode_simple")}
                 </Button>
                 <Button
                   size="sm"
@@ -457,15 +460,15 @@ export function MarkdownFormatter() {
                   }
                 >
                   <Settings2 className="h-3.5 w-3.5 mr-1.5" />
-                  Advanced
+                  {t("formatter_mode_advanced")}
                 </Button>
               </div>
             </div>
           </div>
           <p className="text-muted-foreground max-w-2xl">
-            Automatically format and beautify your Markdown. Preview changes with diff view before applying.
+            {t("formatter_description")}
             <span className="ml-2 text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20">
-              Safe formatting only
+              {t("formatter_safe_only")}
             </span>
           </p>
         </div>
@@ -476,13 +479,13 @@ export function MarkdownFormatter() {
           <div className="rounded-xl border border-border bg-card shadow-sm flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div>
-                <h2 className="text-sm font-semibold text-foreground">Input</h2>
-                <p className="text-xs text-muted-foreground">Paste or type your Markdown</p>
+                <h2 className="text-sm font-semibold text-foreground">{t("formatter_input")}</h2>
+                <p className="text-xs text-muted-foreground">{t("formatter_input_hint")}</p>
               </div>
               <div className="flex items-center gap-2">
                 {hasUnsavedChanges && (
                   <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
-                    Unsaved changes
+                    {t("formatter_unsaved")}
                   </span>
                 )}
                 <Button
@@ -491,7 +494,7 @@ export function MarkdownFormatter() {
                   onClick={loadSample}
                   className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
                 >
-                  Load Sample
+                  {t("formatter_load_sample")}
                 </Button>
               </div>
             </div>
@@ -520,7 +523,7 @@ export function MarkdownFormatter() {
                     }
                   >
                     <GitCompare className="h-3.5 w-3.5 mr-1" />
-                    Diff
+                    {t("formatter_diff")}
                   </Button>
                   <Button
                     size="sm"
@@ -533,7 +536,7 @@ export function MarkdownFormatter() {
                     }
                   >
                     <Eye className="h-3.5 w-3.5 mr-1" />
-                    Preview
+                    {t("preview_title")}
                   </Button>
                 </div>
                 
@@ -549,7 +552,7 @@ export function MarkdownFormatter() {
                           : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
                       }
                     >
-                      Word
+                      {t("markdown_diff_highlight_word")}
                     </Button>
                     <Button
                       size="sm"
@@ -561,7 +564,7 @@ export function MarkdownFormatter() {
                           : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
                       }
                     >
-                      Block
+                      {t("markdown_diff_highlight_block")}
                     </Button>
                   </div>
                 )}
@@ -576,12 +579,12 @@ export function MarkdownFormatter() {
                 {copied ? (
                   <>
                     <Check className="h-3.5 w-3.5 mr-1" />
-                    Copied
+                    {t("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 mr-1" />
-                    Copy
+                    {t("copy")}
                   </>
                 )}
               </Button>
@@ -615,8 +618,8 @@ export function MarkdownFormatter() {
                     <div className="text-center space-y-3 p-8">
                       <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">No changes needed</p>
-                        <p className="text-xs text-muted-foreground">Your Markdown is already well formatted!</p>
+                        <p className="text-sm font-medium text-foreground">{t("formatter_no_changes")}</p>
+                        <p className="text-xs text-muted-foreground">{t("formatter_well_formatted")}</p>
                       </div>
                     </div>
                   </div>
@@ -625,7 +628,7 @@ export function MarkdownFormatter() {
                     <div className="text-center space-y-2 p-8">
                       <GitCompare className="h-10 w-10 text-muted-foreground/50 mx-auto" />
                       <p className="text-sm text-muted-foreground">
-                        Click "Format" to see changes
+                        {t("formatter_click_format")}
                       </p>
                     </div>
                   </div>
@@ -645,9 +648,9 @@ export function MarkdownFormatter() {
               <div className="flex items-center gap-3">
                 <Settings2 className="h-5 w-5 text-primary" />
                 <div>
-                  <h2 className="text-sm font-semibold text-foreground">Rule Configuration</h2>
+                  <h2 className="text-sm font-semibold text-foreground">{t("formatter_rules_config")}</h2>
                   <p className="text-xs text-muted-foreground">
-                    {enabledCount} of {ruleStates.length} rules enabled
+                    {t("formatter_rules_enabled", { enabled: enabledCount, total: ruleStates.length })}
                   </p>
                 </div>
               </div>
@@ -669,9 +672,9 @@ export function MarkdownFormatter() {
                             ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2] text-xs h-7"
                             : "text-muted-foreground hover:text-foreground text-xs h-7"
                         }
-                        title={`${meta.description} (${meta.rulesCount} rules)`}
+                        title={`${t(`formatter_preset_${presetId}_desc`)} (${meta.rulesCount} ${t("formatter_rules_count", { count: "" }).trim()})`}
                       >
-                        {meta.label}
+                        {t(`formatter_preset_${presetId}`)}
                       </Button>
                     )
                   })}
@@ -685,7 +688,7 @@ export function MarkdownFormatter() {
                     onClick={enableAllRules}
                     className="text-xs h-7 text-muted-foreground hover:text-foreground"
                   >
-                    Enable All
+                    {t("formatter_enable_all")}
                   </Button>
                   <Button
                     size="sm"
@@ -693,7 +696,7 @@ export function MarkdownFormatter() {
                     onClick={disableAllRules}
                     className="text-xs h-7 text-muted-foreground hover:text-foreground"
                   >
-                    Disable All
+                    {t("formatter_disable_all")}
                   </Button>
                 </div>
                 
@@ -716,7 +719,7 @@ export function MarkdownFormatter() {
                     {/* Category Header */}
                     <div className="flex items-center gap-2 pb-2 border-b border-border">
                       <span className="text-lg font-mono">{category.icon}</span>
-                      <span className="text-sm font-medium text-foreground">{category.label}</span>
+                      <span className="text-sm font-medium text-foreground">{t(category.labelKey)}</span>
                       <span className="text-xs text-muted-foreground ml-auto">
                         {rulesByCategory[category.id].filter(r => r.enabled).length}/{rulesByCategory[category.id].length}
                       </span>
@@ -767,7 +770,7 @@ export function MarkdownFormatter() {
             className="w-full border-dashed border-border text-muted-foreground hover:text-foreground"
           >
             <Settings2 className="h-4 w-4 mr-2" />
-            Show Rule Configuration ({enabledCount}/{ruleStates.length} enabled)
+            {t("formatter_show_config")} ({enabledCount}/{ruleStates.length})
             <ChevronDown className="h-4 w-4 ml-2" />
           </Button>
         )}
@@ -779,24 +782,24 @@ export function MarkdownFormatter() {
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-primary" />
                 <div>
-                  <h2 className="text-sm font-semibold text-foreground">Lint Results</h2>
+                  <h2 className="text-sm font-semibold text-foreground">{t("formatter_lint_results")}</h2>
                   <p className="text-xs text-muted-foreground">
-                    Grouped by rule and severity
+                    {t("formatter_lint_grouped")}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="px-2 py-1 rounded border border-border bg-muted/50">
-                  {lintSummary.total} total
+                  {lintSummary.total} {t("formatter_lint_total")}
                 </span>
                 <span className="px-2 py-1 rounded border border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-300">
-                  {lintSummary.bySeverity.error} error
+                  {lintSummary.bySeverity.error} {t("formatter_lint_error")}
                 </span>
                 <span className="px-2 py-1 rounded border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-300">
-                  {lintSummary.bySeverity.warning} warning
+                  {lintSummary.bySeverity.warning} {t("formatter_lint_warning")}
                 </span>
                 <span className="px-2 py-1 rounded border border-blue-500/30 bg-blue-500/5 text-blue-700 dark:text-blue-300">
-                  {lintSummary.bySeverity.info} info
+                  {lintSummary.bySeverity.info} {t("formatter_lint_info")}
                 </span>
               </div>
             </div>
@@ -804,7 +807,7 @@ export function MarkdownFormatter() {
             <div className="p-4 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-3 py-2 text-xs">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <span>Selected</span>
+                  <span>{t("formatter_selected")}</span>
                   <span className="px-2 py-0.5 rounded border border-border bg-background text-foreground">
                     {selectedRuleIds.length}
                   </span>
@@ -817,7 +820,7 @@ export function MarkdownFormatter() {
                     disabled={!content || isFormatting}
                     className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
                   >
-                    Fix All
+                    {t("formatter_fix_all")}
                   </Button>
                   <Button
                     size="sm"
@@ -825,7 +828,7 @@ export function MarkdownFormatter() {
                     disabled={!content || isFormatting || selectedRuleIds.length === 0}
                     className="text-xs !bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
                   >
-                    Fix Selected
+                    {t("formatter_fix_selected")}
                   </Button>
                 </div>
               </div>
@@ -834,10 +837,10 @@ export function MarkdownFormatter() {
                 <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-6 text-center">
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-foreground">
-                      {result ? "No lint issues detected" : "Run Format to generate lint results"}
+                      {result ? t("formatter_no_lint_issues") : t("formatter_run_to_lint")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {result ? "Your current content passes all enabled rules." : "Lint results will appear after formatting."}
+                      {result ? t("formatter_passes_rules") : t("formatter_lint_hint")}
                     </p>
                   </div>
                 </div>
@@ -882,13 +885,15 @@ export function MarkdownFormatter() {
                                 {ruleId}
                               </span>
                               <span className="text-[10px] font-semibold">
-                                {items.length} issue{items.length !== 1 ? 's' : ''}
+                                {items.length === 1 
+                                  ? t("formatter_issue_count", { count: items.length })
+                                  : t("formatter_issues_count", { count: items.length })}
                               </span>
                             </div>
                             {selectedRuleIds.includes(ruleId as FormatRuleId) && (
                               <div className="mt-1 flex items-center gap-1 text-[10px] text-[var(--brand-blue)]">
                                 <Check className="h-3 w-3" />
-                                Selected
+                                {t("formatter_selected")}
                               </div>
                             )}
                             <p className="mt-1 text-[11px] text-muted-foreground">
@@ -917,12 +922,12 @@ export function MarkdownFormatter() {
                 {isFormatting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Formatting...
+                    {t("formatter_formatting")}
                   </>
                 ) : (
                   <>
                     <Wand2 className="h-4 w-4 mr-2" />
-                    Format
+                    {t("formatter_format")}
                   </>
                 )}
               </Button>
@@ -934,7 +939,7 @@ export function MarkdownFormatter() {
                   className="border-green-500 text-green-600 hover:bg-green-500/10"
                 >
                   <Check className="h-4 w-4 mr-2" />
-                  Apply Changes
+                  {t("formatter_apply")}
                 </Button>
               )}
               
@@ -945,7 +950,7 @@ export function MarkdownFormatter() {
                 className="border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
               >
                 <Undo2 className="h-4 w-4 mr-2" />
-                Undo
+                {t("formatter_undo")}
               </Button>
             </div>
             
@@ -953,7 +958,9 @@ export function MarkdownFormatter() {
               {stats && result?.hasChanges && (
                 <div className="flex items-center gap-2 text-sm">
                   <span className="px-2 py-1 rounded bg-primary/10 text-primary font-medium">
-                    {stats.rulesApplied} rule{stats.rulesApplied !== 1 ? 's' : ''} applied
+                    {stats.rulesApplied === 1 
+                      ? t("formatter_rule_applied", { count: stats.rulesApplied })
+                      : t("formatter_rules_applied", { count: stats.rulesApplied })}
                   </span>
                 </div>
               )}
@@ -961,7 +968,7 @@ export function MarkdownFormatter() {
               {/* Mode indicator */}
               {mode === "advanced" && (
                 <span className="text-xs px-2 py-1 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
-                  {enabledCount}/{ruleStates.length} rules
+                  {t("formatter_rules_count", { count: `${enabledCount}/${ruleStates.length}` })}
                 </span>
               )}
               
@@ -972,7 +979,7 @@ export function MarkdownFormatter() {
                 className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
               >
                 <Info className="h-3.5 w-3.5 mr-1" />
-                {showRules ? "Hide applied" : "Show applied"}
+                {showRules ? t("formatter_hide_applied") : t("formatter_show_applied")}
                 {showRules ? (
                   <ChevronUp className="h-3.5 w-3.5 ml-1" />
                 ) : (
@@ -987,7 +994,7 @@ export function MarkdownFormatter() {
             <div className="mt-4 pt-4 border-t border-border">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-foreground">
-                  {result?.appliedRules?.length ? 'Applied Rules' : 'Enabled Rules'}
+                  {result?.appliedRules?.length ? t("formatter_applied_rules") : t("formatter_enabled_rules")}
                 </h3>
                 {mode === "simple" && (
                   <Button
@@ -1000,7 +1007,7 @@ export function MarkdownFormatter() {
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     <Settings2 className="h-3.5 w-3.5 mr-1" />
-                    Customize rules
+                    {t("formatter_customize_rules")}
                   </Button>
                 )}
               </div>
@@ -1038,33 +1045,33 @@ export function MarkdownFormatter() {
 
         {/* Info Section */}
         <div className="rounded-xl border border-border bg-card/50 p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">About Markdown Formatter</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t("formatter_about_title")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
               <h3 className="font-medium text-foreground flex items-center gap-2">
                 <span className="h-5 w-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">✓</span>
-                Safe Formatting
+                {t("formatter_about_safe_title")}
               </h3>
               <p className="text-muted-foreground">
-                Only applies 100% safe fixes that won't change your content's meaning. Review all changes before applying.
+                {t("formatter_about_safe_desc")}
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-medium text-foreground flex items-center gap-2">
                 <span className="h-5 w-5 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">⚡</span>
-                Diff Preview
+                {t("formatter_about_diff_title")}
               </h3>
               <p className="text-muted-foreground">
-                See exactly what changes will be made with our side-by-side diff view. No surprises.
+                {t("formatter_about_diff_desc")}
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-medium text-foreground flex items-center gap-2">
                 <span className="h-5 w-5 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">↩</span>
-                Undo Support
+                {t("formatter_about_undo_title")}
               </h3>
               <p className="text-muted-foreground">
-                Made a mistake? Simply undo to restore your previous content. Full history support.
+                {t("formatter_about_undo_desc")}
               </p>
             </div>
           </div>
