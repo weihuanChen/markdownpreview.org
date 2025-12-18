@@ -20,6 +20,12 @@
   - DEFAULT_MARKDOWN 模板说明
   - 文案更新流程和风格指南
 
+- [Markdown Formatter 产品规划](./product/markdownlint.md) 🆕
+  - P1/P2/P3 功能落地清单
+  - Format vs Lint 产品策略
+  - Safe Fix 规则设计原则
+  - Sprint 计划建议
+
 ---
 
 ### 💻 开发 (Development) - `docs/dev/`
@@ -68,6 +74,13 @@
   - 错误处理机制
   - 代码实现细节
   - 国际化支持
+
+- [Markdown Formatter 页面架构](./dev/markdown-formatter-architecture.md) 🆕
+  - 技术架构设计与模块划分
+  - P1 任务清单（规则引擎 + 页面 UI + Undo/Apply）
+  - 核心接口设计（FormatRule / Snapshot）
+  - UI 布局设计
+  - P2/P3 规划预览
 
 ---
 
@@ -135,6 +148,13 @@
   - 支持的文件类型和大小限制
   - 用户体验优化
 
+#### Markdown Formatter 功能
+
+- **架构文档**: [docs/dev/markdown-formatter-architecture.md](./dev/markdown-formatter-architecture.md) 🆕
+  - P1 任务清单与里程碑
+  - 规则引擎接口设计
+  - 复用现有 Diff 基建方案
+
 #### 性能优化
 
 - **博客性能优化**: [docs/dev/blog-performance-fix.md](./dev/blog-performance-fix.md)
@@ -147,13 +167,13 @@
 
 | 类别 | 文档数量 |
 |-----|---------|
-| 产品 | 1 |
-| 开发 | 5 |
+| 产品 | 2 |
+| 开发 | 6 |
 | 部署 | 0 |
 | UI/设计 | 0 |
 | 优化 | 0 |
 | 测试 | 1 |
-| **总计** | **7** |
+| **总计** | **9** |
 
 ---
 
@@ -202,6 +222,11 @@
 
 ## 📅 更新日志
 
+### 2024-12-18
+
+- ✅ 添加 Markdown Formatter 页面架构文档（含 P1 任务清单）
+- ✅ 添加 Markdownlint 产品规划文档
+
 ### 2025-01-XX
 
 - ✅ 添加 Word Diff / Intraline Diff 实现难度评估文档
@@ -221,4 +246,4 @@
 ---
 
 **维护者**: 开发团队
-**最后更新**: 2025-12-15
+**最后更新**: 2024-12-18
