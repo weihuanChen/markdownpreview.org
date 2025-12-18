@@ -1,4 +1,4 @@
-export type Locale = 'ja' | 'en' | 'zh'
+export type Locale = 'ja' | 'en' | 'zh' | 'fr'
 
 export interface FAQItem {
   question: string

@@ -5,11 +5,13 @@ export const PRIVACY_PRIMARY_LOCALE: Locale = 'en'
 export const privacyMeta = {
   siteName: 'markdownpreview.org',
   contactEmail: 'support@markdownpreview.org',
-  lastUpdated: new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }),
+  // Use fixed date strings to avoid hydration mismatch
+  lastUpdated: {
+    en: 'December 18, 2025',
+    zh: '2025年12月18日',
+    ja: '2025年12月18日',
+    fr: '18 décembre 2025',
+  },
 }
 
 interface PrivacySection {
@@ -31,7 +33,7 @@ export interface PrivacyContent {
 const privacyContent: Record<Locale, PrivacyContent> = {
   en: {
     intro: `Welcome to ${privacyMeta.siteName} ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights.`,
-    lastUpdated: privacyMeta.lastUpdated,
+    lastUpdated: privacyMeta.lastUpdated.en,
     sections: [
       {
         title: '1. Introduction',
@@ -77,11 +79,7 @@ const privacyContent: Record<Locale, PrivacyContent> = {
   },
   zh: {
     intro: `欢迎访问 ${privacyMeta.siteName}（"我们"或"我们的"）。我们尊重您的隐私，并致力于保护您的个人数据。本隐私政策将告知您我们在您访问我们的网站时如何保护您的个人数据，并告知您您的隐私权利。`,
-    lastUpdated: new Date().toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }),
+    lastUpdated: privacyMeta.lastUpdated.zh,
     sections: [
       {
         title: '1. 介绍',
@@ -123,11 +121,7 @@ const privacyContent: Record<Locale, PrivacyContent> = {
   },
   ja: {
     intro: `${privacyMeta.siteName}（"当社"、"私たち"）へようこそ。当社はお客様のプライバシーを尊重し、個人データの保護に取り組んでいます。本プライバシーポリシーは、お客様が当社のウェブサイトを訪問する際に、当社がお客様の個人データをどのように保護するか、およびお客様のプライバシー権利について説明します。`,
-    lastUpdated: new Date().toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }),
+    lastUpdated: privacyMeta.lastUpdated.ja,
     sections: [
       {
         title: '1. はじめに',
@@ -165,6 +159,48 @@ const privacyContent: Record<Locale, PrivacyContent> = {
     contact: {
       email: privacyMeta.contactEmail,
       note: '本プライバシーポリシーに関するご質問がございましたら、お問い合わせください。',
+    },
+  },
+  fr: {
+    intro: `Bienvenue sur ${privacyMeta.siteName} (« nous », « notre »). Nous respectons votre vie privée et nous engageons à protéger vos données personnelles. Cette politique de confidentialité vous informera de la manière dont nous protégeons vos données personnelles lorsque vous visitez notre site web et vous informera de vos droits en matière de confidentialité.`,
+    lastUpdated: privacyMeta.lastUpdated.fr,
+    sections: [
+      {
+        title: '1. Introduction',
+        paragraphs: [
+          `Bienvenue sur ${privacyMeta.siteName} (« nous », « notre »). Nous respectons votre vie privée et nous engageons à protéger vos données personnelles. Cette politique de confidentialité vous informera de la manière dont nous protégeons vos données personnelles lorsque vous visitez notre site web et vous informera de vos droits en matière de confidentialité.`,
+        ],
+      },
+      {
+        title: '2. Données que nous collectons',
+        paragraphs: ['En tant que développeur individuel exploitant ce site, je m\'efforce de collecter un minimum de données :'],
+        bullets: [
+          'Données d\'utilisation : Nous pouvons utiliser des outils (comme Google Analytics ou Vercel Analytics) pour collecter des données anonymes sur la façon dont vous utilisez notre site web.',
+          'Cookies : Nous utilisons des cookies pour améliorer votre expérience.',
+        ],
+      },
+      {
+        title: '3. Comment nous utilisons vos données',
+        paragraphs: ['Nous utilisons vos données pour :'],
+        bullets: [
+          'Fournir et maintenir le service.',
+          'Surveiller l\'utilisation du service.',
+          'Détecter, prévenir et résoudre les problèmes techniques.',
+        ],
+      },
+      {
+        title: '4. Services tiers',
+        paragraphs: ['Nous pouvons utiliser des prestataires de services tiers pour surveiller et analyser l\'utilisation de notre service :'],
+        bullets: [
+          'Google Analytics : [Ajouter le lien si utilisé]',
+          'Vercel : [Ajouter le lien si utilisé]',
+          'Cloudflare : [Ajouter le lien si utilisé]',
+        ],
+      },
+    ],
+    contact: {
+      email: privacyMeta.contactEmail,
+      note: 'Si vous avez des questions concernant cette politique de confidentialité, veuillez me contacter.',
     },
   },
 }

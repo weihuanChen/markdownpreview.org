@@ -133,6 +133,42 @@ const supportContent: Record<Locale, SupportContent> = {
       note: '注意：プライバシーを尊重します。メールアドレスはお問い合わせへの返信にのみ使用され、共有されることはありません。',
     },
   },
+  fr: {
+    intro: `Bonjour ! 👋 Merci d'utiliser <strong>${supportMeta.siteName}</strong>.`,
+    sections: [
+      {
+        title: '📮 Comment me contacter',
+        paragraphs: [
+          'Comme je gère ce projet seul, je n\'ai pas d\'équipe de support 24h/24, mais je consulte mes e-mails tous les jours.',
+        ],
+        bullets: [
+          `E-mail : ${supportMeta.contactEmail}`,
+          'Délai de réponse : Généralement dans les 24-48 heures.',
+          'Langues : N\'hésitez pas à écrire en <strong>anglais</strong> ou en <strong>chinois</strong>.',
+        ],
+      },
+      {
+        title: '🐛 Signaler un bug ?',
+        paragraphs: ['Pour m\'aider à résoudre les problèmes plus rapidement, veuillez inclure :'],
+        bullets: [
+          'Appareil et navigateur (ex. : iPhone / Chrome sur Windows).',
+          'Une capture d\'écran ou une brève description de ce qui s\'est passé.',
+        ],
+      },
+      {
+        title: '💡 Une suggestion de fonctionnalité ?',
+        paragraphs: [
+          'Beaucoup des fonctionnalités actuelles proviennent de suggestions d\'utilisateurs ! Si vous pensez qu\'il manque quelque chose, faites-le moi savoir. Je construis cet outil pour vous.',
+        ],
+      },
+    ],
+    contact: {
+      email: supportMeta.contactEmail,
+      responseTime: 'Généralement dans les 24-48 heures.',
+      languages: 'N\'hésitez pas à écrire en <strong>anglais</strong> ou en <strong>chinois</strong>.',
+      note: 'Note : Je respecte votre vie privée. Votre adresse e-mail sera uniquement utilisée pour répondre à votre demande et ne sera jamais partagée.',
+    },
+  },
 }
 
 export function getSupportContent(locale: Locale): SupportContent {

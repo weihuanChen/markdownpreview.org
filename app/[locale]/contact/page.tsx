@@ -14,6 +14,17 @@ export async function generateMetadata({ params }: ContactPageProps) {
   return {
     title: t("contact_meta_title"),
     description: t("contact_meta_description"),
+    robots: {
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   }
 }
 

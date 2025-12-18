@@ -16,6 +16,17 @@ export async function generateMetadata({ params }: SupportPageProps) {
   return {
     title: t("support_meta_title"),
     description: t("support_meta_description"),
+    robots: {
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   }
 }
 

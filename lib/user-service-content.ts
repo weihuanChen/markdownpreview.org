@@ -279,6 +279,90 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       note: '本規約に関するお問い合わせには可能な限り迅速に対応します。',
     },
   },
+  fr: {
+    intro: `Bienvenue sur les services fournis par ${userServiceMeta.siteName} (le « Site »). Veuillez lire attentivement ce Contrat de Service Utilisateur (« Contrat ») avant d'utiliser le Site.`,
+    summary:
+      'En accédant ou en utilisant une partie des services, vous acceptez d\'être lié par ce Contrat. Si vous n\'êtes pas d\'accord, veuillez cesser immédiatement l\'utilisation.',
+    effectiveDate: '25 novembre 2025',
+    sections: [
+      {
+        title: '1. Contrat et Modifications',
+        paragraphs: [
+          'Ce Contrat constitue l\'accord intégral entre vous et le Site concernant l\'utilisation des services.',
+          'Nous pouvons modifier ce Contrat à notre discrétion en publiant des mises à jour sur le Site. L\'utilisation continue après les modifications signifie que vous acceptez les nouvelles conditions.',
+        ],
+      },
+      {
+        title: '2. Description des Services',
+        paragraphs: [
+          'Le Site fournit des outils en ligne, du contenu, la navigation d\'informations et des services réseau connexes (collectivement, les « Services »).',
+          'Nous pouvons modifier, suspendre ou interrompre toute partie des Services à tout moment sans préavis ni responsabilité.',
+          'Le contenu et les résultats sont fournis à titre informatif ou auxiliaire uniquement ; nous ne garantissons pas leur exactitude, exhaustivité ou fiabilité.',
+        ],
+      },
+      {
+        title: '3. Responsabilités de l\'Utilisateur',
+        paragraphs: [
+          'Utilisez les Services uniquement comme autorisé par ce Contrat et les lois applicables.',
+          'Vous êtes responsable de tout contenu que vous soumettez ou publiez via les Services.',
+        ],
+        bullets: [
+          'Ne téléchargez pas ou ne partagez pas de contenu qui viole les lois, met en danger la sécurité publique ou nuit à autrui.',
+          'Évitez les contenus diffamatoires, obscènes, violents ou incitant à des activités criminelles.',
+          'Ne portez pas atteinte à la propriété intellectuelle, à la vie privée ou aux autres droits légaux de tiers.',
+          'N\'interférez pas avec les Services, ne tentez pas d\'accès non autorisé, ne distribuez pas de logiciels malveillants et ne surchargez pas l\'infrastructure.',
+          'Vous acceptez d\'indemniser et de dégager le Site de toute responsabilité en cas de réclamations découlant de votre violation de ce Contrat ou de la loi.',
+        ],
+      },
+      {
+        title: '4. Confidentialité et Données',
+        paragraphs: [
+          'Nous respectons votre vie privée. Nous pouvons collecter des informations personnelles et non personnelles pour fournir, maintenir et améliorer les Services.',
+          'Veuillez consulter la Politique de Confidentialité séparée pour plus de détails sur la collecte, l\'utilisation et la protection des données.',
+          'Nous pouvons collecter automatiquement des données non personnelles (ex. : IP, navigateur, appareil) à des fins d\'analyse et de sécurité, et pouvons utiliser des cookies pour améliorer votre expérience.',
+        ],
+      },
+      {
+        title: '5. Clause de Non-Responsabilité',
+        paragraphs: [
+          'Les Services sont fournis « en l\'état » et « selon disponibilité » sans aucune garantie, expresse ou implicite.',
+          'Vous utilisez les Services à vos propres risques. Nous ne sommes pas responsables des pertes de données, erreurs de programme ou pannes système résultant de l\'utilisation.',
+          'Les liens vers des sites tiers sont fournis pour votre commodité ; nous ne sommes pas responsables de leur contenu, sécurité ou pratiques.',
+        ],
+      },
+      {
+        title: '6. Limitation de Responsabilité',
+        paragraphs: [
+          'Dans toute la mesure permise par la loi, le Site n\'est pas responsable des dommages directs, indirects, accessoires, spéciaux, punitifs ou consécutifs découlant de l\'utilisation des Services.',
+          'Si une responsabilité est établie, notre responsabilité totale est limitée au moindre de 100 USD ou du montant que vous avez payé pour les Services au cours des six mois précédant la réclamation (le cas échéant).',
+        ],
+      },
+      {
+        title: '7. Propriété Intellectuelle',
+        paragraphs: [
+          'Tout le contenu du Site, y compris les textes, graphiques, logos, logiciels et outils, appartient au Site ou à ses fournisseurs de contenu et est protégé par les lois applicables.',
+          'Vous recevez une licence limitée, non exclusive et non transférable pour accéder et utiliser les Services. Ne copiez pas, ne modifiez pas, ne vendez pas, ne louez pas, ne distribuez pas, ne procédez pas à l\'ingénierie inverse ou à la décompilation de tout contenu ou logiciel.',
+        ],
+      },
+      {
+        title: '8. Loi Applicable et Juridiction',
+        paragraphs: [
+          'Ce Contrat est régi par les lois de la juridiction où l\'opérateur du Site est situé, sans égard aux principes de conflit de lois.',
+          'Tout litige découlant de ce Contrat ou s\'y rapportant sera d\'abord résolu par négociation de bonne foi. Si la négociation échoue, les parties conviennent de soumettre le litige aux tribunaux compétents du lieu de l\'opérateur.',
+        ],
+      },
+      {
+        title: '9. Coordonnées',
+        paragraphs: ['Si vous avez des questions concernant ce Contrat, veuillez nous contacter.'],
+        bullets: [`E-mail : ${userServiceMeta.contactEmail}`, `Site web : ${userServiceMeta.siteName}`],
+      },
+    ],
+    contact: {
+      email: userServiceMeta.contactEmail,
+      site: userServiceMeta.siteName,
+      note: 'Nous répondons aux demandes relatives à ce Contrat dans les meilleurs délais.',
+    },
+  },
 }
 
 export function getUserServiceContent(locale: Locale): UserServiceContent {

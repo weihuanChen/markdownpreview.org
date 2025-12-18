@@ -16,6 +16,17 @@ export async function generateMetadata({ params }: PrivacyPageProps) {
   return {
     title: t("privacy_meta_title"),
     description: t("privacy_meta_description"),
+    robots: {
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   }
 }
 
