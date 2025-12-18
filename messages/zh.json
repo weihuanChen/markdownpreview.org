@@ -204,6 +204,7 @@
   "blog_related": "相关文章",
   "blog_no_posts": "暂无文章",
   "blog_locale_in_progress": "对应语言的博客正在编写中，敬请期待。",
+  "blog_missing_translation_notice": "该文章暂无对应语言版本，先看看本语言的其他博客吧。",
   "blog_total_posts": "共{count}篇文章",
   "blog_cta_title": "立即体验 Markdown 编辑器",
   "blog_cta_description": "使用我们功能强大的免费在线 Markdown 编辑器，享受实时预览、语法高亮和数学公式支持，让您的文档创作更高效。",

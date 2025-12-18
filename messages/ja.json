@@ -204,6 +204,7 @@
   "blog_related": "関連記事",
   "blog_no_posts": "記事が見つかりません",
   "blog_locale_in_progress": "この言語のブログ記事を準備中です。しばらくお待ちください。",
+  "blog_missing_translation_notice": "この記事はこの言語ではまだ公開されていません。別の投稿をご覧ください。",
   "blog_total_posts": "全{count}件",
   "blog_cta_title": "Markdownエディターを今すぐ試してみませんか？",
   "blog_cta_description": "リアルタイムプレビュー、シンタックスハイライト、数式サポートなど、強力な機能を備えた無料のオンラインMarkdownエディターで、あなたの文書作成を効率化しましょう。",

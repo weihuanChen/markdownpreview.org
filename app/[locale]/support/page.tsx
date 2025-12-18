@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { Disclaimer } from "@/components/disclaimer"
 import { getSupportContent, SUPPORT_PRIMARY_LOCALE } from "@/lib/support-content"
 import type { Locale } from "@/lib/types"
+import { defaultLocale } from "@/i18n"
 
 interface SupportPageProps {
   params: Promise<{ locale: Locale }>
@@ -12,15 +13,31 @@ interface SupportPageProps {
 export async function generateMetadata({ params }: SupportPageProps) {
   const { locale } = await params
   const t = await getTranslations({ locale })
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+
+  const buildPath = (loc: string, path: string = '') =>
+    loc === defaultLocale ? path : `/${loc}${path}`
+
+  const canonicalUrl = `${baseUrl}${buildPath(locale, '/support')}`
 
   return {
     title: t("support_meta_title"),
     description: t("support_meta_description"),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'ja': `${baseUrl}/support`,
+        'en': `${baseUrl}/en/support`,
+        'zh': `${baseUrl}/zh/support`,
+        'fr': `${baseUrl}/fr/support`,
+        'x-default': `${baseUrl}/support`,
+      },
+    },
     robots: {
-      index: false,
+      index: true,
       follow: true,
       googleBot: {
-        index: false,
+        index: true,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",

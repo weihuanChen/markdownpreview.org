@@ -396,6 +396,10 @@ async function getPostBySlugInternal(
 
     const translation = translations[0]
 
+    if (locale !== defaultLocale && !translation) {
+      return null
+    }
+
     return transformDirectusPost(post, translation, locale, tagMap)
   } catch (error) {
     console.error('Error fetching post by slug:', error)

@@ -204,6 +204,7 @@
   "blog_related": "Articles connexes",
   "blog_no_posts": "Aucun article trouvé",
   "blog_locale_in_progress": "Nous rédigeons des articles de blog dans cette langue. Revenez bientôt.",
+  "blog_missing_translation_notice": "Cet article n’est pas encore disponible dans cette langue. Voici d’autres articles dans cette langue.",
   "blog_total_posts": "Total {count} article(s)",
   "blog_cta_title": "Prêt à essayer notre éditeur Markdown ?",
   "blog_cta_description": "Découvrez la puissance de l'aperçu en temps réel, de la coloration syntaxique et du support mathématique avec notre éditeur Markdown en ligne gratuit. Simplifiez la création de vos documents dès aujourd'hui.",
@@ -260,4 +261,3 @@
   "related_tools_guides_description": "Guides pratiques pour README, tableaux, blocs de code et astuces Markdown à essayer dans l'éditeur.",
   "related_tools_guides_link": "Lire les guides"
 }
-

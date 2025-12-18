@@ -20,7 +20,7 @@ export default createMiddleware({
   localePrefix: 'as-needed',
 
   // 禁用自动语言检测，始终使用默认语言 ja
-  localeDetection: true,
+  localeDetection: false,
 });
 
 export const config = {

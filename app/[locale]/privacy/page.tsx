@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { Disclaimer } from "@/components/disclaimer"
 import { getPrivacyContent, PRIVACY_PRIMARY_LOCALE } from "@/lib/privacy-content"
 import type { Locale } from "@/lib/types"
+import { defaultLocale } from "@/i18n"
 
 interface PrivacyPageProps {
   params: Promise<{ locale: Locale }>
@@ -12,15 +13,31 @@ interface PrivacyPageProps {
 export async function generateMetadata({ params }: PrivacyPageProps) {
   const { locale } = await params
   const t = await getTranslations({ locale })
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+
+  const buildPath = (loc: string, path: string = '') =>
+    loc === defaultLocale ? path : `/${loc}${path}`
+
+  const canonicalUrl = `${baseUrl}${buildPath(locale, '/privacy')}`
 
   return {
     title: t("privacy_meta_title"),
     description: t("privacy_meta_description"),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'ja': `${baseUrl}/privacy`,
+        'en': `${baseUrl}/en/privacy`,
+        'zh': `${baseUrl}/zh/privacy`,
+        'fr': `${baseUrl}/fr/privacy`,
+        'x-default': `${baseUrl}/privacy`,
+      },
+    },
     robots: {
-      index: false,
+      index: true,
       follow: true,
       googleBot: {
-        index: false,
+        index: true,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",

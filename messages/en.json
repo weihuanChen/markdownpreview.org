@@ -204,6 +204,7 @@
   "blog_related": "Related Articles",
   "blog_no_posts": "No articles found",
   "blog_locale_in_progress": "We're writing blog posts in this language. Please check back soon.",
+  "blog_missing_translation_notice": "This article is not available in this language yet. Here are other posts in this language.",
   "blog_total_posts": "Total {count} article(s)",
   "blog_cta_title": "Ready to Try Our Markdown Editor?",
   "blog_cta_description": "Experience the power of real-time preview, syntax highlighting, and math support with our free online Markdown editor. Streamline your document creation today.",

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server"
 
 import { ContactForm } from "@/components/contact-form"
 import type { Locale } from "@/lib/types"
+import { defaultLocale } from "@/i18n"
 
 interface ContactPageProps {
   params: Promise<{ locale: Locale }>
@@ -10,15 +11,31 @@ interface ContactPageProps {
 export async function generateMetadata({ params }: ContactPageProps) {
   const { locale } = await params
   const t = await getTranslations({ locale })
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+
+  const buildPath = (loc: string, path: string = '') =>
+    loc === defaultLocale ? path : `/${loc}${path}`
+
+  const canonicalUrl = `${baseUrl}${buildPath(locale, '/contact')}`
 
   return {
     title: t("contact_meta_title"),
     description: t("contact_meta_description"),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'ja': `${baseUrl}/contact`,
+        'en': `${baseUrl}/en/contact`,
+        'zh': `${baseUrl}/zh/contact`,
+        'fr': `${baseUrl}/fr/contact`,
+        'x-default': `${baseUrl}/contact`,
+      },
+    },
     robots: {
-      index: false,
+      index: true,
       follow: true,
       googleBot: {
-        index: false,
+        index: true,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",

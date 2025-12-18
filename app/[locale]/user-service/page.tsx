@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { Disclaimer } from "@/components/disclaimer"
 import { getUserServiceContent, USER_SERVICE_PRIMARY_LOCALE } from "@/lib/user-service-content"
 import type { Locale } from "@/lib/types"
+import { defaultLocale } from "@/i18n"
 
 interface UserServicePageProps {
   params: Promise<{ locale: Locale }>
@@ -12,15 +13,31 @@ interface UserServicePageProps {
 export async function generateMetadata({ params }: UserServicePageProps) {
   const { locale } = await params
   const t = await getTranslations({ locale })
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+
+  const buildPath = (loc: string, path: string = '') =>
+    loc === defaultLocale ? path : `/${loc}${path}`
+
+  const canonicalUrl = `${baseUrl}${buildPath(locale, '/user-service')}`
 
   return {
     title: t("user_service_meta_title"),
     description: t("user_service_meta_description"),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'ja': `${baseUrl}/user-service`,
+        'en': `${baseUrl}/en/user-service`,
+        'zh': `${baseUrl}/zh/user-service`,
+        'fr': `${baseUrl}/fr/user-service`,
+        'x-default': `${baseUrl}/user-service`,
+      },
+    },
     robots: {
-      index: false,
+      index: true,
       follow: true,
       googleBot: {
-        index: false,
+        index: true,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",

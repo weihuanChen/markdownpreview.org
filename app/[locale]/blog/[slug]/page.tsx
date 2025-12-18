@@ -4,7 +4,7 @@ import { MarkdownPreview } from '@/components/markdown-preview'
 import { Toc } from '@/components/blog/toc'
 import { BlogCTA } from '@/components/blog/blog-cta'
 import { Calendar, Clock, User, Tag, ArrowLeft } from 'lucide-react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/navigation'
 import { Button } from '@/components/ui/button'
@@ -71,6 +71,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const post = await getCachedPost(resolvedParams.slug, resolvedParams.locale)
 
     if (!post) {
+      if (resolvedParams.locale !== defaultLocale) {
+        redirect(`/${resolvedParams.locale}/blog?missing=1`)
+      }
       notFound()
     }
 
@@ -231,6 +234,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   )
   } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error &&
+      'digest' in error &&
+      typeof (error as { digest?: string }).digest === 'string' &&
+      ((error as { digest: string }).digest.startsWith('NEXT_REDIRECT') ||
+        (error as { digest: string }).digest.startsWith('NEXT_NOT_FOUND'))
+    ) {
+      throw error
+    }
+
     console.error('Error in BlogPostPage:', error)
     // 如果发生错误，返回 404 而不是 500
     notFound()
