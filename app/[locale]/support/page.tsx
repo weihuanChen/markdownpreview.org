@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: SupportPageProps) {
         'en': `${baseUrl}/en/support`,
         'zh': `${baseUrl}/zh/support`,
         'fr': `${baseUrl}/fr/support`,
+        'es': `${baseUrl}/es/support`,
         'x-default': `${baseUrl}/support`,
       },
     },

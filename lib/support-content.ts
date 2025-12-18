@@ -169,6 +169,42 @@ const supportContent: Record<Locale, SupportContent> = {
       note: 'Note : Je respecte votre vie privée. Votre adresse e-mail sera uniquement utilisée pour répondre à votre demande et ne sera jamais partagée.',
     },
   },
+  es: {
+    intro: `¡Hola! 👋 Gracias por usar <strong>${supportMeta.siteName}</strong>.`,
+    sections: [
+      {
+        title: '📮 Cómo contactarme',
+        paragraphs: [
+          'Como gestiono este proyecto solo, no tengo un equipo de soporte 24/7, pero reviso mis correos todos los días.',
+        ],
+        bullets: [
+          `Correo electrónico: ${supportMeta.contactEmail}`,
+          'Tiempo de respuesta: Generalmente dentro de 24-48 horas.',
+          'Idiomas: No dudes en escribir en <strong>inglés</strong> o <strong>chino</strong>.',
+        ],
+      },
+      {
+        title: '🐛 ¿Reportar un error?',
+        paragraphs: ['Para ayudarme a solucionar problemas más rápido, por favor incluye:'],
+        bullets: [
+          'Dispositivo y navegador (ej.: iPhone / Chrome en Windows).',
+          'Una captura de pantalla o una breve descripción de lo que sucedió.',
+        ],
+      },
+      {
+        title: '💡 ¿Tienes una sugerencia de función?',
+        paragraphs: [
+          '¡Muchas de las funciones actuales provienen de sugerencias de usuarios! Si crees que falta algo, házmelo saber. Construyo esta herramienta para ti.',
+        ],
+      },
+    ],
+    contact: {
+      email: supportMeta.contactEmail,
+      responseTime: 'Generalmente dentro de 24-48 horas.',
+      languages: 'No dudes en escribir en <strong>inglés</strong> o <strong>chino</strong>.',
+      note: 'Nota: Respeto tu privacidad. Tu dirección de correo electrónico solo se utilizará para responder a tu consulta y nunca será compartida.',
+    },
+  },
 }
 
 export function getSupportContent(locale: Locale): SupportContent {

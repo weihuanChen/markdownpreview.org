@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: UserServicePageProps) {
         'en': `${baseUrl}/en/user-service`,
         'zh': `${baseUrl}/zh/user-service`,
         'fr': `${baseUrl}/fr/user-service`,
+        'es': `${baseUrl}/es/user-service`,
         'x-default': `${baseUrl}/user-service`,
       },
     },

@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: ContactPageProps) {
         'en': `${baseUrl}/en/contact`,
         'zh': `${baseUrl}/zh/contact`,
         'fr': `${baseUrl}/fr/contact`,
+        'es': `${baseUrl}/es/contact`,
         'x-default': `${baseUrl}/contact`,
       },
     },

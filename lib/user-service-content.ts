@@ -363,6 +363,90 @@ const userServiceContent: Record<Locale, UserServiceContent> = {
       note: 'Nous répondons aux demandes relatives à ce Contrat dans les meilleurs délais.',
     },
   },
+  es: {
+    intro: `Bienvenido a los servicios proporcionados por ${userServiceMeta.siteName} (el "Sitio Web"). Por favor, lee atentamente este Acuerdo de Servicio de Usuario ("Acuerdo") antes de utilizar el Sitio Web.`,
+    summary:
+      'Al acceder o utilizar cualquier parte de los servicios, aceptas estar sujeto a este Acuerdo. Si no estás de acuerdo, por favor deja de usarlo inmediatamente.',
+    effectiveDate: '25 de noviembre de 2025',
+    sections: [
+      {
+        title: '1. Acuerdo y Modificaciones',
+        paragraphs: [
+          'Este Acuerdo constituye el acuerdo completo entre tú y el Sitio Web respecto al uso de los servicios.',
+          'Podemos modificar este Acuerdo a nuestra discreción publicando actualizaciones en el Sitio Web. El uso continuado después de los cambios significa que aceptas los nuevos términos.',
+        ],
+      },
+      {
+        title: '2. Descripción de los Servicios',
+        paragraphs: [
+          'El Sitio Web proporciona herramientas en línea, contenido, navegación de información y servicios de red relacionados (colectivamente, los "Servicios").',
+          'Podemos cambiar, suspender o discontinuar cualquier parte de los Servicios en cualquier momento sin previo aviso ni responsabilidad.',
+          'El contenido y los resultados se proporcionan únicamente con fines informativos o auxiliares; no garantizamos su exactitud, integridad o fiabilidad.',
+        ],
+      },
+      {
+        title: '3. Responsabilidades del Usuario',
+        paragraphs: [
+          'Utiliza los Servicios solo según lo permitido por este Acuerdo y las leyes aplicables.',
+          'Eres responsable de cualquier contenido que envíes o publiques a través de los Servicios.',
+        ],
+        bullets: [
+          'No subas ni compartas contenido que viole las leyes, ponga en peligro la seguridad pública o perjudique a otros.',
+          'Evita material difamatorio, obsceno, violento o que incite a actividades criminales.',
+          'No infrinjas la propiedad intelectual, privacidad u otros derechos legales de terceros.',
+          'No interfieras ni interrumpas los Servicios, intentes acceso no autorizado, distribuyas malware ni sobrecargues la infraestructura.',
+          'Aceptas indemnizar y mantener indemne al Sitio Web de reclamaciones derivadas de tu violación de este Acuerdo o la ley.',
+        ],
+      },
+      {
+        title: '4. Privacidad y Datos',
+        paragraphs: [
+          'Respetamos tu privacidad. Podemos recopilar información personal y no personal para proporcionar, mantener y mejorar los Servicios.',
+          'Por favor, revisa la Política de Privacidad separada para obtener detalles sobre cómo se recopilan, utilizan y protegen los datos.',
+          'Podemos recopilar automáticamente datos no personales (ej.: IP, navegador, dispositivo) para análisis y seguridad, y podemos usar cookies para mejorar tu experiencia.',
+        ],
+      },
+      {
+        title: '5. Exención de Responsabilidad',
+        paragraphs: [
+          'Los Servicios se proporcionan "tal cual" y "según disponibilidad" sin garantías de ningún tipo, expresas o implícitas.',
+          'Utilizas los Servicios bajo tu propia discreción y riesgo. No somos responsables de la pérdida de datos, errores de programa o fallos del sistema derivados del uso.',
+          'Los enlaces a sitios web de terceros se proporcionan por conveniencia; no somos responsables de su contenido, seguridad o prácticas.',
+        ],
+      },
+      {
+        title: '6. Limitación de Responsabilidad',
+        paragraphs: [
+          'En la máxima medida permitida por la ley, el Sitio Web no es responsable de ningún daño directo, indirecto, incidental, especial, punitivo o consecuente derivado del uso de los Servicios.',
+          'Si se determina responsabilidad, nuestra responsabilidad total se limita al menor de 100 USD o la cantidad que hayas pagado por los Servicios en los seis meses anteriores a la reclamación (si corresponde).',
+        ],
+      },
+      {
+        title: '7. Propiedad Intelectual',
+        paragraphs: [
+          'Todo el contenido del Sitio Web, incluyendo texto, gráficos, logotipos, software y herramientas, es propiedad del Sitio Web o sus proveedores de contenido y está protegido por las leyes aplicables.',
+          'Recibes una licencia limitada, no exclusiva e intransferible para acceder y usar los Servicios. No copies, modifiques, vendas, alquiles, distribuyas, realices ingeniería inversa ni descompiles ninguna parte del contenido o software.',
+        ],
+      },
+      {
+        title: '8. Ley Aplicable y Jurisdicción',
+        paragraphs: [
+          'Este Acuerdo se regirá por las leyes de la jurisdicción donde se encuentre el operador del Sitio Web, sin tener en cuenta sus disposiciones sobre conflicto de leyes.',
+          'Cualquier disputa que surja de o esté relacionada con este Acuerdo se resolverá primero mediante negociación de buena fe. Si la negociación falla, las partes acuerdan someter la disputa a los tribunales competentes de la ubicación del operador.',
+        ],
+      },
+      {
+        title: '9. Información de Contacto',
+        paragraphs: ['Si tienes preguntas sobre este Acuerdo, por favor contáctanos.'],
+        bullets: [`Correo electrónico: ${userServiceMeta.contactEmail}`, `Sitio web: ${userServiceMeta.siteName}`],
+      },
+    ],
+    contact: {
+      email: userServiceMeta.contactEmail,
+      site: userServiceMeta.siteName,
+      note: 'Respondemos a las consultas relacionadas con este Acuerdo lo antes posible.',
+    },
+  },
 }
 
 export function getUserServiceContent(locale: Locale): UserServiceContent {

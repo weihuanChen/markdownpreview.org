@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: PrivacyPageProps) {
         'en': `${baseUrl}/en/privacy`,
         'zh': `${baseUrl}/zh/privacy`,
         'fr': `${baseUrl}/fr/privacy`,
+        'es': `${baseUrl}/es/privacy`,
         'x-default': `${baseUrl}/privacy`,
       },
     },

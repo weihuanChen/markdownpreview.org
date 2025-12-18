@@ -11,6 +11,7 @@ export const privacyMeta = {
     zh: '2025年12月18日',
     ja: '2025年12月18日',
     fr: '18 décembre 2025',
+    es: '18 de diciembre de 2025',
   },
 }
 
@@ -201,6 +202,48 @@ const privacyContent: Record<Locale, PrivacyContent> = {
     contact: {
       email: privacyMeta.contactEmail,
       note: 'Si vous avez des questions concernant cette politique de confidentialité, veuillez me contacter.',
+    },
+  },
+  es: {
+    intro: `Bienvenido a ${privacyMeta.siteName} ("nosotros", "nuestro"). Respetamos tu privacidad y estamos comprometidos a proteger tus datos personales. Esta política de privacidad te informará sobre cómo protegemos tus datos personales cuando visitas nuestro sitio web y te informará sobre tus derechos de privacidad.`,
+    lastUpdated: privacyMeta.lastUpdated.es,
+    sections: [
+      {
+        title: '1. Introducción',
+        paragraphs: [
+          `Bienvenido a ${privacyMeta.siteName} ("nosotros", "nuestro"). Respetamos tu privacidad y estamos comprometidos a proteger tus datos personales. Esta política de privacidad te informará sobre cómo protegemos tus datos personales cuando visitas nuestro sitio web y te informará sobre tus derechos de privacidad.`,
+        ],
+      },
+      {
+        title: '2. Datos que recopilamos',
+        paragraphs: ['Como desarrollador individual que opera este sitio, me esfuerzo por recopilar la mínima cantidad de datos:'],
+        bullets: [
+          'Datos de uso: Podemos utilizar herramientas (como Google Analytics o Vercel Analytics) para recopilar datos anónimos sobre cómo utilizas nuestro sitio web.',
+          'Cookies: Utilizamos cookies para mejorar tu experiencia.',
+        ],
+      },
+      {
+        title: '3. Cómo utilizamos tus datos',
+        paragraphs: ['Utilizamos tus datos para:'],
+        bullets: [
+          'Proporcionar y mantener el servicio.',
+          'Monitorear el uso del servicio.',
+          'Detectar, prevenir y abordar problemas técnicos.',
+        ],
+      },
+      {
+        title: '4. Servicios de terceros',
+        paragraphs: ['Podemos utilizar proveedores de servicios de terceros para monitorear y analizar el uso de nuestro servicio:'],
+        bullets: [
+          'Google Analytics: [Añadir enlace si se utiliza]',
+          'Vercel: [Añadir enlace si se utiliza]',
+          'Cloudflare: [Añadir enlace si se utiliza]',
+        ],
+      },
+    ],
+    contact: {
+      email: privacyMeta.contactEmail,
+      note: 'Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contáctame.',
     },
   },
 }

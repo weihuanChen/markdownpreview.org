@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getRequestConfig } from 'next-intl/server';
 
 // 支持的语言列表
-export const locales = ['ja', 'en', 'zh', 'fr'] as const;
+export const locales = ['ja', 'en', 'zh', 'fr', 'es'] as const;
 export type Locale = (typeof locales)[number];
 
 // 默认语言
