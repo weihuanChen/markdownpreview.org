@@ -38,6 +38,7 @@ export {
   allRules,
   getRuleStats,
   presets,
+  presetMeta,
   type PresetName,
   // 分类规则
   whitespaceRules,

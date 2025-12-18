@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { Diff, Decoration, Hunk, markEdits, tokenize } from "react-diff-view"
 import "react-diff-view/style/index.css"
-import { parseDiff } from "gitdiff-parser"
+import { parse as parseDiff } from "gitdiff-parser"
 import {
   Wand2,
   Check,
@@ -18,12 +18,16 @@ import {
   ChevronUp,
   Info,
   CheckCircle2,
+  Settings2,
+  Sparkles,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
-import { useFormatter } from "@/hooks/use-formatter"
-import { allRules, type FormatRuleId } from "@/lib/formatter"
+import { useFormatter, type FormatterMode } from "@/hooks/use-formatter"
+import { allRules, presets, presetMeta, type FormatRuleId, type PresetName, type RuleCategory } from "@/lib/formatter"
 
 // 动态导入编辑器和预览组件
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
@@ -177,6 +181,18 @@ function createUnifiedDiff(original: string, formatted: string): string {
 // 主组件
 // ============================================================================
 
+// 规则分类信息
+const RULE_CATEGORIES: { id: RuleCategory; label: string; icon: string }[] = [
+  { id: 'whitespace', label: 'Whitespace', icon: '⎵' },
+  { id: 'heading', label: 'Headings', icon: '#' },
+  { id: 'list', label: 'Lists', icon: '•' },
+  { id: 'blockquote', label: 'Blockquotes', icon: '>' },
+  { id: 'code', label: 'Code', icon: '`' },
+]
+
+// 预设顺序
+const PRESET_ORDER: PresetName[] = ['standard', 'github', 'writing', 'strict']
+
 export function MarkdownFormatter() {
   const { theme } = useTheme()
   
@@ -191,6 +207,15 @@ export function MarkdownFormatter() {
     canUndo,
     isFormatting,
     hasUnsavedChanges,
+    // 新增：模式和规则管理
+    mode,
+    setMode,
+    ruleStates,
+    toggleRule,
+    enableAllRules,
+    disableAllRules,
+    currentPreset,
+    applyPreset,
   } = useFormatter({ initialContent: "" })
   
   // UI 状态
@@ -198,6 +223,7 @@ export function MarkdownFormatter() {
   const [showRules, setShowRules] = useState(false)
   const [copied, setCopied] = useState(false)
   const [diffType, setDiffType] = useState<"word" | "block">("word")
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false)
   
   // 解析 diff
   const diffData = useMemo(() => {
@@ -274,16 +300,79 @@ export function MarkdownFormatter() {
     return allRules.find(r => r.id === ruleId)
   }
 
+  // 按分类分组的规则
+  const rulesByCategory = useMemo(() => {
+    const grouped: Record<RuleCategory, typeof ruleStates> = {
+      whitespace: [],
+      heading: [],
+      list: [],
+      blockquote: [],
+      code: [],
+    }
+    
+    ruleStates.forEach(ruleState => {
+      const rule = allRules.find(r => r.id === ruleState.id)
+      if (rule) {
+        grouped[rule.category].push(ruleState)
+      }
+    })
+    
+    return grouped
+  }, [ruleStates])
+
+  // 启用的规则数量
+  const enabledCount = useMemo(() => 
+    ruleStates.filter(r => r.enabled).length,
+    [ruleStates]
+  )
+
   return (
     <section className="w-full py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Wand2 className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-              Markdown Formatter
-            </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-6 w-6 text-primary" />
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                Markdown Formatter
+              </h1>
+            </div>
+            
+            {/* Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/50 p-1">
+                <Button
+                  size="sm"
+                  variant={mode === "simple" ? "default" : "ghost"}
+                  onClick={() => setMode("simple")}
+                  className={
+                    mode === "simple"
+                      ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                      : "text-muted-foreground hover:text-foreground"
+                  }
+                >
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  Simple
+                </Button>
+                <Button
+                  size="sm"
+                  variant={mode === "advanced" ? "default" : "ghost"}
+                  onClick={() => {
+                    setMode("advanced")
+                    setShowAdvancedPanel(true)
+                  }}
+                  className={
+                    mode === "advanced"
+                      ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                      : "text-muted-foreground hover:text-foreground"
+                  }
+                >
+                  <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+                  Advanced
+                </Button>
+              </div>
+            </div>
           </div>
           <p className="text-muted-foreground max-w-2xl">
             Automatically format and beautify your Markdown. Preview changes with diff view before applying.
@@ -312,7 +401,7 @@ export function MarkdownFormatter() {
                   variant="outline"
                   size="sm"
                   onClick={loadSample}
-                  className="text-xs"
+                  className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
                 >
                   Load Sample
                 </Button>
@@ -331,62 +420,70 @@ export function MarkdownFormatter() {
           <div className="rounded-xl border border-border bg-card shadow-sm flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
-                <div className="flex items-center rounded-lg border border-border bg-background p-1">
-                  <button
+                <div className="flex items-center gap-1 rounded-md border border-border bg-muted/50 px-2 py-1">
+                  <Button
+                    size="sm"
+                    variant={viewMode === "diff" ? "default" : "outline"}
                     onClick={() => setViewMode("diff")}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    className={
                       viewMode === "diff"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                        ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                        : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                    }
                   >
-                    <GitCompare className="h-3.5 w-3.5 inline-block mr-1.5" />
+                    <GitCompare className="h-3.5 w-3.5 mr-1" />
                     Diff
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={viewMode === "preview" ? "default" : "outline"}
                     onClick={() => setViewMode("preview")}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    className={
                       viewMode === "preview"
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                        ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                        : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                    }
                   >
-                    <Eye className="h-3.5 w-3.5 inline-block mr-1.5" />
+                    <Eye className="h-3.5 w-3.5 mr-1" />
                     Preview
-                  </button>
+                  </Button>
                 </div>
                 
                 {viewMode === "diff" && result?.hasChanges && (
-                  <div className="flex items-center gap-1 rounded-md border border-border bg-background p-1">
-                    <button
+                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/50 px-2 py-1">
+                    <Button
+                      size="sm"
+                      variant={diffType === "word" ? "default" : "outline"}
                       onClick={() => setDiffType("word")}
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
+                      className={
                         diffType === "word"
-                          ? "bg-muted text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                          ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                          : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                      }
                     >
                       Word
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={diffType === "block" ? "default" : "outline"}
                       onClick={() => setDiffType("block")}
-                      className={`px-2 py-1 text-xs rounded transition-colors ${
+                      className={
                         diffType === "block"
-                          ? "bg-muted text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                          ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
+                          : "border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                      }
                     >
                       Block
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
               
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleCopy}
-                className="text-xs"
+                className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
               >
                 {copied ? (
                   <>
@@ -452,6 +549,141 @@ export function MarkdownFormatter() {
           </div>
         </div>
 
+        {/* Advanced Mode: Rules Panel */}
+        {mode === "advanced" && showAdvancedPanel && (
+          <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+            {/* Panel Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <Settings2 className="h-5 w-5 text-primary" />
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Rule Configuration</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {enabledCount} of {ruleStates.length} rules enabled
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {/* Preset Selector */}
+                <div className="flex items-center gap-1 rounded-md border border-border bg-muted/50 px-1 py-0.5">
+                  {PRESET_ORDER.map((presetId) => {
+                    const meta = presetMeta[presetId]
+                    const isActive = currentPreset === presetId
+                    return (
+                      <Button
+                        key={presetId}
+                        size="sm"
+                        variant={isActive ? "default" : "ghost"}
+                        onClick={() => applyPreset(presetId)}
+                        className={
+                          isActive
+                            ? "!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2] text-xs h-7"
+                            : "text-muted-foreground hover:text-foreground text-xs h-7"
+                        }
+                        title={`${meta.description} (${meta.rulesCount} rules)`}
+                      >
+                        {meta.label}
+                      </Button>
+                    )
+                  })}
+                </div>
+                
+                {/* Quick Actions */}
+                <div className="flex items-center gap-1 border-l border-border pl-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={enableAllRules}
+                    className="text-xs h-7 text-muted-foreground hover:text-foreground"
+                  >
+                    Enable All
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={disableAllRules}
+                    className="text-xs h-7 text-muted-foreground hover:text-foreground"
+                  >
+                    Disable All
+                  </Button>
+                </div>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowAdvancedPanel(false)}
+                  className="h-7 w-7 p-0"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Rules Grid */}
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {RULE_CATEGORIES.map((category) => (
+                  <div key={category.id} className="space-y-2">
+                    {/* Category Header */}
+                    <div className="flex items-center gap-2 pb-2 border-b border-border">
+                      <span className="text-lg font-mono">{category.icon}</span>
+                      <span className="text-sm font-medium text-foreground">{category.label}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {rulesByCategory[category.id].filter(r => r.enabled).length}/{rulesByCategory[category.id].length}
+                      </span>
+                    </div>
+                    
+                    {/* Rules List */}
+                    <div className="space-y-1">
+                      {rulesByCategory[category.id].map((ruleState) => {
+                        const rule = getRuleInfo(ruleState.id)
+                        return (
+                          <button
+                            key={ruleState.id}
+                            onClick={() => toggleRule(ruleState.id)}
+                            className={`
+                              w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-xs
+                              transition-colors duration-150
+                              ${ruleState.enabled 
+                                ? 'bg-primary/10 text-foreground hover:bg-primary/15' 
+                                : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
+                              }
+                            `}
+                          >
+                            {ruleState.enabled ? (
+                              <ToggleRight className="h-4 w-4 text-primary flex-shrink-0" />
+                            ) : (
+                              <ToggleLeft className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <span className="truncate font-mono text-[11px]">
+                              {ruleState.id}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Collapsed Advanced Panel Toggle */}
+        {mode === "advanced" && !showAdvancedPanel && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAdvancedPanel(true)}
+            className="w-full border-dashed border-border text-muted-foreground hover:text-foreground"
+          >
+            <Settings2 className="h-4 w-4 mr-2" />
+            Show Rule Configuration ({enabledCount}/{ruleStates.length} enabled)
+            <ChevronDown className="h-4 w-4 ml-2" />
+          </Button>
+        )}
+
         {/* Action Bar */}
         <div className="rounded-xl border border-border bg-card shadow-sm p-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -459,7 +691,7 @@ export function MarkdownFormatter() {
               <Button
                 onClick={runFormat}
                 disabled={!content || isFormatting}
-                className="bg-primary hover:bg-primary/90"
+                className="!bg-[var(--brand-blue)] !text-white hover:!bg-[#0064c2]"
               >
                 {isFormatting ? (
                   <>
@@ -489,6 +721,7 @@ export function MarkdownFormatter() {
                 onClick={undo}
                 variant="outline"
                 disabled={!canUndo}
+                className="border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
               >
                 <Undo2 className="h-4 w-4 mr-2" />
                 Undo
@@ -504,25 +737,52 @@ export function MarkdownFormatter() {
                 </div>
               )}
               
-              <button
+              {/* Mode indicator */}
+              {mode === "advanced" && (
+                <span className="text-xs px-2 py-1 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                  {enabledCount}/{ruleStates.length} rules
+                </span>
+              )}
+              
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowRules(!showRules)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
               >
-                <Info className="h-3.5 w-3.5" />
-                {showRules ? "Hide rules" : "Show rules"}
+                <Info className="h-3.5 w-3.5 mr-1" />
+                {showRules ? "Hide applied" : "Show applied"}
                 {showRules ? (
-                  <ChevronUp className="h-3.5 w-3.5" />
+                  <ChevronUp className="h-3.5 w-3.5 ml-1" />
                 ) : (
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3.5 w-3.5 ml-1" />
                 )}
-              </button>
+              </Button>
             </div>
           </div>
           
-          {/* Rules Panel */}
+          {/* Applied Rules Panel */}
           {showRules && (
             <div className="mt-4 pt-4 border-t border-border">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Applied Rules</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {result?.appliedRules?.length ? 'Applied Rules' : 'Enabled Rules'}
+                </h3>
+                {mode === "simple" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setMode("advanced")
+                      setShowAdvancedPanel(true)
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Settings2 className="h-3.5 w-3.5 mr-1" />
+                    Customize rules
+                  </Button>
+                )}
+              </div>
               {result?.appliedRules && result.appliedRules.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {result.appliedRules.map((ruleId) => {
@@ -533,20 +793,20 @@ export function MarkdownFormatter() {
                         className="flex items-center gap-2 px-3 py-2 rounded-lg border border-green-500/30 bg-green-500/5"
                       >
                         <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                        <span className="text-xs font-medium text-foreground">{ruleId}</span>
+                        <span className="text-xs font-medium text-foreground font-mono">{ruleId}</span>
                       </div>
                     )
                   })}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {allRules.filter(r => r.enabled).map((rule) => (
+                  {ruleStates.filter(r => r.enabled).map((ruleState) => (
                     <div
-                      key={rule.id}
+                      key={ruleState.id}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/30"
                     >
                       <div className="h-3.5 w-3.5 rounded-full border border-muted-foreground/30 flex-shrink-0" />
-                      <span className="text-xs text-muted-foreground">{rule.id}</span>
+                      <span className="text-xs text-muted-foreground font-mono">{ruleState.id}</span>
                     </div>
                   ))}
                 </div>

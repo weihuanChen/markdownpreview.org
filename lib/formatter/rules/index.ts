@@ -90,15 +90,27 @@ export function getRuleStats(): {
 // 预设配置
 // ============================================================================
 
+import type { FormatRuleId } from '../engine'
+
 /**
- * 预设配置（P2 功能预留）
+ * 预设配置
  */
 export const presets = {
   /**
-   * 标准配置：所有规则默认配置
+   * 标准配置：平衡的规则集，适合大多数场景
    */
   standard: {
-    enabledRules: allRules.filter((r) => r.enabled).map((r) => r.id),
+    enabledRules: [
+      'trailing-spaces',
+      'eof-newline',
+      'consecutive-blanks',
+      'heading-space',
+      'heading-blank-lines',
+      'list-marker-style',
+      'blockquote-space',
+      'code-fence-style',
+      'code-fence-spacing',
+    ] as FormatRuleId[],
     maxConsecutiveBlankLines: 1,
     listIndentSize: 2,
     listMarker: '-' as const,
@@ -108,10 +120,12 @@ export const presets = {
   },
 
   /**
-   * GitHub 风格
+   * GitHub 风格：遵循 GitHub Flavored Markdown 规范
+   * - 所有规则启用
+   * - 严格的空行控制
    */
   github: {
-    enabledRules: allRules.filter((r) => r.enabled).map((r) => r.id),
+    enabledRules: allRules.map((r) => r.id),
     maxConsecutiveBlankLines: 1,
     listIndentSize: 2,
     listMarker: '-' as const,
@@ -121,15 +135,32 @@ export const presets = {
   },
 
   /**
-   * 写作友好：更宽松的规则
+   * 写作友好：最少干预，适合长文写作
+   * - 只修复最基本的问题
+   * - 允许更多空行用于视觉分隔
    */
   writing: {
     enabledRules: [
       'trailing-spaces',
       'eof-newline',
       'heading-space',
-    ],
+    ] as FormatRuleId[],
     maxConsecutiveBlankLines: 2,
+    listIndentSize: 2,
+    listMarker: '-' as const,
+    headingBlankLinesBefore: 1,
+    headingBlankLinesAfter: 1,
+    codeFenceStyle: '```' as const,
+  },
+
+  /**
+   * 严格模式：所有规则启用，最严格的格式化
+   * - 适合代码文档、技术写作
+   * - 统一所有格式
+   */
+  strict: {
+    enabledRules: allRules.map((r) => r.id),
+    maxConsecutiveBlankLines: 1,
     listIndentSize: 2,
     listMarker: '-' as const,
     headingBlankLinesBefore: 1,
@@ -139,4 +170,34 @@ export const presets = {
 } as const
 
 export type PresetName = keyof typeof presets
+
+/**
+ * 预设元数据（用于 UI 显示）
+ */
+export const presetMeta: Record<PresetName, { 
+  label: string
+  description: string 
+  rulesCount: number
+}> = {
+  standard: {
+    label: 'Standard',
+    description: 'Balanced rules for most use cases',
+    rulesCount: presets.standard.enabledRules.length,
+  },
+  github: {
+    label: 'GitHub',
+    description: 'GitHub Flavored Markdown style',
+    rulesCount: presets.github.enabledRules.length,
+  },
+  writing: {
+    label: 'Writing',
+    description: 'Minimal rules for prose and articles',
+    rulesCount: presets.writing.enabledRules.length,
+  },
+  strict: {
+    label: 'Strict',
+    description: 'All rules for technical docs',
+    rulesCount: presets.strict.enabledRules.length,
+  },
+}
 
