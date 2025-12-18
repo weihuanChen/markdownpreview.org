@@ -1,17 +1,22 @@
 import { Mail, Globe2 } from "lucide-react"
-import { getTranslations } from "next-intl/server"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { Disclaimer } from "@/components/disclaimer"
 import { getUserServiceContent, USER_SERVICE_PRIMARY_LOCALE } from "@/lib/user-service-content"
 import type { Locale } from "@/lib/types"
-import { defaultLocale } from "@/i18n"
+import { defaultLocale, locales } from "@/i18n"
 
 interface UserServicePageProps {
   params: Promise<{ locale: Locale }>
 }
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata({ params }: UserServicePageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
 
@@ -49,6 +54,7 @@ export async function generateMetadata({ params }: UserServicePageProps) {
 
 export default async function UserServicePage({ params }: UserServicePageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const content = getUserServiceContent(locale)
   const primaryLanguageLabel =

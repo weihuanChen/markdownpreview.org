@@ -2,61 +2,6 @@
 import { createTwoFilesPatch, diffLines, type Change } from 'diff';
 import { parse, type File } from 'gitdiff-parser';
 
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    sessionId: 'debug-session',
-    runId: 'run1',
-    hypothesisId: 'H0',
-    location: 'line-diff-worker.ts:init',
-    message: 'worker loaded',
-    data: {},
-    timestamp: Date.now(),
-  }),
-}).catch(() => {});
-// #endregion
-
-// #region agent log
-self.addEventListener('error', (event) => {
-  fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sessionId: 'debug-session',
-      runId: 'run1',
-      hypothesisId: 'H0E',
-      location: 'line-diff-worker.ts:error',
-      message: 'worker error',
-      data: {
-        message: String(event.message ?? ''),
-        filename: String(event.filename ?? ''),
-        lineno: event.lineno ?? null,
-        colno: event.colno ?? null,
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-});
-
-self.addEventListener('unhandledrejection', (event) => {
-  fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sessionId: 'debug-session',
-      runId: 'run1',
-      hypothesisId: 'H0R',
-      location: 'line-diff-worker.ts:unhandledrejection',
-      message: 'worker rejection',
-      data: { reason: String(event.reason ?? '') },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-});
-// #endregion
-
 export type DiffWorkerRequest = {
   oldText: string;
   newText: string;
@@ -205,22 +150,6 @@ self.onmessage = (event: MessageEvent<DiffWorkerRequest>) => {
   };
 
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        sessionId:'debug-session',
-        runId:'run1',
-        hypothesisId:'H5',
-        location:'line-diff-worker.ts:onmessage',
-        message:'start onmessage',
-        data:{oldLen:oldText.length,newLen:newText.length,alignedOld:typeof alignedOldText === 'string',alignedNew:typeof alignedNewText === 'string'},
-        timestamp:Date.now(),
-      }),
-    }).catch(()=>{});
-    // #endregion
-
     // Prefer pre-aligned text if provided from main thread; otherwise normalize raw inputs.
     const normalizedOldText =
       typeof alignedOldText === 'string' ? alignedOldText : normalizeText(oldText, options);
@@ -246,40 +175,9 @@ self.onmessage = (event: MessageEvent<DiffWorkerRequest>) => {
     const diffText = `diff --git a/Original.md b/Revised.md\nindex 000000..000000 100644\n${basePatch}`;
     const files = parse(diffText);
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        sessionId:'debug-session',
-        runId:'run1',
-        hypothesisId:'H6',
-        location:'line-diff-worker.ts:onmessage',
-        message:'postMessage success',
-        data:{changes:changes.length,ranges:ranges.length},
-        timestamp:Date.now(),
-      }),
-    }).catch(()=>{});
-    // #endregion
     safeRespond({ ranges, files, diffText });
   } catch (error) {
     console.error('diff worker failed, falling back to plain diff', error);
-
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        sessionId:'debug-session',
-        runId:'run1',
-        hypothesisId:'H7',
-        location:'line-diff-worker.ts:onmessage',
-        message:'catch fallback',
-        data:{error:String(error)},
-        timestamp:Date.now(),
-      }),
-    }).catch(()=>{});
-    // #endregion
 
     // Fallback: plain normalization without block alignment to keep UI responsive
     const normalizedOldText = normalizeText(oldText, options);

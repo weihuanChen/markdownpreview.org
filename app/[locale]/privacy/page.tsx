@@ -1,17 +1,22 @@
 import { Mail } from "lucide-react"
-import { getTranslations } from "next-intl/server"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { Disclaimer } from "@/components/disclaimer"
 import { getPrivacyContent, PRIVACY_PRIMARY_LOCALE } from "@/lib/privacy-content"
 import type { Locale } from "@/lib/types"
-import { defaultLocale } from "@/i18n"
+import { defaultLocale, locales } from "@/i18n"
 
 interface PrivacyPageProps {
   params: Promise<{ locale: Locale }>
 }
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata({ params }: PrivacyPageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
 
@@ -49,6 +54,7 @@ export async function generateMetadata({ params }: PrivacyPageProps) {
 
 export default async function PrivacyPage({ params }: PrivacyPageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const content = getPrivacyContent(locale)
   const primaryLanguageLabel =

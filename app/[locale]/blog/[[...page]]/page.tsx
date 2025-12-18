@@ -3,8 +3,8 @@ import type { Locale, BlogPost } from '@/lib/types'
 import { BlogCard } from '@/components/blog/blog-card'
 import { BlogGroupedList } from '@/components/blog/blog-grouped-list'
 import { Pagination } from '@/components/blog/pagination'
-import { getTranslations } from 'next-intl/server'
-import { defaultLocale } from '@/i18n'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { defaultLocale, locales } from '@/i18n'
 
 export const revalidate = 43200 // 12 小时
 
@@ -27,8 +27,14 @@ const resolvePage = (segments?: string[]) => {
   return Number.isNaN(parsed) || parsed < 1 ? 1 : parsed
 }
 
+export function generateStaticParams() {
+  // 为每个 locale 生成博客首页
+  return locales.map((locale) => ({ locale, page: [] }))
+}
+
 export async function generateMetadata({ params }: BlogPageProps) {
   const resolvedParams = await params
+  setRequestLocale(resolvedParams.locale)
   const t = await getTranslations()
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
 
@@ -66,6 +72,9 @@ export async function generateMetadata({ params }: BlogPageProps) {
 export default async function BlogPage({ params, searchParams }: BlogPageProps) {
   try {
     const resolvedParams = await params
+    // 启用静态渲染 - 必须在使用其他 next-intl API 之前调用
+    setRequestLocale(resolvedParams.locale)
+
     const page = resolvePage(resolvedParams.page)
     const t = await getTranslations()
     const isDefaultLocale = resolvedParams.locale === defaultLocale
@@ -145,8 +154,9 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
   } catch (error) {
     console.error('Error in BlogPage:', error)
     // 返回空列表而不是抛出异常
-    const t = await getTranslations()
     const resolvedParams = await params
+    setRequestLocale(resolvedParams.locale)
+    const t = await getTranslations()
     const showMissingNotice = searchParams?.missing === '1'
     const isDefaultLocale = resolvedParams.locale === defaultLocale
     const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'

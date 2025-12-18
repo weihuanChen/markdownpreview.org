@@ -1,15 +1,20 @@
-import { getTranslations } from "next-intl/server"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { ContactForm } from "@/components/contact-form"
 import type { Locale } from "@/lib/types"
-import { defaultLocale } from "@/i18n"
+import { defaultLocale, locales } from "@/i18n"
 
 interface ContactPageProps {
   params: Promise<{ locale: Locale }>
 }
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata({ params }: ContactPageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
 
@@ -47,6 +52,7 @@ export async function generateMetadata({ params }: ContactPageProps) {
 
 export default async function ContactPage({ params }: ContactPageProps) {
   const { locale } = await params
+  setRequestLocale(locale)
   const t = await getTranslations({ locale })
 
   return (

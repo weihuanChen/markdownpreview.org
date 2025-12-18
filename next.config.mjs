@@ -5,10 +5,6 @@ const require = createRequire(import.meta.url);
 
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H8',location:'next.config.mjs',message:'next.config loaded',data:{note:'withNextIntl applied'},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
-
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,

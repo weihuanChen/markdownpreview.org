@@ -1,13 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
 import { locales, defaultLocale } from './i18n';
-import intlConfig from './next-intl.config.js';
-
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H5',location:'middleware.ts',message:'middleware module loaded',data:{locales,defaultLocale},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/48d890d8-f420-47d7-a37c-8a56a0569825',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H6',location:'middleware.ts',message:'imported next-intl.config.js',data:{hasConfig:Boolean(intlConfig)},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
 
 export default createMiddleware({
   // 支持的语言列表

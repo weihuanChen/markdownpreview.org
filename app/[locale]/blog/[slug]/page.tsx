@@ -5,10 +5,10 @@ import { Toc } from '@/components/blog/toc'
 import { BlogCTA } from '@/components/blog/blog-cta'
 import { Calendar, Clock, User, Tag, ArrowLeft } from 'lucide-react'
 import { notFound, redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/navigation'
 import { Button } from '@/components/ui/button'
-import { defaultLocale } from '@/i18n'
+import { defaultLocale, locales } from '@/i18n'
 import { cache } from 'react'
 
 export const revalidate = 43200 // 12 小时
@@ -30,7 +30,10 @@ const getCachedPost = cache(async (slug: string, locale: Locale) => {
 export async function generateStaticParams() {
   try {
     const slugs = await getAllPostSlugs()
-    return slugs.map((slug) => ({ slug }))
+    // 为每个 slug 生成所有语言版本
+    return slugs.flatMap((slug) =>
+      locales.map((locale) => ({ slug, locale }))
+    )
   } catch (error) {
     console.error('Error in generateStaticParams:', error)
     // 返回空数组而不是抛出异常，避免构建失败
@@ -67,6 +70,9 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   try {
     const resolvedParams = await params
+    // 启用静态渲染 - 必须在使用其他 next-intl API 之前调用
+    setRequestLocale(resolvedParams.locale)
+
     // 使用缓存的 post，避免与 generateMetadata 重复查询
     const post = await getCachedPost(resolvedParams.slug, resolvedParams.locale)
 
