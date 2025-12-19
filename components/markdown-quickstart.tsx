@@ -184,8 +184,8 @@ export function MarkdownQuickStart() {
             href="/blog"
             className="inline-flex items-center gap-2 font-medium text-[#0075de] hover:text-[#005bb1] transition-colors"
           >
-            <span>Want to learn more Markdown?</span>
-            <span className="text-[#005bb1]">Explore the full guides</span>
+            <span>{t("quickstart_blog_cta_question")}</span>
+            <span className="text-[#005bb1]">{t("quickstart_blog_cta_link")}</span>
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
