@@ -1,0 +1,48 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Markdown Formatter",
+          "version": "1.0.0",
+          "rules": [
+            {
+              "id": "heading-depth",
+              "name": "formatter_rule_heading_depth",
+              "shortDescription": {
+                "text": "formatter_rule_heading_depth_desc"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "heading-depth",
+          "level": "warning",
+          "message": {
+            "text": "Heading depth exceeds limit"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///example.md"
+                },
+                "region": {
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

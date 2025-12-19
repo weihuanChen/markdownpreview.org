@@ -82,6 +82,14 @@
   - UI 布局设计
   - P2/P3 规划预览
 
+- [Markdown Formatter 验收文档](./dev/markdown-formatter-acceptance.md) 🆕
+  - P1/P2/P3 功能实现清单
+  - 已实现功能详细说明
+  - 未实现的边界功能
+  - 功能验收清单
+  - 测试覆盖情况
+  - 已知问题与限制
+
 ---
 
 ### 🚀 部署 (Deployment) - `docs/deploy/`
@@ -125,6 +133,27 @@
   - 处置：移除无效键，确保 next-intl 配置被发现
   - 验证：`pnpm run dev` + 首页正常，无 500
 
+- [Diff-aware Lint 功能测试报告](./testing/diff-aware-lint-test-report.md) 🆕
+  - Diff-aware Lint 核心功能验证
+  - 8 个测试用例全部通过（100%）
+  - 变更行号计算准确性验证
+  - Lint 结果关联性验证
+  - 行号映射准确性验证
+
+- [写作质量规则测试报告](./testing/writing-quality-rules-test-report.md) 🆕
+  - heading-depth 规则测试（标题层级过深检测）
+  - long-paragraph 规则测试（段落过长检测）
+  - 代码块保护机制验证
+  - 组合规则检测验证
+  - 10 个测试用例，8 个通过（80%）
+
+- [报告导出功能测试报告](./testing/report-export-test-report.md) 🆕
+  - JSON 导出功能测试
+  - Markdown 导出功能测试
+  - SARIF 导出功能测试（SARIF 2.1.0 标准）
+  - 文件写入功能验证
+  - 9 个测试用例全部通过（100%）
+
 ---
 
 ## 🔍 快速导航
@@ -155,6 +184,11 @@
   - 规则引擎接口设计
   - 复用现有 Diff 基建方案
 
+- **验收文档**: [docs/dev/markdown-formatter-acceptance.md](./dev/markdown-formatter-acceptance.md) 🆕
+  - P1/P2/P3 功能实现清单
+  - 已实现功能与未实现边界
+  - 功能验收清单和测试覆盖
+
 #### 性能优化
 
 - **博客性能优化**: [docs/dev/blog-performance-fix.md](./dev/blog-performance-fix.md)
@@ -168,12 +202,12 @@
 | 类别 | 文档数量 |
 |-----|---------|
 | 产品 | 2 |
-| 开发 | 6 |
+| 开发 | 7 |
 | 部署 | 0 |
 | UI/设计 | 0 |
 | 优化 | 0 |
-| 测试 | 1 |
-| **总计** | **9** |
+| 测试 | 4 |
+| **总计** | **13** |
 
 ---
 
@@ -236,6 +270,24 @@
 ### 2025-01-27
 
 - ✅ 添加 Blog 代码块显示逻辑文档
+
+### 2024-12-18
+
+- ✅ 添加 Markdown Formatter 验收文档
+  - P1/P2/P3 功能实现清单
+  - 已实现功能与未实现边界说明
+  - 功能验收清单和测试覆盖情况
+- ✅ 添加 Diff-aware Lint 功能测试报告
+  - 8 个测试用例全部通过
+  - 核心功能验证完成
+- ✅ 添加写作质量规则测试报告
+  - heading-depth 和 long-paragraph 规则测试
+  - 10 个测试用例，8 个通过
+  - 代码块保护和组合规则验证完成
+- ✅ 添加报告导出功能测试报告
+  - JSON、Markdown、SARIF 三种导出格式测试
+  - 9 个测试用例全部通过
+  - SARIF 2.1.0 标准符合性验证完成
 
 ### 2025-11-13
 

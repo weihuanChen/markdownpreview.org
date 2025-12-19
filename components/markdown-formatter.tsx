@@ -24,12 +24,27 @@ import {
   ToggleLeft,
   ToggleRight,
   AlertTriangle,
+  Shield,
+  FileCheck,
 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
+import { RelatedTools } from "@/components/related-tools"
 import { useFormatter, type FormatterMode } from "@/hooks/use-formatter"
-import { allRules, presets, presetMeta, type FormatRuleId, type PresetName, type RuleCategory } from "@/lib/formatter"
+import {
+  allRules,
+  presets,
+  presetMeta,
+  exportToJSON,
+  exportToMarkdown,
+  exportToSARIF,
+  type FormatRuleId,
+  type LintResult,
+  type LintSeverity,
+  type PresetName,
+  type RuleCategory,
+} from "@/lib/formatter"
 
 // 动态导入编辑器和预览组件
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
@@ -190,19 +205,11 @@ const RULE_CATEGORIES: { id: RuleCategory; labelKey: string; icon: string }[] = 
   { id: 'list', labelKey: 'formatter_category_list', icon: '•' },
   { id: 'blockquote', labelKey: 'formatter_category_blockquote', icon: '>' },
   { id: 'code', labelKey: 'formatter_category_code', icon: '`' },
+  { id: 'writing', labelKey: 'formatter_category_writing', icon: '✍' },
 ]
 
 // 预设顺序
-const PRESET_ORDER: PresetName[] = ['standard', 'github', 'writing', 'strict']
-
-type LintSeverity = 'error' | 'warning' | 'info'
-
-interface LintResult {
-  id: string
-  ruleId: FormatRuleId
-  severity: LintSeverity
-  message: string
-}
+const PRESET_ORDER: PresetName[] = ['standard', 'github', 'quality', 'writing', 'strict']
 
 const LINT_SEVERITY_META: Record<LintSeverity, { label: string; tone: string }> = {
   error: { label: 'Error', tone: 'text-red-600 dark:text-red-300 border-red-500/30 bg-red-500/5' },
@@ -216,6 +223,7 @@ const RULE_SEVERITY_BY_CATEGORY: Record<RuleCategory, LintSeverity> = {
   list: 'warning',
   blockquote: 'info',
   code: 'warning',
+  writing: 'warning',
 }
 
 export function MarkdownFormatter() {
@@ -251,7 +259,10 @@ export function MarkdownFormatter() {
   const [copied, setCopied] = useState(false)
   const [diffType, setDiffType] = useState<"word" | "block">("word")
   const [showAdvancedPanel, setShowAdvancedPanel] = useState(false)
+  const [showLintResultsPanel, setShowLintResultsPanel] = useState(true)
   const [selectedRuleIds, setSelectedRuleIds] = useState<FormatRuleId[]>([])
+  const [exporting, setExporting] = useState(false)
+  const [openFaqIndices, setOpenFaqIndices] = useState<Set<number>>(new Set([0, 1, 2, 3]))
   
   // 解析 diff
   const diffData = useMemo(() => {
@@ -336,6 +347,7 @@ export function MarkdownFormatter() {
       list: [],
       blockquote: [],
       code: [],
+      writing: [],
     }
     
     ruleStates.forEach(ruleState => {
@@ -356,9 +368,17 @@ export function MarkdownFormatter() {
 
   const autoFixMessage = t("formatter_auto_fix_message")
   const lintResults = useMemo<LintResult[]>(() => {
+    if (result?.lintResults?.length) {
+      return result.lintResults.map((item) => ({
+        ...item,
+        message: item.messageKey ? t(item.messageKey) : item.message,
+      }))
+    }
+
     if (!result?.appliedRules?.length) return []
+
     return result.appliedRules.map((ruleId, index) => {
-      const rule = allRules.find(r => r.id === ruleId)
+      const rule = allRules.find((r) => r.id === ruleId)
       const severity = rule ? RULE_SEVERITY_BY_CATEGORY[rule.category] : 'warning'
       return {
         id: `${ruleId}-${index}`,
@@ -367,7 +387,7 @@ export function MarkdownFormatter() {
         message: autoFixMessage,
       }
     })
-  }, [result, autoFixMessage])
+  }, [result, autoFixMessage, t])
 
   const lintSummary = useMemo(() => {
     const bySeverity: Record<LintSeverity, number> = {
@@ -416,6 +436,41 @@ export function MarkdownFormatter() {
     if (!selectedRuleIds.length) return
     runFormatWithRules(selectedRuleIds)
   }, [runFormatWithRules, selectedRuleIds])
+
+  const handleExport = useCallback(async (format: 'json' | 'markdown' | 'sarif') => {
+    if (!result) return
+    setExporting(true)
+    try {
+      let content: string
+      let filename: string
+      let mimeType: string
+
+      if (format === 'json') {
+        content = exportToJSON(result, false)
+        filename = 'markdown-formatter-report.json'
+        mimeType = 'application/json'
+      } else if (format === 'markdown') {
+        content = exportToMarkdown(result)
+        filename = 'markdown-formatter-report.md'
+        mimeType = 'text/markdown'
+      } else {
+        // SARIF
+        content = exportToSARIF(result)
+        filename = 'markdown-formatter-report.sarif'
+        mimeType = 'application/json'
+      }
+
+      const blob = new Blob([content], { type: mimeType })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setExporting(false)
+    }
+  }, [result])
 
   return (
     <section className="w-full py-8 px-4">
@@ -467,10 +522,92 @@ export function MarkdownFormatter() {
           </div>
           <p className="text-muted-foreground max-w-2xl">
             {t("formatter_description")}
-            <span className="ml-2 text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20">
+          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <span className="text-xs px-2.5 py-1 rounded-md bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20 font-medium">
               {t("formatter_safe_only")}
             </span>
-          </p>
+            <span className="text-xs px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 font-medium">
+              {t("formatter_tag_diff_preview")}
+            </span>
+            <span className="text-xs px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20 font-medium">
+              {t("formatter_tag_undo_support")}
+            </span>
+            <span className="text-xs px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 font-medium">
+              {t("formatter_tag_lint_quality")}
+            </span>
+          </div>
+        </div>
+
+        {/* Core Value Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Safe Formatting */}
+          <div className="rounded-lg border border-border bg-card p-4 flex flex-row md:flex-row lg:flex-col gap-3 h-full">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <h3 className="text-sm font-semibold text-foreground mb-1.5 leading-tight">
+                {t("formatter_value_safe_title")}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-3">
+                {t("formatter_value_safe_desc")}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2: Diff Preview */}
+          <div className="rounded-lg border border-border bg-card p-4 flex flex-row md:flex-row lg:flex-col gap-3 h-full">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <GitCompare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <h3 className="text-sm font-semibold text-foreground mb-1.5 leading-tight">
+                {t("formatter_value_diff_title")}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-3">
+                {t("formatter_value_diff_desc")}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Undo & Control */}
+          <div className="rounded-lg border border-border bg-card p-4 flex flex-row md:flex-row lg:flex-col gap-3 h-full">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <Undo2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <h3 className="text-sm font-semibold text-foreground mb-1.5 leading-tight">
+                {t("formatter_value_undo_title")}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-3">
+                {t("formatter_value_undo_desc")}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Built-in Quality Checks */}
+          <div className="rounded-lg border border-border bg-card p-4 flex flex-row md:flex-row lg:flex-col gap-3 h-full">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <FileCheck className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <h3 className="text-sm font-semibold text-foreground mb-1.5 leading-tight">
+                {t("formatter_value_quality_title")}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-3">
+                {t("formatter_value_quality_desc")}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -767,7 +904,7 @@ export function MarkdownFormatter() {
             variant="outline"
             size="sm"
             onClick={() => setShowAdvancedPanel(true)}
-            className="w-full border-dashed border-border text-muted-foreground hover:text-foreground"
+            className="w-full border-dashed border-border text-[var(--brand-blue)] hover:text-[#0064c2]"
           >
             <Settings2 className="h-4 w-4 mr-2" />
             {t("formatter_show_config")} ({enabledCount}/{ruleStates.length})
@@ -776,7 +913,7 @@ export function MarkdownFormatter() {
         )}
 
         {/* Lint Results Panel */}
-        {mode === "advanced" && (
+        {mode === "advanced" && showLintResultsPanel && (
           <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
@@ -801,6 +938,43 @@ export function MarkdownFormatter() {
                 <span className="px-2 py-1 rounded border border-blue-500/30 bg-blue-500/5 text-blue-700 dark:text-blue-300">
                   {lintSummary.bySeverity.info} {t("formatter_lint_info")}
                 </span>
+                <div className="flex items-center gap-1 border-l border-border pl-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!result || exporting}
+                    onClick={() => handleExport('json')}
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {t("formatter_export_json")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!result || exporting}
+                    onClick={() => handleExport('markdown')}
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {t("formatter_export_markdown")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!result || exporting}
+                    onClick={() => handleExport('sarif')}
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {t("formatter_export_sarif")}
+                  </Button>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowLintResultsPanel(false)}
+                  className="h-7 w-7 p-0 ml-2"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
@@ -908,6 +1082,20 @@ export function MarkdownFormatter() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Collapsed Lint Results Panel Toggle */}
+        {mode === "advanced" && !showLintResultsPanel && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowLintResultsPanel(true)}
+            className="w-full border-dashed border-border text-[var(--brand-blue)] hover:text-[#0064c2]"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            {t("formatter_lint_results")} ({lintSummary.total} {t("formatter_lint_total")})
+            <ChevronDown className="h-4 w-4 ml-2" />
+          </Button>
         )}
 
         {/* Action Bar */}
@@ -1046,34 +1234,145 @@ export function MarkdownFormatter() {
         {/* Info Section */}
         <div className="rounded-xl border border-border bg-card/50 p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">{t("formatter_about_title")}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
-            <div className="space-y-2">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <span className="h-5 w-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">✓</span>
-                {t("formatter_about_safe_title")}
-              </h3>
-              <p className="text-muted-foreground">
-                {t("formatter_about_safe_desc")}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_what_is_title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {t("formatter_what_is_desc")}
               </p>
             </div>
-            <div className="space-y-2">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <span className="h-5 w-5 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">⚡</span>
-                {t("formatter_about_diff_title")}
-              </h3>
-              <p className="text-muted-foreground">
-                {t("formatter_about_diff_desc")}
+            
+            <div className="border-t border-border pt-6 space-y-4">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_who_is_for_title")}</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t("formatter_who_is_for_desc")}
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>{t("formatter_who_is_for_li1")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>{t("formatter_who_is_for_li2")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>{t("formatter_who_is_for_li3")}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>{t("formatter_who_is_for_li4")}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* How it works Section */}
+        <div className="rounded-xl border border-border bg-card/50 p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t("formatter_how_it_works_title")}</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            {t("formatter_how_it_works_intro")}
+          </p>
+          <div className="space-y-6">
+            {/* Step 1 */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_how_it_works_step1_title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {t("formatter_how_it_works_step1_desc")}
               </p>
             </div>
-            <div className="space-y-2">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <span className="h-5 w-5 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">↩</span>
-                {t("formatter_about_undo_title")}
-              </h3>
-              <p className="text-muted-foreground">
-                {t("formatter_about_undo_desc")}
+            
+            <div className="border-t border-border"></div>
+            
+            {/* Step 2 */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_how_it_works_step2_title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {t("formatter_how_it_works_step2_desc")}
               </p>
             </div>
+            
+            <div className="border-t border-border"></div>
+            
+            {/* Step 3 */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_how_it_works_step3_title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {t("formatter_how_it_works_step3_desc")}
+              </p>
+            </div>
+            
+            <div className="border-t border-border"></div>
+            
+            {/* Step 4 */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">{t("formatter_how_it_works_step4_title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                {t("formatter_how_it_works_step4_desc")}
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-base font-semibold text-blue-600 dark:text-blue-400 leading-relaxed whitespace-pre-line text-center">
+              {t("formatter_how_it_works_summary")}
+            </p>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="rounded-xl border border-border bg-card/50 p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-6">{t("formatter_faq_title")}</h2>
+          <div className="space-y-3">
+            {[
+              {
+                q: t("formatter_faq_q1"),
+                a: t("formatter_faq_a1"),
+              },
+              {
+                q: t("formatter_faq_q2"),
+                a: t("formatter_faq_a2"),
+              },
+              {
+                q: t("formatter_faq_q3"),
+                a: t("formatter_faq_a3"),
+              },
+              {
+                q: t("formatter_faq_q4"),
+                a: t("formatter_faq_a4"),
+              },
+            ].map((item, index) => (
+              <div key={index} className="border border-border rounded-lg bg-card overflow-hidden">
+                <button
+                  onClick={() => {
+                    setOpenFaqIndices((prev) => {
+                      const newSet = new Set(prev)
+                      if (newSet.has(index)) {
+                        newSet.delete(index)
+                      } else {
+                        newSet.add(index)
+                      }
+                      return newSet
+                    })
+                  }}
+                  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
+                >
+                  <span className="font-medium text-sm text-foreground pr-4">{item.q}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground flex-shrink-0 transition-transform ${
+                      openFaqIndices.has(index) ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openFaqIndices.has(index) && (
+                  <div className="px-4 py-3 border-t border-border bg-muted/20">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

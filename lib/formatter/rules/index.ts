@@ -12,6 +12,7 @@ import { headingRules } from './heading'
 import { listRules } from './list'
 import { blockquoteRules } from './blockquote'
 import { codeBlockRules } from './code-block'
+import { writingRules } from './writing'
 
 // ============================================================================
 // 规则汇总
@@ -26,6 +27,7 @@ export const allRules: FormatRule[] = [
   ...listRules,
   ...blockquoteRules,
   ...codeBlockRules,
+  ...writingRules,
 ]
 
 /**
@@ -37,6 +39,7 @@ export {
   listRules,
   blockquoteRules,
   codeBlockRules,
+  writingRules,
 }
 
 // ============================================================================
@@ -120,6 +123,28 @@ export const presets = {
   },
 
   /**
+   * 质量模式：启用写作质量检查（lint-only），辅以基础安全修复
+   */
+  quality: {
+    enabledRules: [
+      'trailing-spaces',
+      'eof-newline',
+      'heading-space',
+      'consecutive-blanks',
+      'heading-depth',
+      'long-paragraph',
+    ] as FormatRuleId[],
+    maxConsecutiveBlankLines: 1,
+    listIndentSize: 2,
+    listMarker: '-' as const,
+    headingBlankLinesBefore: 1,
+    headingBlankLinesAfter: 1,
+    codeFenceStyle: '```' as const,
+    maxHeadingDepth: 4,
+    maxParagraphChars: 800,
+  },
+
+  /**
    * GitHub 风格：遵循 GitHub Flavored Markdown 规范
    * - 所有规则启用
    * - 严格的空行控制
@@ -189,6 +214,11 @@ export const presetMeta: Record<PresetName, {
     description: 'GitHub Flavored Markdown style',
     rulesCount: presets.github.enabledRules.length,
   },
+  quality: {
+    label: 'Quality',
+    description: 'Writing-quality checks with safe fixes',
+    rulesCount: presets.quality.enabledRules.length,
+  },
   writing: {
     label: 'Writing',
     description: 'Minimal rules for prose and articles',
@@ -200,4 +230,3 @@ export const presetMeta: Record<PresetName, {
     rulesCount: presets.strict.enabledRules.length,
   },
 }
-

@@ -30,6 +30,8 @@ export {
   type FormatEngineOptions,
   type RuleCategory,
   type RuleOptions,
+  type LintResult,
+  type LintSeverity,
 } from './engine'
 
 // 导出规则相关
@@ -58,3 +60,15 @@ export {
   type SnapshotState,
 } from './snapshot'
 
+// 导出报告导出工具
+export {
+  exportToJSON,
+  exportToMarkdown,
+  exportToSARIF,
+  type ExportData,
+  type SARIFLog,
+  type SARIFRun,
+  type SARIFRule,
+  type SARIFResult,
+  type SARIFLocation,
+} from './export'

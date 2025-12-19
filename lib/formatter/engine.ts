@@ -5,6 +5,8 @@
  * P2 阶段：增加 Lint 检测能力
  */
 
+import { diffLines } from 'diff'
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -25,8 +27,11 @@ export type FormatRuleId =
   // 代码块规则
   | 'code-fence-style'
   | 'code-fence-spacing'
+  // 写作质量规则（P3 预览）
+  | 'heading-depth'
+  | 'long-paragraph'
 
-export type RuleCategory = 'whitespace' | 'heading' | 'list' | 'blockquote' | 'code'
+export type RuleCategory = 'whitespace' | 'heading' | 'list' | 'blockquote' | 'code' | 'writing'
 
 export interface RuleOptions {
   /** 段落间最大空行数，默认 1 */
@@ -41,6 +46,14 @@ export interface RuleOptions {
   headingBlankLinesAfter?: number
   /** 代码块 fence 符号，默认 '```' */
   codeFenceStyle?: '```' | '~~~'
+  /** 最大标题层级（写作质量） */
+  maxHeadingDepth?: number
+  /** 最大段落字符数（写作质量） */
+  maxParagraphChars?: number
+}
+
+export interface LintContext {
+  changedLines?: number[]
 }
 
 export interface FormatRule {
@@ -60,7 +73,15 @@ export interface FormatRule {
    * @param options 规则配置
    * @returns 修复后的内容
    */
-  fix: (content: string, options?: RuleOptions) => string
+  fix?: (content: string, options?: RuleOptions) => string
+  /**
+   * 执行 lint 检测（可选）
+   * @param content 内容
+   * @param options 规则配置
+   * @param context 上下文（例如变更行）
+   * @returns Lint 结果列表
+   */
+  lint?: (content: string, options?: RuleOptions, context?: LintContext) => LintResult[]
 }
 
 export interface FormatResult {
@@ -70,6 +91,10 @@ export interface FormatResult {
   formatted: string
   /** 应用的规则列表 */
   appliedRules: FormatRuleId[]
+  /** Lint 结果（仅针对变更行） */
+  lintResults: LintResult[]
+  /** 变更的行号（基于最终内容） */
+  changedLines: number[]
   /** 是否有变更 */
   hasChanges: boolean
 }
@@ -79,6 +104,64 @@ export interface FormatEngineOptions extends RuleOptions {
   enabledRules?: FormatRuleId[]
   /** 要禁用的规则 */
   disabledRules?: FormatRuleId[]
+}
+
+export type LintSeverity = 'error' | 'warning' | 'info'
+
+export interface LintResult {
+  /** 唯一标识 */
+  id: string
+  /** 关联的规则 ID */
+  ruleId: FormatRuleId
+  /** 严重级别 */
+  severity: LintSeverity
+  /** 展示文案（已本地化或可直接显示） */
+  message: string
+  /** i18n key（可选） */
+  messageKey?: string
+  /** 首行位置（1-based） */
+  line?: number
+  /** 涉及的行列表（仅针对变更行） */
+  lines?: number[]
+}
+
+const RULE_SEVERITY_MAP: Record<RuleCategory, LintSeverity> = {
+  whitespace: 'info',
+  heading: 'warning',
+  list: 'warning',
+  blockquote: 'info',
+  code: 'warning',
+  writing: 'warning',
+}
+
+function getRuleSeverity(category: RuleCategory | undefined): LintSeverity {
+  return category ? RULE_SEVERITY_MAP[category] : 'warning'
+}
+
+function computeChangedLines(before: string, after: string): number[] {
+  const diff = diffLines(before, after)
+  const changed: number[] = []
+  let newLine = 1
+
+  for (const part of diff) {
+    const value = part.value ?? ''
+    const lines = value.split('\n')
+    const lineCount = Math.max(lines.length - 1, 0)
+
+    if (part.added) {
+      for (let i = 0; i < lineCount; i++) {
+        changed.push(newLine + i)
+      }
+      newLine += lineCount
+    } else if (part.removed) {
+      // removed lines don't exist in the new content; skip advancing newLine
+      continue
+    } else {
+      newLine += lineCount
+    }
+  }
+
+  return changed
 }
 
 // ============================================================================
@@ -94,6 +177,8 @@ class FormatEngine {
     headingBlankLinesBefore: 1,
     headingBlankLinesAfter: 1,
     codeFenceStyle: '```',
+    maxHeadingDepth: 4,
+    maxParagraphChars: 800,
   }
 
   /**
@@ -145,6 +230,7 @@ class FormatEngine {
     const enabledRules = this.getEnabledRules(options)
     const appliedRules: FormatRuleId[] = []
     let result = content
+    const lintResults: LintResult[] = []
 
     // 按固定顺序执行规则，避免规则冲突
     const ruleOrder: FormatRuleId[] = [
@@ -170,7 +256,7 @@ class FormatEngine {
       if (!enabledRules.has(ruleId)) continue
 
       const rule = this.rules.get(ruleId)
-      if (!rule) continue
+      if (!rule || !rule.fix) continue
 
       const before = result
       result = rule.fix(result, mergedOptions)
@@ -180,10 +266,34 @@ class FormatEngine {
       }
     }
 
+    const changedLines = computeChangedLines(content, result)
+
+    // Lint 阶段：仅在启用的规则中执行 lint，默认按变更行过滤
+    for (const ruleId of enabledRules) {
+      const rule = this.rules.get(ruleId)
+      if (!rule || !rule.lint) continue
+
+      const results = rule.lint(result, mergedOptions, { changedLines })
+      for (const lint of results) {
+        if (changedLines.length && lint.line && !changedLines.includes(lint.line)) {
+          continue
+        }
+        lintResults.push({
+          severity: getRuleSeverity(rule.category),
+          ...lint,
+          ruleId: lint.ruleId ?? ruleId,
+          id: lint.id ?? `${ruleId}-${lintResults.length}`,
+          lines: lint.lines ?? (lint.line ? [lint.line] : lint.lines),
+        })
+      }
+    }
+
     return {
       original: content,
       formatted: result,
       appliedRules,
+      lintResults,
+      changedLines,
       hasChanges: content !== result,
     }
   }
@@ -252,4 +362,3 @@ export const registerRule = (rule: FormatRule): void => {
 export const registerRules = (rules: FormatRule[]): void => {
   formatEngine.registerAll(rules)
 }
-

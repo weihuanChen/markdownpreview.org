@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2025-12-19T02:24:53.052Z",
+  "appliedRules": [
+    "trailing-spaces",
+    "heading-space",
+    "heading-blank-lines",
+    "list-marker-style",
+    "blockquote-space"
+  ],
+  "lintResults": [
+    {
+      "severity": "warning",
+      "id": "heading-depth-27",
+      "ruleId": "heading-depth",
+      "messageKey": "formatter_rule_heading_depth_desc",
+      "message": "Heading depth exceeds limit",
+      "line": 27,
+      "lines": [
+        27
+      ]
+    }
+  ],
+  "changedLines": [
+    1,
+    2,
+    5,
+    7,
+    8,
+    10,
+    11,
+    20,
+    22,
+    24,
+    27
+  ],
+  "hasChanges": true,
+  "originalLength": 388,
+  "formattedLength": 389,
+  "original": "#Hello World\nThis is a sample markdown document with some formatting issues.\n\n##Features\n*  Item one\n*  Item two\n\n>This is a quote without proper spacing\n\n```javascript\nfunction hello() {\n  console.log(\"Hello!\")\n}\n```\n\nSome text right after the code block.\n\n### Trailing spaces   \nThis line has trailing spaces.   \n\n\nToo many blank lines above.\n\n####Another heading without space after #\n",
+  "formatted": "# Hello World\n\nThis is a sample markdown document with some formatting issues.\n\n## Features\n\n-  Item one\n-  Item two\n\n> This is a quote without proper spacing\n\n```javascript\nfunction hello() {\n  console.log(\"Hello!\")\n}\n```\n\nSome text right after the code block.\n\n### Trailing spaces\n\nThis line has trailing spaces.\n\n\nToo many blank lines above.\n\n#### Another heading without space after #\n"
+}

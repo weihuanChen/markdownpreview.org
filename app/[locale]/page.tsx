@@ -13,6 +13,7 @@ import { CommonUseCases } from "@/components/common-use-cases"
 import { MarkdownDiffSection } from "@/components/markdown-diff-section"
 import { MarkdownQuickStart } from "@/components/markdown-quickstart"
 import { Faq } from "@/components/faq"
+import { RelatedTools } from "@/components/related-tools"
 import { locales } from "@/i18n"
 
 const TEMPLATE_FILES: Record<string, string> = {
@@ -95,6 +96,7 @@ export default async function MarkdownEditorPage({ params }: { params: Promise<{
       <CommonUseCases />
       <MarkdownDiffSection />
       <Faq />
+      <RelatedTools />
     </div>
   )
 }

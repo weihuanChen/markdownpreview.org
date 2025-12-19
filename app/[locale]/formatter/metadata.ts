@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const currentUrl = `${baseUrl}/${locale}/formatter`
 
   const titles: Record<string, string> = {
-    en: "Markdown Formatter – Format & Beautify Your Markdown Online",
+    en: "Markdown Formatter with Safe Auto-Fix & Diff Preview",
     ja: "Markdownフォーマッター – オンラインでMarkdownを整形・美化",
     zh: "Markdown 格式化工具 – 在线格式化和美化 Markdown",
     fr: "Formateur Markdown – Formatez et embellissez votre Markdown en ligne",
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   const descriptions: Record<string, string> = {
-    en: "Free online Markdown formatter with diff preview. Automatically fix formatting issues, normalize whitespace, and beautify your Markdown files. No sign-up required.",
+    en: "Automatically format your Markdown using safe, deterministic rules. Review every change with word-level diff before applying.",
     ja: "差分プレビュー付きの無料オンラインMarkdownフォーマッター。フォーマットの問題を自動修正し、空白を正規化し、Markdownファイルを美化します。登録不要。",
     zh: "免费的在线 Markdown 格式化工具，带差异预览。自动修复格式问题、规范化空白并美化您的 Markdown 文件。无需注册。",
     fr: "Formateur Markdown en ligne gratuit avec aperçu des différences. Corrigez automatiquement les problèmes de formatage, normalisez les espaces et embellissez vos fichiers Markdown. Aucune inscription requise.",
