@@ -386,5 +386,9 @@
   "formatter_rule_heading_depth": "标题层级限制",
   "formatter_rule_heading_depth_desc": "标题层级不应超过设定的最大深度。",
   "formatter_rule_long_paragraph": "段落过长",
-  "formatter_rule_long_paragraph_desc": "段落过长，建议拆分成更短的句子或段落。"
+  "formatter_rule_long_paragraph_desc": "段落过长，建议拆分成更短的句子或段落。",
+  "not_found_title": "页面未找到",
+  "not_found_description": "抱歉，您访问的页面不存在。可能是链接错误或页面已被删除。",
+  "not_found_go_home": "返回首页",
+  "not_found_go_blog": "查看博客"
 }

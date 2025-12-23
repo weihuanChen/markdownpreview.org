@@ -386,5 +386,9 @@
   "formatter_rule_heading_depth": "Límite de nivel de encabezado",
   "formatter_rule_heading_depth_desc": "Los encabezados no deben exceder la profundidad configurada.",
   "formatter_rule_long_paragraph": "Párrafo demasiado largo",
-  "formatter_rule_long_paragraph_desc": "El párrafo es demasiado largo; considera dividirlo."
+  "formatter_rule_long_paragraph_desc": "El párrafo es demasiado largo; considera dividirlo.",
+  "not_found_title": "Página no encontrada",
+  "not_found_description": "Lo sentimos, la página que buscas no existe. Puede haber sido movida o eliminada.",
+  "not_found_go_home": "Ir al inicio",
+  "not_found_go_blog": "Ver blog"
 }

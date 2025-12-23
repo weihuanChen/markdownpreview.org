@@ -386,5 +386,9 @@
   "formatter_rule_heading_depth": "Limite de profondeur de titre",
   "formatter_rule_heading_depth_desc": "Les titres ne doivent pas dépasser la profondeur configurée.",
   "formatter_rule_long_paragraph": "Paragraphe trop long",
-  "formatter_rule_long_paragraph_desc": "Le paragraphe est trop long ; pensez à le scinder."
+  "formatter_rule_long_paragraph_desc": "Le paragraphe est trop long ; pensez à le scinder.",
+  "not_found_title": "Page introuvable",
+  "not_found_description": "Désolé, la page que vous recherchez n'existe pas. Elle a peut-être été déplacée ou supprimée.",
+  "not_found_go_home": "Aller à l'accueil",
+  "not_found_go_blog": "Voir le blog"
 }

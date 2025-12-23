@@ -386,5 +386,9 @@
   "formatter_rule_heading_depth": "見出しの深さ上限",
   "formatter_rule_heading_depth_desc": "見出しは設定した深さを超えないようにします。",
   "formatter_rule_long_paragraph": "段落が長すぎます",
-  "formatter_rule_long_paragraph_desc": "段落が長すぎます。分割を検討してください。"
+  "formatter_rule_long_paragraph_desc": "段落が長すぎます。分割を検討してください。",
+  "not_found_title": "ページが見つかりません",
+  "not_found_description": "申し訳ございませんが、お探しのページは存在しません。リンクが間違っているか、ページが削除された可能性があります。",
+  "not_found_go_home": "ホームに戻る",
+  "not_found_go_blog": "ブログを見る"
 }

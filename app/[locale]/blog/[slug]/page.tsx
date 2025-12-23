@@ -4,11 +4,11 @@ import { MarkdownPreview } from '@/components/markdown-preview'
 import { Toc } from '@/components/blog/toc'
 import { BlogCTA } from '@/components/blog/blog-cta'
 import { Calendar, Clock, User, Tag, ArrowLeft } from 'lucide-react'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Link } from '@/navigation'
 import { Button } from '@/components/ui/button'
-import { defaultLocale, locales } from '@/i18n'
+import { locales, defaultLocale } from '@/i18n'
 import { cache } from 'react'
 
 export const revalidate = 43200 // 12 小时
@@ -77,9 +77,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const post = await getCachedPost(resolvedParams.slug, resolvedParams.locale)
 
     if (!post) {
-      if (resolvedParams.locale !== defaultLocale) {
-        redirect(`/${resolvedParams.locale}/blog?missing=1`)
-      }
+      // 不自动重定向，让用户自己选择，直接显示404页面
       notFound()
     }
 
