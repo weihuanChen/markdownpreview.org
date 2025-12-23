@@ -16,10 +16,13 @@ const DIRECTUS_ASSET_BASE =
 /**
  * 计算文章阅读时间（分钟）
  */
-function calculateReadingTime(content: string): number {
+function calculateReadingTime(content: string | null | undefined): number {
+  if (!content || typeof content !== 'string') {
+    return 1 // 默认 1 分钟
+  }
   const wordsPerMinute = 200
-  const wordCount = content.split(/\s+/).length
-  return Math.ceil(wordCount / wordsPerMinute)
+  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length
+  return Math.max(1, Math.ceil(wordCount / wordsPerMinute)) // 至少 1 分钟
 }
 
 /**
@@ -75,10 +78,17 @@ function transformDirectusPost(
   // 从预加载的标签映射中获取标签名称
   const tags = tagIds.map((id) => tagMap.get(id)).filter((tag): tag is string => Boolean(tag))
 
-  // 使用翻译内容或原始内容
-  const title = translation?.title || post.title
-  const description = translation?.description || post.description
-  const content = translation?.content || post.content
+  // 使用翻译内容或原始内容，确保不为空
+  const title = (translation?.title || post.title || '').trim()
+  const description = (translation?.description || post.description || '').trim()
+  const content = (translation?.content || post.content || '').trim()
+  
+  // 验证必需字段
+  if (!title || !content) {
+    throw new Error(`Invalid post data: missing title or content for slug ${post.slug}`)
+  }
+
+  // 处理日期，确保有效
   const publishedAt =
     post.published_at || post.date_created || new Date().toISOString()
   const image = post.image ? `${DIRECTUS_ASSET_BASE}/assets/${post.image}` : undefined
@@ -400,9 +410,15 @@ async function getPostBySlugInternal(
       return null
     }
 
-    return transformDirectusPost(post, translation, locale, tagMap)
+    try {
+      return transformDirectusPost(post, translation, locale, tagMap)
+    } catch (transformError) {
+      console.error(`Error transforming post ${slug} for locale ${locale}:`, transformError)
+      // 如果转换失败，返回 null 而不是抛出错误
+      return null
+    }
   } catch (error) {
-    console.error('Error fetching post by slug:', error)
+    console.error(`Error fetching post by slug ${slug} for locale ${locale}:`, error)
     return null
   }
 }
