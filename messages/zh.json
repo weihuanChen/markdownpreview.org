@@ -350,6 +350,7 @@
   "formatter_input": "输入",
   "formatter_input_hint": "粘贴或输入您的 Markdown",
   "formatter_load_sample": "加载示例",
+  "formatter_uploading": "上传中...",
   "formatter_unsaved": "未保存的更改",
   "formatter_format": "格式化",
   "formatter_formatting": "格式化中...",

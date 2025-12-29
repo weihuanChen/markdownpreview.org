@@ -350,6 +350,7 @@
   "formatter_input": "Entrada",
   "formatter_input_hint": "Pega o escribe tu Markdown",
   "formatter_load_sample": "Cargar ejemplo",
+  "formatter_uploading": "Subiendo...",
   "formatter_unsaved": "Cambios sin guardar",
   "formatter_format": "Formatear",
   "formatter_formatting": "Formateando...",

@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Shield,
   FileCheck,
+  Upload,
 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
@@ -264,6 +265,11 @@ export function MarkdownFormatter() {
   const [exporting, setExporting] = useState(false)
   const [openFaqIndices, setOpenFaqIndices] = useState<Set<number>>(new Set([0, 1, 2, 3]))
   
+  // 文件上传相关状态
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   // 解析 diff
   const diffData = useMemo(() => {
     if (!result?.hasChanges) return null
@@ -324,6 +330,110 @@ export function MarkdownFormatter() {
   const loadSample = useCallback(() => {
     setContent(SAMPLE_MARKDOWN)
   }, [setContent])
+  
+  // 文件上传相关函数
+  const ALLOWED_FILE_TYPES = [
+    ".md",
+    ".markdown",
+    ".txt",
+    ".json",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".css",
+    ".scss",
+    ".html",
+    ".htm",
+    ".xml",
+    ".yaml",
+    ".yml",
+  ]
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
+  const validateFile = useCallback((file: File): string | null => {
+    // 检查文件类型
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf("."))
+    const isValidType =
+      ALLOWED_FILE_TYPES.includes(fileExtension) ||
+      file.type.startsWith("text/") ||
+      file.type === "application/json"
+
+    if (!isValidType) {
+      return t("editor_upload_error_invalid_type")
+    }
+
+    // 检查文件大小
+    if (file.size > MAX_FILE_SIZE) {
+      return t("editor_upload_error_too_large", { maxSize: "10MB" })
+    }
+
+    // 检查文件是否为空
+    if (file.size === 0) {
+      return t("editor_upload_error_empty")
+    }
+
+    return null
+  }, [t])
+
+  const readFileContent = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const content = e.target?.result as string
+        if (content === undefined || content === null) {
+          reject(new Error(t("editor_upload_error_read_failed")))
+        } else {
+          resolve(content)
+        }
+      }
+      reader.onerror = () => {
+        reject(new Error(t("editor_upload_error_read_failed")))
+      }
+      reader.readAsText(file, "UTF-8")
+    })
+  }, [t])
+
+  const handleFileUpload = useCallback(async (file: File | null) => {
+    if (!file) return
+
+    setUploadError(null)
+    setIsUploading(true)
+
+    try {
+      // 验证文件
+      const validationError = validateFile(file)
+      if (validationError) {
+        setUploadError(validationError)
+        return
+      }
+
+      // 读取文件内容
+      const content = await readFileContent(file)
+
+      // 设置内容到编辑器
+      setContent(content)
+      setUploadError(null)
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : t("editor_upload_error_read_failed")
+      setUploadError(errorMessage)
+    } finally {
+      setIsUploading(false)
+    }
+  }, [validateFile, readFileContent, setContent, t])
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        handleFileUpload(file)
+      }
+      // 重置 input，允许重复选择同一文件
+      e.target.value = ""
+    },
+    [handleFileUpload],
+  )
   
   // 统计信息
   const stats = useMemo(() => {
@@ -625,6 +735,33 @@ export function MarkdownFormatter() {
                     {t("formatter_unsaved")}
                   </span>
                 )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={ALLOWED_FILE_TYPES.join(",")}
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="text-xs border-[var(--brand-blue)] text-[var(--brand-blue)] hover:bg-[rgba(0,117,222,0.08)]"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                      {t("formatter_uploading")}
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3.5 w-3.5 mr-1" />
+                      {t("editor_upload_file")}
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -635,6 +772,11 @@ export function MarkdownFormatter() {
                 </Button>
               </div>
             </div>
+            {uploadError && (
+              <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20">
+                <p className="text-xs text-destructive">{uploadError}</p>
+              </div>
+            )}
             <div className="h-[400px] lg:h-[500px] overflow-hidden">
               <CodeMirrorEditor
                 value={content}

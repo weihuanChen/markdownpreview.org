@@ -350,6 +350,7 @@
   "formatter_input": "入力",
   "formatter_input_hint": "Markdownを貼り付けまたは入力",
   "formatter_load_sample": "サンプルを読込",
+  "formatter_uploading": "アップロード中...",
   "formatter_unsaved": "未保存の変更",
   "formatter_format": "フォーマット",
   "formatter_formatting": "フォーマット中...",
