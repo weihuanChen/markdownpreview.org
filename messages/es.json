@@ -54,6 +54,8 @@
   "editor_upload_error_too_large": "Archivo demasiado grande. El tamaño máximo es {maxSize}",
   "editor_upload_error_empty": "El archivo está vacío",
   "editor_upload_error_read_failed": "Error al leer el archivo. Por favor, inténtalo de nuevo",
+  "editor_professional_message": "¿Necesitas funciones de escritura más profesionales?",
+  "editor_professional_link": "Ir a Formatter",
   "markdown_diff_label": "Comparación Markdown",
   "markdown_diff_title": "Comparar versiones de Markdown",
   "markdown_diff_description": "Compara dos documentos Markdown y revisa los cambios con comparación semántica por bloques.",

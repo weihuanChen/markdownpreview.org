@@ -54,6 +54,8 @@
   "editor_upload_error_too_large": "Fichier trop volumineux. La taille maximale est de {maxSize}",
   "editor_upload_error_empty": "Le fichier est vide",
   "editor_upload_error_read_failed": "Échec de la lecture du fichier. Veuillez réessayer",
+  "editor_professional_message": "Besoin de fonctionnalités d'écriture plus professionnelles ?",
+  "editor_professional_link": "Aller au Formatter",
   "markdown_diff_label": "Comparaison Markdown",
   "markdown_diff_title": "Comparer les versions Markdown",
   "markdown_diff_description": "Comparez deux documents Markdown et examinez les modifications avec une comparaison sémantique par blocs.",

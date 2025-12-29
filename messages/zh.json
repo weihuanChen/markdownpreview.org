@@ -54,6 +54,8 @@
   "editor_upload_error_too_large": "文件过大，最大支持 {maxSize}",
   "editor_upload_error_empty": "文件为空",
   "editor_upload_error_read_failed": "文件读取失败，请重试",
+  "editor_professional_message": "需要更专业的写作需求？",
+  "editor_professional_link": "前往 Formatter",
   "markdown_diff_label": "Markdown Diff",
   "markdown_diff_title": "Markdown 差异对比",
   "markdown_diff_description": "在左右两侧粘贴 Markdown 文本，点击比对后查看精确的差异高亮。",

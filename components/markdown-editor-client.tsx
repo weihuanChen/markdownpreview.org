@@ -5,10 +5,11 @@ import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
-import { GripHorizontal, Copy, Check, Sparkles, Upload, Download } from "lucide-react"
+import { GripHorizontal, Copy, Check, Sparkles, Upload, Download, Wand2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
+import { Link } from "@/navigation"
 
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
   ssr: false,
@@ -346,7 +347,7 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
   return (
     <section id="editor-stage" className="relative px-4 pb-16">
       <div className="absolute inset-x-6 -top-10 h-32 bg-[radial-gradient(circle_at_20%_50%,rgba(15,118,110,0.16),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,122,83,0.16),transparent_42%)] blur-2xl" />
-      <div className="relative max-w-6xl mx-auto overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-[0_25px_90px_-45px_rgba(15,23,42,0.55)] backdrop-blur">
+      <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-[0_25px_90px_-45px_rgba(15,23,42,0.55)] backdrop-blur">
         <div id="markdown-editor" className="flex overflow-hidden relative" style={{ height: `${editorHeight}vh` }}>
           <div className="w-full md:w-1/2 border-r border-border/70 flex flex-col h-full bg-gradient-to-b from-card via-card/70 to-secondary/60">
             <div className="px-5 py-3 border-b border-border/70 bg-gradient-to-r from-card/90 via-secondary/40 to-card/80 flex items-center justify-between backdrop-blur">
@@ -445,6 +446,24 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
             <div className="absolute inset-x-0 h-1 bg-border group-hover:bg-[var(--brand-blue)] transition-colors" />
             <GripHorizontal className="h-4 w-4 text-muted-foreground group-hover:text-[var(--brand-blue)] transition-colors bg-background rounded-sm opacity-0 group-hover:opacity-100" />
           </div>
+        </div>
+      </div>
+      
+      {/* Professional Writing Message */}
+      <div className="relative max-w-7xl mx-auto mt-4 px-4">
+        <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border/60 bg-muted/40 backdrop-blur text-sm text-muted-foreground">
+          <span>{t("editor_professional_message")}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="h-auto px-2 py-1 text-[var(--brand-blue)] hover:text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/10"
+          >
+            <Link href="/formatter">
+              <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+              {t("editor_professional_link")}
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

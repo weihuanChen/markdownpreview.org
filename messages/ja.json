@@ -54,6 +54,8 @@
   "editor_upload_error_too_large": "ファイルが大きすぎます。最大サイズは {maxSize} です",
   "editor_upload_error_empty": "ファイルが空です",
   "editor_upload_error_read_failed": "ファイルの読み込みに失敗しました。もう一度お試しください",
+  "editor_professional_message": "より専門的な執筆機能が必要ですか？",
+  "editor_professional_link": "Formatter へ",
   "markdown_diff_label": "Markdown Diff",
   "markdown_diff_title": "Markdown差分ビュー",
   "markdown_diff_description": "左右にMarkdownを入力し、「差分を生成」を押してから変更点だけをハイライト表示します。",

@@ -54,6 +54,8 @@
   "editor_upload_error_too_large": "File too large. Maximum size is {maxSize}",
   "editor_upload_error_empty": "File is empty",
   "editor_upload_error_read_failed": "Failed to read file. Please try again",
+  "editor_professional_message": "Need more professional writing features?",
+  "editor_professional_link": "Go to Formatter",
   "markdown_diff_label": "Markdown diff",
   "markdown_diff_title": "Compare Markdown versions",
   "markdown_diff_description": "Compare two Markdown documents and review changes with semantic, block-aware diff.",
