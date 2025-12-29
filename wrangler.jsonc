@@ -49,7 +49,7 @@
     {
       "binding": "NEXT_TAG_CACHE_D1",
       "database_id": "a908f521-8267-489f-803b-1265a964adf3",
-      "database_name": "next-zentimer"
+      "database_name": "markdownpreview"
     }
   ],
   // 迁移配置
@@ -63,12 +63,12 @@
   // 变量
   "vars": {
     "DIRECTUS_URL": "https://directus.lzyinglian.com/",
-    "NEXT_PUBLIC_SITE_ID": 5
+    "NEXT_PUBLIC_SITE_ID": 6
   },
 
   "observability": {
     "logs": {
-      "enabled": false,
+      "enabled": true,
       "head_sampling_rate": 1,
       "invocation_logs": true,
       "persist": true

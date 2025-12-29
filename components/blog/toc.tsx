@@ -94,9 +94,9 @@ export function Toc({ content }: TocProps) {
           >
             <button
               onClick={() => handleClick(item.id)}
-              className={`text-left hover:text-[#0075de] transition-colors ${
+              className={`text-left hover:text-[var(--brand-blue)] transition-colors ${
                 activeId === item.id
-                  ? 'text-[#0075de] font-medium'
+                  ? 'text-[var(--brand-blue)] font-medium'
                   : 'text-muted-foreground'
               }`}
             >

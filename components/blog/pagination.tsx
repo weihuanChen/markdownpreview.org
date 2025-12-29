@@ -103,7 +103,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
               onClick={() => handlePageChange(pageNum)}
               aria-label={`${t('blog_page')} ${pageNum}`}
               aria-current={isCurrentPage ? 'page' : undefined}
-              className={isCurrentPage ? 'bg-[#0075de] hover:bg-[#0075de]/90' : ''}
+              className={isCurrentPage ? 'bg-[var(--brand-blue)] text-[#052220] hover:bg-[var(--brand-blue)]/90' : ''}
             >
               {pageNum}
             </Button>

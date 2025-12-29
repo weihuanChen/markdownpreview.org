@@ -19,11 +19,11 @@ export function BlogCTA() {
   }
 
   return (
-    <div className="my-12 rounded-2xl border-2 border-[#0075de]/20 bg-gradient-to-br from-[#0075de]/5 via-background to-background p-8 shadow-lg">
+    <div className="my-12 rounded-2xl border-2 border-[var(--brand-blue)]/30 bg-gradient-to-br from-[var(--brand-blue)]/8 via-background to-background p-8 shadow-lg">
       <div className="flex flex-col items-center text-center">
         {/* Icon */}
-        <div className="mb-4 rounded-full bg-[#0075de]/10 p-4">
-          <Edit3 className="h-8 w-8 text-[#0075de]" />
+        <div className="mb-4 rounded-full bg-[var(--brand-blue)]/14 p-4">
+          <Edit3 className="h-8 w-8 text-[var(--brand-blue)]" />
         </div>
 
         {/* Heading */}
@@ -37,7 +37,11 @@ export function BlogCTA() {
         </p>
 
         {/* CTA Button */}
-        <Button size="lg" className="group" onClick={handleClick}>
+        <Button
+          size="lg"
+          className="group bg-[var(--brand-blue)] text-[#052220] hover:bg-[var(--brand-blue)]/90"
+          onClick={handleClick}
+        >
           <span className="flex items-center gap-2">
             {t('blog_cta_button')}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

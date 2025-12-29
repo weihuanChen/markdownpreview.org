@@ -1,8 +1,8 @@
 import { getPostBySlug, getAllPostSlugs } from '@/lib/cms-blog'
 import type { Locale } from '@/lib/types'
-import { MarkdownPreview } from '@/components/markdown-preview'
 import { Toc } from '@/components/blog/toc'
 import { BlogCTA } from '@/components/blog/blog-cta'
+import { MarkdownPreview } from '@/components/markdown-preview'
 import { Calendar, Clock, User, Tag, ArrowLeft } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -246,9 +246,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* 主内容区 */}
             <article className="min-w-0">
               {/* 摘要（Blockquote 样式） */}
-              <blockquote className="border-l-4 border-[#0075de] bg-muted/50 p-6 mb-8 rounded-r-lg">
+              <blockquote className="border-l-4 border-[var(--brand-blue)] bg-muted/50 p-6 mb-8 rounded-r-lg">
                 <p className="text-lg text-foreground italic">
-                  <strong className="text-[#0075de] not-italic">{t('blog_summary')}: </strong>
+                  <strong className="text-[var(--brand-blue)] not-italic">{t('blog_summary')}: </strong>
                   {post.description}
                 </p>
               </blockquote>

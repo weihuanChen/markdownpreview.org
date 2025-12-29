@@ -20,16 +20,16 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Change language">
-          <Globe className="h-5 w-5 text-[#0075de]" />
+        <Button variant="ghost" size="icon" aria-label="Change language" className="hover:bg-[var(--brand-blue)]/12">
+          <Globe className="h-5 w-5 text-[var(--brand-blue)]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="border border-border/70 bg-card/90 shadow-[0_14px_48px_-32px_rgba(15,23,42,0.65)]">
         {locales.map((loc) => (
           <DropdownMenuItem
             key={loc}
             onClick={() => handleLanguageChange(loc)}
-            className={locale === loc ? 'bg-accent' : ''}
+            className={locale === loc ? 'bg-[var(--brand-blue)]/12 text-foreground' : ''}
           >
             {t(`lang_${loc}`)}
           </DropdownMenuItem>

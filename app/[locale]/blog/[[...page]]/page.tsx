@@ -9,8 +9,8 @@ import { defaultLocale, locales } from '@/i18n'
 export const revalidate = 43200 // 12 小时
 
 interface BlogPageProps {
-  params: { locale: Locale; page?: string[] }
-  searchParams?: { missing?: string }
+  params: Promise<{ locale: Locale; page?: string[] }>
+  searchParams?: Promise<{ missing?: string }>
 }
 
 const resolvePage = (segments?: string[]) => {
@@ -32,7 +32,7 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale, page: [] }))
 }
 
-export async function generateMetadata({ params }: BlogPageProps) {
+export async function generateMetadata({ params }: Omit<BlogPageProps, 'searchParams'>) {
   const resolvedParams = await params
   setRequestLocale(resolvedParams.locale)
   const t = await getTranslations()
@@ -72,6 +72,7 @@ export async function generateMetadata({ params }: BlogPageProps) {
 export default async function BlogPage({ params, searchParams }: BlogPageProps) {
   try {
     const resolvedParams = await params
+    const resolvedSearchParams = await searchParams
     // 启用静态渲染 - 必须在使用其他 next-intl API 之前调用
     setRequestLocale(resolvedParams.locale)
 
@@ -79,7 +80,7 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
     const t = await getTranslations()
     const isDefaultLocale = resolvedParams.locale === defaultLocale
     const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
-    const showMissingNotice = searchParams?.missing === '1'
+    const showMissingNotice = resolvedSearchParams?.missing === '1'
 
     // 第一页使用分组显示，其他页面使用分页显示
     const useGroupedView = page === 1
@@ -155,9 +156,10 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
     console.error('Error in BlogPage:', error)
     // 返回空列表而不是抛出异常
     const resolvedParams = await params
+    const resolvedSearchParams = await searchParams
     setRequestLocale(resolvedParams.locale)
     const t = await getTranslations()
-    const showMissingNotice = searchParams?.missing === '1'
+    const showMissingNotice = resolvedSearchParams?.missing === '1'
     const isDefaultLocale = resolvedParams.locale === defaultLocale
     const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
 

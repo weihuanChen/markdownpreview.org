@@ -69,12 +69,10 @@ export function RelatedTools({ excludePath }: RelatedToolsProps = {}) {
   const cards = [...toolsToShow, BLOG]
 
   return (
-    <section className="py-16 px-4 bg-background">
-      <div className="max-w-6xl mx-auto">
-        <div className="pt-8 pb-6">
-          <div className="h-px w-full bg-border" />
-        </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">
+    <section className="relative py-16 px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-card/70 via-transparent to-secondary/50" />
+      <div className="relative max-w-6xl mx-auto space-y-8">
+        <h2 className="text-2xl md:text-3xl font-semibold text-center text-foreground">
           {t("related_tools_title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -84,17 +82,18 @@ export function RelatedTools({ excludePath }: RelatedToolsProps = {}) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="group flex flex-col h-full rounded-xl border border-border bg-card/70 p-6 hover:border-[var(--brand-blue)]/50 hover:shadow-md transition-all"
+                className="group relative flex flex-col h-full rounded-2xl border border-border/70 bg-card/80 p-6 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.55)] backdrop-blur transition-all hover:-translate-y-1 hover:border-[var(--brand-blue)]/60"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[rgba(0,117,222,0.1)] flex items-center justify-center group-hover:bg-[rgba(0,117,222,0.15)] transition-colors">
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gradient-to-br from-[var(--brand-blue)]/8 via-transparent to-[#ff7a53]/10" />
+                <div className="relative flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[var(--brand-blue)]/12 flex items-center justify-center group-hover:bg-[var(--brand-blue)]/18 transition-colors">
                     <Icon className="h-6 w-6 text-[var(--brand-blue)]" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-[var(--brand-blue)] transition-colors">
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-[var(--brand-blue)] transition-colors">
                       {t(item.titleKey)}
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {t(item.descriptionKey)}
                     </p>
                     <div className="flex items-center text-sm font-medium text-[var(--brand-blue)] group-hover:gap-2 transition-all">
@@ -111,4 +110,3 @@ export function RelatedTools({ excludePath }: RelatedToolsProps = {}) {
     </section>
   )
 }
-

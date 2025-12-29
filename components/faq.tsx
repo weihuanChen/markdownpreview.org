@@ -57,17 +57,18 @@ export function Faq({ titleKey, title, faqData: customFaqData }: FaqProps = {}) 
   }
 
   return (
-    <section className="py-16 px-4 bg-muted/30">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
+    <section className="relative py-16 px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary/40 via-transparent to-card/60" />
+      <div className="relative max-w-4xl mx-auto rounded-3xl border border-border/70 bg-card/80 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.55)] backdrop-blur px-6 md:px-10 py-10">
+        <h2 className="text-3xl font-semibold text-center mb-10 text-foreground">
           {displayTitle}
         </h2>
         <div className="space-y-4">
           {faqData.map((item, index) => (
-            <div key={index} className="border border-border rounded-lg bg-card overflow-hidden">
+            <div key={index} className="border border-border/70 rounded-2xl bg-card/80 overflow-hidden">
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
+                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[var(--brand-blue)]/8 transition-colors"
               >
                 <span className="font-medium text-foreground">{item.question}</span>
                 <ChevronDown
@@ -77,7 +78,7 @@ export function Faq({ titleKey, title, faqData: customFaqData }: FaqProps = {}) 
                 />
               </button>
               {openIndices.has(index) && (
-                <div className="px-6 py-4 border-t border-border bg-muted/20">
+                <div className="px-6 py-4 border-t border-border/60 bg-secondary/40">
                   <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
                 </div>
               )}

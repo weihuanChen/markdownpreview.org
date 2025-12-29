@@ -1,94 +1,76 @@
-"use client"
+import { MarkdownDiffPageClient } from './diff-client'
+export { generateMetadata } from './metadata'
 
-import { MarkdownDiff } from "@/components/markdown-diff"
-import { Faq } from "@/components/faq"
-import { RelatedTools } from "@/components/related-tools"
-import { useTranslations } from "next-intl"
+export default async function MarkdownDiffPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+  const currentUrl = `${baseUrl}/${locale}/diff`
 
-export default function MarkdownDiffPage() {
-  const t = useTranslations()
+  const names: Record<string, string> = {
+    en: "Markdown Diff Tool",
+    ja: "Markdown Diff ツール",
+    zh: "Markdown 差异对比工具",
+  }
 
-  const diffFaqData = [
-    {
-      question: t("diff_faq_q1"),
-      answer: t("diff_faq_a1"),
-    },
-    {
-      question: t("diff_faq_q2"),
-      answer: t("diff_faq_a2"),
-    },
-    {
-      question: t("diff_faq_q3"),
-      answer: t("diff_faq_a3"),
-    },
-    {
-      question: t("diff_faq_q4"),
-      answer: t("diff_faq_a4"),
-    },
-  ]
+  const descriptions: Record<string, string> = {
+    en: "Free online Markdown diff tool to compare Markdown files and versions. Supports ignore rules, block-aware diff, word-level highlighting, multiple views, file upload, and export. No sign-up required.",
+    ja: "Markdown ファイルとバージョンを比較する無料のオンライン Markdown 差分ツール。無視ルール、ブロック対応差分、単語レベルのハイライト、複数のビュー、ファイルアップロード、エクスポートをサポート。登録不要。",
+    zh: "免费的在线 Markdown 差异对比工具，用于比较 Markdown 文件和版本。支持忽略规则、块感知差异、词级别高亮、多种视图、文件上传和导出。无需注册。",
+  }
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication',
+        '@id': `${currentUrl}#webapp`,
+        name: names[locale] || names.en,
+        description: descriptions[locale] || descriptions.en,
+        url: currentUrl,
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Any',
+        browserRequirements: 'Requires JavaScript. Requires HTML5.',
+        softwareVersion: '1.0',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        featureList: [
+          'Markdown File Comparison',
+          'Semantic Block Diff',
+          'Word-level Highlighting',
+          'Ignore Rules Support',
+          'Multiple View Modes',
+          'File Upload & Export',
+          'No Registration Required',
+        ],
+        inLanguage: locale,
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${currentUrl}#software`,
+        name: names[locale] || names.en,
+        description: descriptions[locale] || descriptions.en,
+        url: currentUrl,
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Any',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+      },
+    ],
+  }
 
   return (
     <main className="min-h-screen bg-background">
-      <MarkdownDiff />
-      <section className="px-4 py-8 md:py-10 border-t border-border bg-background">
-        <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 text-sm md:text-base">
-          <h2 className="text-lg md:text-xl font-semibold text-foreground">
-            {t("diff_page_how_it_works_title")}
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("diff_page_how_it_works_p1")}
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("diff_page_how_it_works_p2")}
-          </p>
-
-          <div className="space-y-3 md:space-y-4">
-            <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {t("diff_page_language_support_title")}
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              {t("diff_page_language_support_p1")}
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              {t("diff_page_language_support_p2")}
-            </p>
-          </div>
-
-          <div className="space-y-3 md:space-y-4">
-            <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {t("diff_page_privacy_title")}
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              {t("diff_page_privacy_p1")}
-            </p>
-          </div>
-
-          <div className="space-y-3 md:space-y-4">
-            <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {t("diff_page_use_cases_title")}
-            </h2>
-            <ul className="list-disc pl-5 space-y-1 text-muted-foreground leading-relaxed">
-              <li>{t("diff_page_use_cases_li1")}</li>
-              <li>{t("diff_page_use_cases_li2")}</li>
-              <li>{t("diff_page_use_cases_li3")}</li>
-              <li>{t("diff_page_use_cases_li4")}</li>
-            </ul>
-            <div className="pt-4">
-              <div className="h-px w-full bg-border" />
-            </div>
-          </div>
-
-          <div className="flex justify-center pt-4">
-            <div className="inline-block max-w-xl rounded-xl border border-[var(--brand-blue)]/70 bg-[rgba(0,117,222,0.04)] px-4 py-3 shadow-sm text-center">
-              <p className="text-sm md:text-base leading-relaxed text-[var(--brand-blue)]">
-                <span className="font-semibold">{t("diff_page_highlight_text")}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <Faq titleKey="diff_faq_title" faqData={diffFaqData} />
-      <RelatedTools />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <MarkdownDiffPageClient />
     </main>
   )
 }

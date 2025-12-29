@@ -22,7 +22,7 @@ export function BlogCard({ post }: BlogCardProps) {
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="p-6">
           {/* 标题 */}
-          <h2 className="text-2xl font-semibold text-foreground mb-3 group-hover:text-[#0075de] transition-colors">
+          <h2 className="text-2xl font-semibold text-foreground mb-3 group-hover:text-[var(--brand-blue)] transition-colors">
             {post.title}
           </h2>
 

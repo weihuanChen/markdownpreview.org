@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import { ArrowUpRight, Play, Plus, Copy, Check } from "lucide-react"
 import { useTranslations } from 'next-intl'
 import { useEditorActions } from "@/components/editor-actions-provider"
@@ -12,8 +12,16 @@ export function MarkdownQuickStart() {
   const { replaceContent, insertAtCursor } = useEditorActions()
   const [copiedCard, setCopiedCard] = useState<string | null>(null)
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const [baseUrl, setBaseUrl] = useState<string>('https://markdownpreview.org')
 
-  const cards = [
+  // 在客户端挂载后更新基础 URL，避免水合错误
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setBaseUrl(window.location.origin)
+    }
+  }, [])
+
+  const cards = useMemo(() => [
     {
       key: "intro",
       title: t("quickstart_intro_title"),
@@ -50,7 +58,19 @@ export function MarkdownQuickStart() {
       description: t("quickstart_lists_description"),
       snippet: t("quickstart_lists_snippet"),
     },
-  ]
+    {
+      key: "image",
+      title: t("quickstart_image_title"),
+      description: t("quickstart_image_description"),
+      snippet: t("quickstart_image_snippet").replace('/markdownpreview-dojo.png', `${baseUrl}/markdownpreview-dojo.png`),
+    },
+    {
+      key: "links",
+      title: t("quickstart_links_title"),
+      description: t("quickstart_links_description"),
+      snippet: t("quickstart_links_snippet"),
+    },
+  ], [t, baseUrl])
 
   const handleCopy = useCallback(async (snippet: string, cardKey: string) => {
     try {
@@ -93,14 +113,16 @@ export function MarkdownQuickStart() {
   }, [])
 
   return (
-    <section id="quickstart-section" className="py-16 px-4 bg-linear-to-b from-muted/20 via-background to-background border-b border-border">
-      <div className="max-w-6xl mx-auto space-y-10">
+    <section id="quickstart-section" className="relative py-16 md:py-20 px-4 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(15,118,110,0.12),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(255,122,83,0.12),transparent_26%)]" />
+      <div className="relative max-w-6xl mx-auto space-y-10">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-3">
-            <p className="text-sm font-semibold text-primary/80 tracking-wide uppercase">
+            <p className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-[var(--brand-blue)]" />
               {t("quickstart_label")}
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t("quickstart_title")}</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold text-foreground">{t("quickstart_title")}</h2>
             <p className="text-muted-foreground text-base leading-relaxed max-w-3xl">
               {t("quickstart_description")}
             </p>
@@ -110,7 +132,7 @@ export function MarkdownQuickStart() {
                 href="https://www.markdownguide.org/basic-syntax/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+                className="inline-flex items-center gap-1 text-[var(--brand-blue)] hover:text-[var(--brand-blue)]/80 transition-colors"
               >
                 {t("quickstart_source_name")}
                 <ArrowUpRight className="h-4 w-4" />
@@ -124,17 +146,17 @@ export function MarkdownQuickStart() {
           {cards.map((card) => (
             <div
               key={card.key}
-              className={`rounded-xl border bg-card/70 shadow-sm hover:shadow-md transition-all relative ${
+              className={`relative rounded-2xl border bg-card/80 shadow-[0_18px_60px_-42px_rgba(15,23,42,0.6)] backdrop-blur transition-all duration-200 ${
                 isHighlighted
-                  ? "border-[#0075de] border-2 shadow-lg shadow-[#0075de]/20"
-                  : "border-border"
+                  ? "border-[var(--brand-blue)]/80 shadow-[0_25px_80px_-55px_rgba(15,118,110,0.9)]"
+                  : "border-border/70"
               }`}
             >
               <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
+                  className="h-7 w-7 text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/12"
                   onClick={() => replaceContent(card.snippet)}
                   title={t("quickstart_try_in_editor")}
                   aria-label={t("quickstart_try_in_editor")}
@@ -144,7 +166,7 @@ export function MarkdownQuickStart() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
+                  className="h-7 w-7 text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/12"
                   onClick={() => insertAtCursor(card.snippet)}
                   title={t("quickstart_insert")}
                   aria-label={t("quickstart_insert")}
@@ -154,7 +176,7 @@ export function MarkdownQuickStart() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7 text-[#0075de] hover:bg-[#0075de]/10"
+                  className="h-7 w-7 text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/12"
                   onClick={() => handleCopy(card.snippet, card.key)}
                   title={copiedCard === card.key ? t("copied") : t("copy")}
                   aria-label={copiedCard === card.key ? t("copied") : t("copy")}
@@ -169,8 +191,8 @@ export function MarkdownQuickStart() {
               <div className="p-5 space-y-3">
                 <h3 className="text-lg font-semibold text-foreground pr-20">{card.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
-                <div className="relative">
-                  <pre className="bg-muted/50 border border-border/60 rounded-lg p-4 text-sm font-mono text-foreground whitespace-pre-wrap">
+                <div className="relative rounded-xl border border-border/60 bg-gradient-to-br from-secondary/60 via-card/80 to-card/70 p-4">
+                  <pre className="text-sm font-mono text-foreground whitespace-pre-wrap">
                     <code>{card.snippet}</code>
                   </pre>
                 </div>
@@ -179,13 +201,13 @@ export function MarkdownQuickStart() {
           ))}
         </div>
 
-        <div className="text-center pt-8">
+        <div className="text-center pt-4">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 font-medium text-[#0075de] hover:text-[#005bb1] transition-colors"
+            className="inline-flex items-center gap-2 font-medium text-[var(--brand-blue)] hover:text-[#0b9a86] transition-colors"
           >
             <span>{t("quickstart_blog_cta_question")}</span>
-            <span className="text-[#005bb1]">{t("quickstart_blog_cta_link")}</span>
+            <span className="text-[#0b9a86]">{t("quickstart_blog_cta_link")}</span>
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>

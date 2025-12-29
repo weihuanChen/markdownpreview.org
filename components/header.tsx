@@ -18,7 +18,7 @@ export function Header() {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+    <header className="border-b border-border/70 bg-card/80 px-4 py-3 flex items-center justify-between backdrop-blur shadow-[0_8px_30px_-28px_rgba(15,23,42,0.65)]">
       <Link href="/" className="hover:opacity-80 transition-opacity">
         <div className="flex flex-col">
           <h1 className="text-xl font-semibold text-foreground">{t("app_title")}</h1>
@@ -34,7 +34,7 @@ export function Header() {
           aria-label={t("markdown_diff_label")}
         >
           <Link href="/diff">
-            <GitCompare className="h-5 w-5 text-[#0075de]" />
+            <GitCompare className="h-5 w-5 text-[var(--brand-blue)]" />
           </Link>
         </Button>
 
@@ -46,7 +46,7 @@ export function Header() {
           aria-label="Markdown Formatter"
         >
           <Link href="/formatter">
-            <Wand2 className="h-5 w-5 text-[#0075de]" />
+            <Wand2 className="h-5 w-5 text-[var(--brand-blue)]" />
           </Link>
         </Button>
 
@@ -58,7 +58,7 @@ export function Header() {
           aria-label={t("blog_nav")}
         >
           <Link href="/blog">
-            <BookOpen className="h-5 w-5 text-[#0075de]" />
+            <BookOpen className="h-5 w-5 text-[var(--brand-blue)]" />
           </Link>
         </Button>
 
@@ -70,9 +70,9 @@ export function Header() {
           aria-label={theme === "light" ? t("theme_dark") : t("theme_light")}
         >
           {theme === "light" ? (
-            <Moon className="h-5 w-5 text-[#0075de]" />
+            <Moon className="h-5 w-5 text-[var(--brand-blue)]" />
           ) : (
-            <Sun className="h-5 w-5 text-[#0075de]" />
+            <Sun className="h-5 w-5 text-[var(--brand-blue)]" />
           )}
         </Button>
 

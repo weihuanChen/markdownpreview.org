@@ -70,6 +70,7 @@
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
+    "shiki": "^1.26.1",
     "sonner": "^1.7.4",
     "streamdown": "^1.1.2",
     "tailwind-merge": "^3.3.1",
