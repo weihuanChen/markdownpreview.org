@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     Array<{ slug: string; post_translation?: Array<{ language_code: Locale }> }>
   >(
     readItems('posts', {
+      limit: -1, // 取全部文章，避免 Directus 默认分页遗漏后续文章
       filter: {
         status: { _eq: 'published' },
         site_id: { _eq: SITE_ID },
@@ -37,6 +38,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       locale === defaultLocale ||
       postsWithLocales.some((post) => post.locales.includes(locale))
   )
+
+  // 工具页：所有支持的语言都提供入口
+  const toolLocales = locales
 
   const buildPath = (locale: string, path: string = '') =>
     locale === defaultLocale ? path : `/${locale}${path}`
@@ -76,9 +80,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   )
 
+  // 工具页：formatter
+  const formatterUrls = toolLocales.map((locale) => ({
+    url: `${baseUrl}${buildPath(locale, '/formatter')}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+    alternates: buildAlternates(toolLocales, '/formatter'),
+  }))
+
+  // 工具页：diff
+  const diffUrls = toolLocales.map((locale) => ({
+    url: `${baseUrl}${buildPath(locale, '/diff')}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+    alternates: buildAlternates(toolLocales, '/diff'),
+  }))
+
   return [
     ...localeUrls,
     ...blogListUrls,
     ...blogPostUrls,
+    ...formatterUrls,
+    ...diffUrls,
   ]
 }
