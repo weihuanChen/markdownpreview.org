@@ -10,6 +10,7 @@ export function CommonUseCases() {
     t("common_use_cases_li3"),
     t("common_use_cases_li4"),
     t("common_use_cases_li5"),
+    t("common_use_cases_li6"),
   ]
   return (
     <section className="relative py-16 px-4">

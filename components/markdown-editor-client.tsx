@@ -5,7 +5,7 @@ import type React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useTranslations } from "next-intl"
-import { GripHorizontal, Copy, Check, Sparkles, Upload, Download, Wand2 } from "lucide-react"
+import { GripHorizontal, Copy, Check, Sparkles, Upload, Download, Wand2, Pin, PinOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
@@ -94,9 +94,11 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
   const [isEditorReady, setIsEditorReady] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isPinned, setIsPinned] = useState(false)
   const dragStartY = useRef(0)
   const dragStartHeight = useRef(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const editorContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -344,15 +346,242 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
     }
   }, [handleDragEnd, handleDragMove, isDragging])
 
+  // 图钉固定功能：固定时，阻止页面滚动，但允许 editor 内部滚动
+  useEffect(() => {
+    if (!isPinned) return
+
+    // 保存当前滚动位置
+    const scrollY = window.scrollY
+    const scrollX = window.scrollX
+
+    // 保存原始样式
+    const originalOverflow = document.body.style.overflow
+    const originalPosition = document.body.style.position
+    const originalTop = document.body.style.top
+    const originalLeft = document.body.style.left
+    const originalWidth = document.body.style.width
+
+    // 阻止页面滚动：使用 overflow hidden 和固定位置
+    document.body.style.overflow = "hidden"
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = `-${scrollX}px`
+    document.body.style.width = "100%"
+
+    // 缓存 rect 和滚动状态，使用节流优化性能
+    let cachedRect: DOMRect | null = null
+    let cachedScrollState: { canScrollUp: boolean; canScrollDown: boolean; canScrollLeft: boolean; canScrollRight: boolean } | null = null
+    let lastRectUpdate = 0
+    let lastScrollStateUpdate = 0
+    const RECT_CACHE_DURATION = 100 // 100ms 内不重复计算 rect
+    const SCROLL_STATE_CACHE_DURATION = 16 // 16ms (约 60fps) 内不重复计算滚动状态
+    let cmScrollerElement: HTMLElement | null = null
+
+    // 初始化时查找一次滚动容器，避免重复查询
+    if (editorContainerRef.current) {
+      cmScrollerElement = editorContainerRef.current.querySelector(".cm-scroller") as HTMLElement | null
+    }
+
+    // 获取 editor 滚动容器的滚动状态（带缓存）
+    const getEditorScrollState = (): {
+      canScrollUp: boolean
+      canScrollDown: boolean
+      canScrollLeft: boolean
+      canScrollRight: boolean
+    } => {
+      const now = Date.now()
+      
+      // 如果缓存有效，直接返回
+      if (cachedScrollState && now - lastScrollStateUpdate < SCROLL_STATE_CACHE_DURATION) {
+        return cachedScrollState
+      }
+
+      // 如果滚动容器未找到，尝试重新查找（可能 DOM 还未准备好）
+      if (!cmScrollerElement && editorContainerRef.current) {
+        cmScrollerElement = editorContainerRef.current.querySelector(".cm-scroller") as HTMLElement | null
+      }
+
+      if (!cmScrollerElement) {
+        return { canScrollUp: false, canScrollDown: false, canScrollLeft: false, canScrollRight: false }
+      }
+
+      // 读取滚动属性（这些是同步操作，但很快）
+      const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollWidth, clientWidth } = cmScrollerElement
+      const threshold = 1 // 1px 阈值，避免浮点数精度问题
+
+      const state = {
+        canScrollUp: scrollTop > threshold,
+        canScrollDown: scrollTop < scrollHeight - clientHeight - threshold,
+        canScrollLeft: scrollLeft > threshold,
+        canScrollRight: scrollLeft < scrollWidth - clientWidth - threshold,
+      }
+
+      // 更新缓存
+      cachedScrollState = state
+      lastScrollStateUpdate = now
+
+      return state
+    }
+
+    // 获取缓存的 rect（带节流）
+    const getCachedRect = (): DOMRect | null => {
+      const now = Date.now()
+      if (!cachedRect || now - lastRectUpdate > RECT_CACHE_DURATION) {
+        if (editorContainerRef.current) {
+          cachedRect = editorContainerRef.current.getBoundingClientRect()
+          lastRectUpdate = now
+        }
+      }
+      return cachedRect
+    }
+
+    // 检查鼠标是否在 editor 内
+    const isInEditor = (clientX: number, clientY: number): boolean => {
+      const rect = getCachedRect()
+      if (!rect) return false
+
+      return (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      )
+    }
+
+    // 处理滚轮事件：只在 editor 外部时阻止，editor 内部允许正常滚动
+    // 优化：在 editor 内不阻止事件，让 CodeMirror 正常处理，保持流畅性
+    const handleWheel = (e: WheelEvent) => {
+      if (!editorContainerRef.current) {
+        // 如果 editor 容器不存在，阻止所有滚动
+        e.preventDefault()
+        return
+      }
+
+      const inEditor = isInEditor(e.clientX, e.clientY)
+
+      if (inEditor) {
+        // 在 editor 内，让 CodeMirror 正常处理滚动事件
+        // 由于 body 是 fixed，页面本身不会滚动，所以不需要阻止事件
+        // 这样可以保持 CodeMirror 的滚动流畅性，避免帧率下降
+        // 不阻止事件，让 CodeMirror 正常处理
+        return
+      } else {
+        // 不在 editor 内，阻止页面滚动
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    // 处理触摸滚动事件（触控板手势）
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!editorContainerRef.current) {
+        e.preventDefault()
+        return
+      }
+
+      const touch = e.touches[0]
+      if (!touch) return
+
+      const inEditor = isInEditor(touch.clientX, touch.clientY)
+
+      if (!inEditor) {
+        // 不在 editor 内，阻止页面滚动
+        e.preventDefault()
+      }
+      // 在 editor 内，允许 editor 正常滚动
+    }
+
+    // 监听 resize 事件，清除缓存
+    const handleResize = () => {
+      cachedRect = null
+      cachedScrollState = null
+    }
+
+    window.addEventListener("wheel", handleWheel, { passive: false })
+    window.addEventListener("touchmove", handleTouchMove, { passive: false })
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      // 恢复页面滚动样式
+      document.body.style.overflow = originalOverflow
+      document.body.style.position = originalPosition
+      document.body.style.top = originalTop
+      document.body.style.left = originalLeft
+      document.body.style.width = originalWidth
+
+      // 恢复滚动位置
+      window.scrollTo(scrollX, scrollY)
+
+      window.removeEventListener("wheel", handleWheel)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [isPinned])
+
   return (
     <section id="editor-stage" className="relative px-4 pb-16">
       <div className="absolute inset-x-6 -top-10 h-32 bg-[radial-gradient(circle_at_20%_50%,rgba(15,118,110,0.16),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,122,83,0.16),transparent_42%)] blur-2xl" />
+      
+      {/* 固定状态提示横幅 */}
+      {isPinned && (
+        <div className="relative max-w-7xl mx-auto mb-3 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-[var(--brand-blue)]/50 bg-gradient-to-r from-[var(--brand-blue)]/15 via-[var(--brand-blue)]/10 to-[var(--brand-blue)]/15 backdrop-blur-sm shadow-lg">
+            <div className="flex-shrink-0">
+              <Pin className="h-5 w-5 text-[var(--brand-blue)] animate-pulse" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[var(--brand-blue)]">
+                {t("editor_pinned_title")}
+              </p>
+              <p className="text-xs text-[var(--brand-blue)]/80 mt-0.5">
+                {t("editor_pinned_description")}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsPinned(false)}
+              className="ml-auto flex-shrink-0 h-auto px-3 py-1.5 text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/20 hover:text-[var(--brand-blue)] font-medium transition-colors"
+            >
+              {t("editor_pinned_unpin")}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-[0_25px_90px_-45px_rgba(15,23,42,0.55)] backdrop-blur">
-        <div id="markdown-editor" className="flex overflow-hidden relative" style={{ height: `${editorHeight}vh` }}>
+        <div
+          id="markdown-editor"
+          ref={editorContainerRef}
+          className={`flex overflow-hidden relative transition-all duration-300 ${
+            isPinned
+              ? "ring-2 ring-[var(--brand-blue)]/60 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(15,118,110,0.3)]"
+              : ""
+          }`}
+          style={{ height: `${editorHeight}vh` }}
+        >
           <div className="w-full md:w-1/2 border-r border-border/70 flex flex-col h-full bg-gradient-to-b from-card via-card/70 to-secondary/60">
             <div className="px-5 py-3 border-b border-border/70 bg-gradient-to-r from-card/90 via-secondary/40 to-card/80 flex items-center justify-between backdrop-blur">
               <h2 className="text-sm font-semibold text-foreground tracking-wide">{t("editor_title")}</h2>
               <div className="flex items-center gap-2">
+                <Button
+                  variant={isPinned ? "default" : "ghost"}
+                  size="icon-sm"
+                  onClick={() => setIsPinned(!isPinned)}
+                  title={isPinned ? t("editor_pin_unpin") : t("editor_pin_title")}
+                  aria-label={isPinned ? t("editor_pin_unpin") : t("editor_pin_title")}
+                  className={`transition-all duration-200 ${
+                    isPinned
+                      ? "text-[var(--brand-blue)] bg-[var(--brand-blue)]/20 hover:bg-[var(--brand-blue)]/30 shadow-[0_0_8px_rgba(15,118,110,0.4)] ring-1 ring-[var(--brand-blue)]/50"
+                      : "text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/10"
+                  }`}
+                >
+                  {isPinned ? (
+                    <Pin className="h-4 w-4 animate-in zoom-in-50 duration-200" />
+                  ) : (
+                    <PinOff className="h-4 w-4" />
+                  )}
+                </Button>
                 <Button
                   variant="secondary"
                   size="sm"

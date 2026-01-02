@@ -35,11 +35,6 @@
         "name": "DO_QUEUE",
         "class_name": "DOQueueHandler",
         "script_name": "markdownpreview-org"
-      },
-      {
-        "name": "DO_TAG_CACHE",
-        "class_name": "DOShardedTagCache",
-        "script_name": "markdownpreview-org"
       }
     ]
   },
