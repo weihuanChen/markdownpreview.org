@@ -27,11 +27,14 @@ import {
   Shield,
   FileCheck,
   Upload,
+  Pin,
+  PinOff,
 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { RelatedTools } from "@/components/related-tools"
+import { EditorPinnedBanner } from "@/components/editor-pinned-banner"
 import { useFormatter, type FormatterMode } from "@/hooks/use-formatter"
 import {
   allRules,
@@ -270,6 +273,11 @@ export function MarkdownFormatter() {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
+  // Pin editor 相关状态
+  const [isPinned, setIsPinned] = useState(false)
+  const editorContainerRef = useRef<HTMLDivElement>(null)
+  const mainContentRef = useRef<HTMLDivElement>(null)
+  
   // 解析 diff
   const diffData = useMemo(() => {
     if (!result?.hasChanges) return null
@@ -435,6 +443,196 @@ export function MarkdownFormatter() {
     [handleFileUpload],
   )
   
+  // 图钉固定功能：固定时，阻止页面滚动，但允许 editor 内部滚动
+  useEffect(() => {
+    if (!isPinned) return
+
+    // 保存当前滚动位置
+    const scrollY = window.scrollY
+    const scrollX = window.scrollX
+
+    // 保存原始样式
+    const originalOverflow = document.body.style.overflow
+    const originalPosition = document.body.style.position
+    const originalTop = document.body.style.top
+    const originalLeft = document.body.style.left
+    const originalWidth = document.body.style.width
+
+    // 阻止页面滚动：使用 overflow hidden 和固定位置
+    document.body.style.overflow = "hidden"
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = `-${scrollX}px`
+    document.body.style.width = "100%"
+
+    // 缓存 rect 和滚动状态，使用节流优化性能
+    let cachedRect: DOMRect | null = null
+    let cachedScrollState: { canScrollUp: boolean; canScrollDown: boolean; canScrollLeft: boolean; canScrollRight: boolean } | null = null
+    let lastRectUpdate = 0
+    let lastScrollStateUpdate = 0
+    const RECT_CACHE_DURATION = 100 // 100ms 内不重复计算 rect
+    const SCROLL_STATE_CACHE_DURATION = 16 // 16ms (约 60fps) 内不重复计算滚动状态
+    let cmScrollerElement: HTMLElement | null = null
+
+    // 初始化时查找一次滚动容器，避免重复查询
+    if (editorContainerRef.current) {
+      cmScrollerElement = editorContainerRef.current.querySelector(".cm-scroller") as HTMLElement | null
+    }
+
+    // 获取 editor 滚动容器的滚动状态（带缓存）
+    const getEditorScrollState = (): {
+      canScrollUp: boolean
+      canScrollDown: boolean
+      canScrollLeft: boolean
+      canScrollRight: boolean
+    } => {
+      const now = Date.now()
+      
+      // 如果缓存有效，直接返回
+      if (cachedScrollState && now - lastScrollStateUpdate < SCROLL_STATE_CACHE_DURATION) {
+        return cachedScrollState
+      }
+
+      // 如果滚动容器未找到，尝试重新查找（可能 DOM 还未准备好）
+      if (!cmScrollerElement && editorContainerRef.current) {
+        cmScrollerElement = editorContainerRef.current.querySelector(".cm-scroller") as HTMLElement | null
+      }
+
+      if (!cmScrollerElement) {
+        return { canScrollUp: false, canScrollDown: false, canScrollLeft: false, canScrollRight: false }
+      }
+
+      // 读取滚动属性（这些是同步操作，但很快）
+      const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollWidth, clientWidth } = cmScrollerElement
+      const threshold = 1 // 1px 阈值，避免浮点数精度问题
+
+      const state = {
+        canScrollUp: scrollTop > threshold,
+        canScrollDown: scrollTop < scrollHeight - clientHeight - threshold,
+        canScrollLeft: scrollLeft > threshold,
+        canScrollRight: scrollLeft < scrollWidth - clientWidth - threshold,
+      }
+
+      // 更新缓存
+      cachedScrollState = state
+      lastScrollStateUpdate = now
+
+      return state
+    }
+
+    // 获取缓存的 rect（带节流）
+    const getCachedRect = (): DOMRect | null => {
+      const now = Date.now()
+      if (!cachedRect || now - lastRectUpdate > RECT_CACHE_DURATION) {
+        if (editorContainerRef.current) {
+          cachedRect = editorContainerRef.current.getBoundingClientRect()
+          lastRectUpdate = now
+        }
+      }
+      return cachedRect
+    }
+
+    // 检查鼠标是否在编辑器或预览区域内
+    const isInEditorOrPreview = (clientX: number, clientY: number): boolean => {
+      // 检查左侧编辑器
+      const editorRect = getCachedRect()
+      if (editorRect) {
+        const inEditor =
+          clientX >= editorRect.left &&
+          clientX <= editorRect.right &&
+          clientY >= editorRect.top &&
+          clientY <= editorRect.bottom
+        if (inEditor) return true
+      }
+
+      // 检查右侧 preview/diff 区域
+      // 查找主内容区域内的所有卡片容器
+      if (mainContentRef.current) {
+        const cards = mainContentRef.current.querySelectorAll('.rounded-xl.border.border-border.bg-card.shadow-sm')
+        for (const card of Array.from(cards)) {
+          const cardRect = (card as HTMLElement).getBoundingClientRect()
+          const inCard =
+            clientX >= cardRect.left &&
+            clientX <= cardRect.right &&
+            clientY >= cardRect.top &&
+            clientY <= cardRect.bottom
+          if (inCard) return true
+        }
+      }
+
+      return false
+    }
+
+    // 处理滚轮事件：只在 editor/preview 外部时阻止，内部允许正常滚动
+    // 优化：在 editor/preview 内不阻止事件，让它们正常处理，保持流畅性
+    const handleWheel = (e: WheelEvent) => {
+      if (!editorContainerRef.current && !mainContentRef.current) {
+        // 如果容器都不存在，阻止所有滚动
+        e.preventDefault()
+        return
+      }
+
+      const inEditorOrPreview = isInEditorOrPreview(e.clientX, e.clientY)
+
+      if (inEditorOrPreview) {
+        // 在 editor 或 preview 内，让它们正常处理滚动事件
+        // 由于 body 是 fixed，页面本身不会滚动，所以不需要阻止事件
+        // 这样可以保持滚动流畅性，避免帧率下降
+        // 不阻止事件，让它们正常处理
+        return
+      } else {
+        // 不在 editor/preview 内，阻止页面滚动
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    // 处理触摸滚动事件（触控板手势）
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!editorContainerRef.current && !mainContentRef.current) {
+        e.preventDefault()
+        return
+      }
+
+      const touch = e.touches[0]
+      if (!touch) return
+
+      const inEditorOrPreview = isInEditorOrPreview(touch.clientX, touch.clientY)
+
+      if (!inEditorOrPreview) {
+        // 不在 editor/preview 内，阻止页面滚动
+        e.preventDefault()
+      }
+      // 在 editor/preview 内，允许正常滚动
+    }
+
+    // 监听 resize 事件，清除缓存
+    const handleResize = () => {
+      cachedRect = null
+      cachedScrollState = null
+    }
+
+    window.addEventListener("wheel", handleWheel, { passive: false })
+    window.addEventListener("touchmove", handleTouchMove, { passive: false })
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      // 恢复页面滚动样式
+      document.body.style.overflow = originalOverflow
+      document.body.style.position = originalPosition
+      document.body.style.top = originalTop
+      document.body.style.left = originalLeft
+      document.body.style.width = originalWidth
+
+      // 恢复滚动位置
+      window.scrollTo(scrollX, scrollY)
+
+      window.removeEventListener("wheel", handleWheel)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [isPinned])
+  
   // 统计信息
   const stats = useMemo(() => {
     if (!result?.appliedRules) return null
@@ -583,7 +781,7 @@ export function MarkdownFormatter() {
   }, [result])
 
   return (
-    <section className="w-full py-8 px-4">
+    <section className="w-full py-8 px-4 relative">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="space-y-2">
@@ -721,15 +919,46 @@ export function MarkdownFormatter() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Left: Editor */}
-          <div className="rounded-xl border border-border bg-card shadow-sm flex flex-col">
+        <div ref={mainContentRef} className="space-y-4">
+          {/* 固定状态提示横幅 */}
+          {isPinned && (
+            <EditorPinnedBanner onUnpin={() => setIsPinned(false)} />
+          )}
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Left: Editor */}
+          <div
+            ref={editorContainerRef}
+            className={`rounded-xl border border-border bg-card shadow-sm flex flex-col transition-all duration-300 ${
+              isPinned
+                ? "ring-2 ring-[var(--brand-blue)]/60 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(15,118,110,0.3)]"
+                : ""
+            }`}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div>
                 <h2 className="text-sm font-semibold text-foreground">{t("formatter_input")}</h2>
                 <p className="text-xs text-muted-foreground">{t("formatter_input_hint")}</p>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant={isPinned ? "default" : "ghost"}
+                  size="icon-sm"
+                  onClick={() => setIsPinned(!isPinned)}
+                  title={isPinned ? t("editor_pin_unpin") : t("editor_pin_title")}
+                  aria-label={isPinned ? t("editor_pin_unpin") : t("editor_pin_title")}
+                  className={`transition-all duration-200 ${
+                    isPinned
+                      ? "text-[var(--brand-blue)] bg-[var(--brand-blue)]/20 hover:bg-[var(--brand-blue)]/30 shadow-[0_0_8px_rgba(15,118,110,0.4)] ring-1 ring-[var(--brand-blue)]/50"
+                      : "text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/10"
+                  }`}
+                >
+                  {isPinned ? (
+                    <Pin className="h-4 w-4 animate-in zoom-in-50 duration-200" />
+                  ) : (
+                    <PinOff className="h-4 w-4" />
+                  )}
+                </Button>
                 {hasUnsavedChanges && (
                   <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
                     {t("formatter_unsaved")}
@@ -916,6 +1145,7 @@ export function MarkdownFormatter() {
                 <MarkdownPreview content={result?.formatted ?? content} />
               )}
             </div>
+          </div>
           </div>
         </div>
 

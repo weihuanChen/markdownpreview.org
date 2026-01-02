@@ -10,6 +10,7 @@ import { GripHorizontal, Copy, Check, Sparkles, Upload, Download, Wand2, Pin, Pi
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
 import { Link } from "@/navigation"
+import { EditorPinnedBanner } from "@/components/editor-pinned-banner"
 
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
   ssr: false,
@@ -523,31 +524,7 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
       <div className="absolute inset-x-6 -top-10 h-32 bg-[radial-gradient(circle_at_20%_50%,rgba(15,118,110,0.16),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,122,83,0.16),transparent_42%)] blur-2xl" />
       
       {/* 固定状态提示横幅 */}
-      {isPinned && (
-        <div className="relative max-w-7xl mx-auto mb-3 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-[var(--brand-blue)]/50 bg-gradient-to-r from-[var(--brand-blue)]/15 via-[var(--brand-blue)]/10 to-[var(--brand-blue)]/15 backdrop-blur-sm shadow-lg">
-            <div className="flex-shrink-0">
-              <Pin className="h-5 w-5 text-[var(--brand-blue)] animate-pulse" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[var(--brand-blue)]">
-                {t("editor_pinned_title")}
-              </p>
-              <p className="text-xs text-[var(--brand-blue)]/80 mt-0.5">
-                {t("editor_pinned_description")}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsPinned(false)}
-              className="ml-auto flex-shrink-0 h-auto px-3 py-1.5 text-[var(--brand-blue)] hover:bg-[var(--brand-blue)]/20 hover:text-[var(--brand-blue)] font-medium transition-colors"
-            >
-              {t("editor_pinned_unpin")}
-            </Button>
-          </div>
-        </div>
-      )}
+      {isPinned && <EditorPinnedBanner onUnpin={() => setIsPinned(false)} />}
 
       <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl border border-border/80 bg-card/90 shadow-[0_25px_90px_-45px_rgba(15,23,42,0.55)] backdrop-blur">
         <div
