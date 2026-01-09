@@ -24,6 +24,7 @@ export interface DirectusPost {
   published_at: string
   site_id: number
   status: 'draft' | 'published' | 'archived'
+  category_id?: number | null
   post_tags?: Array<{ tags_id: number }>
   post_recommend?: string[]
   image?: string
@@ -54,6 +55,13 @@ export interface Site {
   date_updated?: string
 }
 
+export interface Category {
+  id: number
+  slug: string
+  site_id: number
+  title?: string
+}
+
 // Combined schema type
 export interface DirectusSchema {
   posts: DirectusPost[]
@@ -61,6 +69,7 @@ export interface DirectusSchema {
   sites: Site[]
   tags: Tag[]
   tags_translation: TagTranslation[]
+  category: Category[]
 }
 
 // Create Directus client

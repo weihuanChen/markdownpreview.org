@@ -26,6 +26,7 @@ export interface BlogPost {
   faq?: FAQItem[]
   viewCount?: number
   uniqueViewCount?: number
+  categoryId?: number | null
 }
 
 export interface PaginatedPosts {

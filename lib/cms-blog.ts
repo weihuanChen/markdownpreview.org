@@ -1,5 +1,5 @@
 import { readItems, aggregate } from '@directus/sdk'
-import { directus, SITE_ID, type DirectusPost, type PostTranslation, type Tag } from './directus'
+import { directus, SITE_ID, type Category, type DirectusPost, type PostTranslation, type Tag } from './directus'
 import { defaultLocale } from '@/i18n'
 import type { BlogPost, PaginatedPosts, Locale } from './types'
 import { unstable_cache } from 'next/cache'
@@ -12,6 +12,12 @@ const PAGE_SIZE = 9
 
 const DIRECTUS_ASSET_BASE =
   (process.env.DIRECTUS_URL || 'https://directus.lzyinglian.com/').replace(/\/+$/, '')
+
+// Known category ID fallbacks (Directus may block category read or env may not load)
+const CATEGORY_FALLBACK_IDS: Record<string, number> = {
+  featured: 3,
+  advanced: 4,
+}
 
 /**
  * 计算文章阅读时间（分钟）
@@ -108,7 +114,171 @@ function transformDirectusPost(
     image,
     viewCount: post.view_count,
     uniqueViewCount: post.unique_view_count,
+    categoryId: post.category_id,
   }
+}
+
+/**
+ * 将文章补齐翻译与标签后转换为 BlogPost 列表
+ */
+async function hydratePosts(
+  posts: DirectusPost[],
+  locale: Locale
+): Promise<BlogPost[]> {
+  try {
+    if (posts.length === 0) return []
+
+    const postIds = posts.map((p) => p.id)
+    const allTagIds = posts.flatMap((p) => p.post_tags?.map((pt) => pt.tags_id) || [])
+
+    const [translations, tagMap] = await Promise.all([
+      directus.request<PostTranslation[]>(
+        readItems('post_translation', {
+          filter: {
+            post_id: { _in: postIds },
+            language_code: { _eq: locale },
+          },
+          fields: ['post_id', 'title', 'description', 'content'],
+        })
+      ),
+      getTranslatedTagsBatch(allTagIds, locale),
+    ])
+
+    const translationsMap = new Map(
+      translations.map((translation) => [translation.post_id, translation])
+    )
+
+    const filteredPosts =
+      locale === defaultLocale
+        ? posts
+        : posts.filter((post) => translationsMap.has(post.id))
+
+    return filteredPosts.map((post) => {
+      const translation = translationsMap.get(post.id)
+      return transformDirectusPost(post, translation, locale, tagMap)
+    })
+  } catch (error) {
+    console.error('Error hydrating posts:', error)
+    return []
+  }
+}
+
+async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  try {
+    const categories = await directus.request<Category[]>(
+      readItems('category', {
+        filter: {
+          slug: { _eq: slug },
+          site_id: { _eq: SITE_ID },
+        },
+        // Avoid requesting fields without permission; slug/id/site_id are sufficient
+        fields: ['id', 'slug', 'site_id'],
+        limit: 1,
+      })
+    )
+    return categories[0] || null
+  } catch (error) {
+    console.error(`Error fetching category ${slug}:`, error)
+    const fallbackId = CATEGORY_FALLBACK_IDS[slug]
+    if (fallbackId) {
+      return { id: fallbackId, slug, site_id: SITE_ID }
+    }
+    return null
+  }
+}
+
+async function getPostsByCategoryInternal(
+  slug: string,
+  locale: Locale,
+  limit: number
+): Promise<BlogPost[]> {
+  const category = await getCategoryBySlug(slug)
+  const categoryId = category?.id ?? CATEGORY_FALLBACK_IDS[slug]
+  if (!categoryId) return []
+
+  const filterVariants = [
+    {
+      status: { _eq: 'published' },
+      site_id: { _eq: SITE_ID },
+      category_id: { _eq: categoryId },
+    },
+    // 有些环境 SITE_ID 未生效时，直接尝试站点 6（当前博客站点）
+    SITE_ID !== 6
+      ? {
+          status: { _eq: 'published' },
+          site_id: { _eq: 6 },
+          category_id: { _eq: categoryId },
+        }
+      : null,
+    // 最后兜底：不带 site 过滤
+    {
+      status: { _eq: 'published' },
+      category_id: { _eq: categoryId },
+    },
+  ].filter(Boolean) as Array<Record<string, unknown>>
+
+  for (const filter of filterVariants) {
+    try {
+      const posts = await directus.request<DirectusPost[]>(
+        readItems('posts', {
+          filter,
+          fields: [
+            'id',
+            'slug',
+            'title',
+            'description',
+            'content',
+            'published_at',
+            'date_created',
+            'date_updated',
+            'image',
+            'post_tags.tags_id',
+            'view_count',
+            'unique_view_count',
+            'category_id',
+          ],
+          sort: ['-published_at'],
+          limit,
+        })
+      )
+
+      const hydrated = await hydratePosts(posts, locale)
+      if (hydrated.length > 0) {
+        return hydrated
+      }
+    } catch (error) {
+      console.error(`Error fetching posts for category ${slug} with filter ${JSON.stringify(filter)}:`, error)
+    }
+  }
+
+  return []
+}
+
+export async function getPostsByCategory(
+  slug: string,
+  locale: Locale,
+  limit: number
+): Promise<BlogPost[]> {
+  // Category lists are small; cache per site/locale/category/limit
+  if (process.env.DISABLE_BLOG_CACHE === 'true') {
+    return getPostsByCategoryInternal(slug, locale, limit)
+  }
+
+  const cached = unstable_cache(
+    (sg: string, loc: Locale, lm: number) => getPostsByCategoryInternal(sg, loc, lm),
+    ['blog-category', slug, locale, String(limit), String(SITE_ID)],
+    {
+      revalidate: 43200,
+      tags: [
+        'blog-posts',
+        `blog-posts:${locale}`,
+        `blog-category:${slug}`,
+        `blog-category:${slug}:${locale}`,
+      ],
+    }
+  )
+
+  return cached(slug, locale, limit)
 }
 
 /**
@@ -152,15 +322,16 @@ async function getPaginatedPostsInternal(
             'published_at',
             'date_created',
             'date_updated',
-            'image',
-            'post_tags.tags_id',
-            'view_count',
-            'unique_view_count',
-          ],
-          sort: ['-published_at'],
-          limit: PAGE_SIZE,
-          offset,
-        })
+          'image',
+          'post_tags.tags_id',
+          'view_count',
+          'unique_view_count',
+          'category_id',
+        ],
+        sort: ['-published_at'],
+        limit: PAGE_SIZE,
+        offset,
+      })
       ),
     ])
 
@@ -279,49 +450,13 @@ async function getAllPostsInternal(locale: Locale): Promise<BlogPost[]> {
           'post_tags.tags_id',
           'view_count',
           'unique_view_count',
+          'category_id',
         ],
         sort: ['-published_at'],
       })
     )
 
-    if (posts.length === 0) {
-      return []
-    }
-
-    // 获取翻译和标签（并行执行）
-    const postIds = posts.map((p) => p.id)
-    const allTagIds = posts.flatMap((p) => p.post_tags?.map((pt) => pt.tags_id) || [])
-
-    const [translations, tagMap] = await Promise.all([
-      directus.request<PostTranslation[]>(
-        readItems('post_translation', {
-          filter: {
-            post_id: { _in: postIds },
-            language_code: { _eq: locale },
-          },
-          fields: ['post_id', 'title', 'description', 'content'],
-        })
-      ),
-      getTranslatedTagsBatch(allTagIds, locale),
-    ])
-
-    const translationsMap = new Map(
-      translations.map((translation) => [translation.post_id, translation])
-    )
-
-    // 对非默认语言，只展示已翻译的文章
-    const filteredPosts =
-      locale === defaultLocale
-        ? posts
-        : posts.filter((post) => translationsMap.has(post.id))
-
-    // 转换文章
-    const blogPosts = filteredPosts.map((post) => {
-      const translation = translationsMap.get(post.id)
-      return transformDirectusPost(post, translation, locale, tagMap)
-    })
-
-    return blogPosts
+    return hydratePosts(posts, locale)
   } catch (error) {
     console.error('Error fetching all posts:', error)
     return []
@@ -377,6 +512,7 @@ async function getPostBySlugInternal(
           'post_tags.tags_id',
           'view_count',
           'unique_view_count',
+          'category_id',
         ],
         limit: 1,
       })

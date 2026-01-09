@@ -1,4 +1,4 @@
-import { getAllPosts } from '@/lib/cms-blog'
+import { getAllPosts, getPostsByCategory } from '@/lib/cms-blog'
 import type { Locale } from '@/lib/types'
 import { BlogGroupedList } from '@/components/blog/blog-grouped-list'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -85,11 +85,21 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
     const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
     const showMissingNotice = resolvedSearchParams?.missing === '1'
 
-    const allPosts = await getAllPosts(resolvedParams.locale)
+    const [featuredPostsRaw, advancedPostsRaw, allPosts] = await Promise.all([
+      getPostsByCategory('featured', resolvedParams.locale, FEATURED_COUNT),
+      getPostsByCategory('advanced', resolvedParams.locale, FEATURED_COUNT),
+      getAllPosts(resolvedParams.locale),
+    ])
+
+    // 如果分类接口权限受限，使用已拉取的全部文章做兜底过滤
+    const featuredPosts = featuredPostsRaw.length > 0
+      ? featuredPostsRaw
+      : allPosts.filter(p => p.categoryId === 3).slice(0, FEATURED_COUNT)
+    const advancedPosts = advancedPostsRaw.length > 0
+      ? advancedPostsRaw
+      : allPosts.filter(p => p.categoryId === 4).slice(0, FEATURED_COUNT)
     const hasPosts = allPosts.length > 0
 
-    const featuredPosts = allPosts.slice(0, FEATURED_COUNT)
-    const advancedPosts = featuredPosts
     const practicalPool = allPosts.slice(FEATURED_COUNT)
     const practicalTotalPages = practicalPool.length > 0
       ? Math.ceil(practicalPool.length / PRACTICAL_PAGE_SIZE)
