@@ -8,18 +8,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
   // 获取所有文章的 slug 以及已有翻译语言（仅保留在 locales 中的语言）
-  const rawPosts = await directus.request<
-    Array<{ slug: string; post_translation?: Array<{ language_code: Locale }> }>
-  >(
-    readItems('posts', {
-      limit: -1, // 取全部文章，避免 Directus 默认分页遗漏后续文章
-      filter: {
-        status: { _eq: 'published' },
-        site_id: { _eq: SITE_ID },
-      },
-      fields: ['slug', 'post_translation.language_code'],
-    })
-  )
+  // 使用分页方式获取所有文章，避免 limit: -1 可能不被支持的问题
+  let rawPosts: Array<{ slug: string; post_translation?: Array<{ language_code: Locale }> }> = []
+  let page = 1
+  const pageSize = 100
+
+  while (true) {
+    const posts = await directus.request<
+      Array<{ slug: string; post_translation?: Array<{ language_code: Locale }> }>
+    >(
+      readItems('posts', {
+        limit: pageSize,
+        page,
+        filter: {
+          status: { _eq: 'published' },
+          site_id: { _eq: SITE_ID },
+        },
+        fields: ['slug', 'post_translation.language_code'],
+      })
+    )
+
+    if (posts.length === 0) {
+      break
+    }
+
+    rawPosts = [...rawPosts, ...posts]
+
+    // 如果返回的文章数量少于 pageSize，说明已经是最后一页
+    if (posts.length < pageSize) {
+      break
+    }
+
+    page++
+  }
 
   const postsWithLocales = rawPosts.map((post) => {
     const translations = (post.post_translation || [])
@@ -45,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const buildPath = (locale: string, path: string = '') =>
     locale === defaultLocale ? path : `/${locale}${path}`
 
-  const buildAlternates = (langs: Locale[], path: string = '') => ({
+  const buildAlternates = (langs: readonly Locale[], path: string = '') => ({
     languages: Object.fromEntries(
       langs.map((locale) => [locale, `${baseUrl}${buildPath(locale, path)}`])
     ),

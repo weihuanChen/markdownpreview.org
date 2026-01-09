@@ -8,7 +8,7 @@ import { unstable_cache } from 'next/cache'
 const SITE_AUTHOR = 'markdownpreview.org'
 
 // 默认分页大小
-const PAGE_SIZE = 10
+const PAGE_SIZE = 9
 
 const DIRECTUS_ASSET_BASE =
   (process.env.DIRECTUS_URL || 'https://directus.lzyinglian.com/').replace(/\/+$/, '')

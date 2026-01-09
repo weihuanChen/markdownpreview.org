@@ -2,6 +2,7 @@ import { getPostBySlug, getAllPostSlugs } from '@/lib/cms-blog'
 import type { Locale } from '@/lib/types'
 import { Toc } from '@/components/blog/toc'
 import { BlogCTA } from '@/components/blog/blog-cta'
+import { BlogInlineCTA } from '@/components/blog/blog-inline-cta'
 import { MarkdownPreview } from '@/components/markdown-preview'
 import { Calendar, Clock, User, Tag, ArrowLeft } from 'lucide-react'
 import { notFound } from 'next/navigation'
@@ -252,6 +253,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   {post.description}
                 </p>
               </blockquote>
+
+              {/* 轻量级 CTA - 突出专业级写作增强（Formatter），并引导用户前往首页 / Diff */}
+              <BlogInlineCTA
+                title={t('related_tools_title')}
+                professionalMessage={t('editor_professional_message')}
+                professionalLinkLabel={t('editor_professional_link')}
+                previewLabel={t('related_tools_preview_link')}
+                diffLabel={t('related_tools_diff_link')}
+                formatterLabel={t('related_tools_formatter_link')}
+              />
 
               {/* 正文内容 */}
               <div className="prose prose-slate dark:prose-invert max-w-none">

@@ -1,12 +1,12 @@
-import { getPaginatedPosts, getAllPosts } from '@/lib/cms-blog'
-import type { Locale, BlogPost } from '@/lib/types'
-import { BlogCard } from '@/components/blog/blog-card'
+import { getAllPosts } from '@/lib/cms-blog'
+import type { Locale } from '@/lib/types'
 import { BlogGroupedList } from '@/components/blog/blog-grouped-list'
-import { Pagination } from '@/components/blog/pagination'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { defaultLocale, locales } from '@/i18n'
 
 export const revalidate = 43200 // 12 小时
+const FEATURED_COUNT = 6
+const PRACTICAL_PAGE_SIZE = 9
 
 interface BlogPageProps {
   params: Promise<{ locale: Locale; page?: string[] }>
@@ -37,26 +37,29 @@ export async function generateMetadata({ params }: Omit<BlogPageProps, 'searchPa
   setRequestLocale(resolvedParams.locale)
   const t = await getTranslations()
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://markdownpreview.org'
+  const currentPage = resolvePage(resolvedParams.page)
 
   // 构建路径：默认语言不加前缀
   const buildPath = (locale: string, path: string = '') =>
     locale === defaultLocale ? path : `/${locale}${path}`
 
-  // canonical 始终指向主列表页（无分页），避免重复内容
-  const canonicalUrl = `${baseUrl}${buildPath(resolvedParams.locale, '/blog')}`
+  const canonicalPath =
+    currentPage > 1 ? `/blog/page/${currentPage}` : '/blog'
+  const canonicalUrl = `${baseUrl}${buildPath(resolvedParams.locale, canonicalPath)}`
+  const languageAlternates = locales.reduce<Record<string, string>>(
+    (acc, locale) => {
+      acc[locale] = `${baseUrl}${buildPath(locale, canonicalPath)}`
+      return acc
+    },
+    { 'x-default': `${baseUrl}${canonicalPath}` }
+  )
 
   return {
     title: t('blog_meta_title'),
     description: t('blog_list_title'),
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        'ja': `${baseUrl}/blog`,
-        'en': `${baseUrl}/en/blog`,
-        'zh': `${baseUrl}/zh/blog`,
-        'fr': `${baseUrl}/fr/blog`,
-        'x-default': `${baseUrl}/blog`,
-      },
+      languages: languageAlternates,
     },
     robots: {
       index: true,
@@ -82,25 +85,18 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
     const emptyMessageKey = isDefaultLocale ? 'blog_no_posts' : 'blog_locale_in_progress'
     const showMissingNotice = resolvedSearchParams?.missing === '1'
 
-    // 第一页使用分组显示，其他页面使用分页显示
-    const useGroupedView = page === 1
+    const allPosts = await getAllPosts(resolvedParams.locale)
+    const hasPosts = allPosts.length > 0
 
-    let posts: BlogPost[] = []
-    let totalPages = 0
-
-    if (useGroupedView) {
-      // 获取所有文章用于分组显示
-      const allPosts = await getAllPosts(resolvedParams.locale)
-      posts = allPosts
-      // 计算总页数（用于显示 All posts 按钮）
-      const paginatedResult = await getPaginatedPosts(resolvedParams.locale, 1)
-      totalPages = paginatedResult.totalPages
-    } else {
-      // 使用分页获取文章
-      const paginatedResult = await getPaginatedPosts(resolvedParams.locale, page)
-      posts = paginatedResult.posts
-      totalPages = paginatedResult.totalPages
-    }
+    const featuredPosts = allPosts.slice(0, FEATURED_COUNT)
+    const advancedPosts = featuredPosts
+    const practicalPool = allPosts.slice(FEATURED_COUNT)
+    const practicalTotalPages = practicalPool.length > 0
+      ? Math.ceil(practicalPool.length / PRACTICAL_PAGE_SIZE)
+      : 1
+    const currentPage = Math.min(page, practicalTotalPages)
+    const practicalStart = (currentPage - 1) * PRACTICAL_PAGE_SIZE
+    const practicalPosts = practicalPool.slice(practicalStart, practicalStart + PRACTICAL_PAGE_SIZE)
 
     return (
       <div className="min-h-screen bg-background">
@@ -131,23 +127,18 @@ export default async function BlogPage({ params, searchParams }: BlogPageProps) 
             </div>
           )}
 
-          {posts.length === 0 ? (
+          {!hasPosts ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">{t(emptyMessageKey)}</p>
             </div>
-          ) : useGroupedView ? (
-            // 分组显示（第一页）
-            <BlogGroupedList posts={posts} totalPages={totalPages} />
           ) : (
-            // 分页显示（其他页面）
-            <>
-              <div className="grid gap-6 mb-8">
-                {posts.map((post) => (
-                  <BlogCard key={post.slug} post={post} />
-                ))}
-              </div>
-              <Pagination currentPage={page} totalPages={totalPages} />
-            </>
+            <BlogGroupedList
+              featuredPosts={featuredPosts}
+              advancedPosts={advancedPosts}
+              practicalPosts={practicalPosts}
+              currentPage={currentPage}
+              totalPages={practicalTotalPages}
+            />
           )}
         </main>
       </div>
