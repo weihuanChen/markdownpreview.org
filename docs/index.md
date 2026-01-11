@@ -90,6 +90,28 @@
   - 测试覆盖情况
   - 已知问题与限制
 
+- [学术论文格式检查规则开发计划](./dev/academic-paper-formatting-rules.md) 🆕
+  - 学术论文格式检查需求分析
+  - 可行性评估与技术方案
+  - 规则清单（P1/P2/P3）
+  - 实现计划与验收标准
+  - 格式预设配置（IEEE/ACM/APA）
+
+- [Clarity & Readability 规则开发计划](./dev/clarity-readability-rules.md) 🆕
+  - 清晰度与可读性检查需求分析
+  - 可行性评估与技术方案
+  - 规则清单（句子长度、标题误用、表格可读性、段落流畅度）
+  - 建议展示与前后对比实现方案
+  - 实现计划与验收标准
+
+- [Markdown 表格生成器开发计划](./dev/markdown-table-generator.md) 🆕
+  - 可视化表格编辑器功能设计
+  - DnD 拖拽排序实现方案（行/列拖拽）
+  - 技术选型（@dnd-kit 拖拽库）
+  - P1 任务清单与里程碑
+  - Markdown 表格生成逻辑
+  - 集成到编辑器工具栏方案
+
 ---
 
 ### 🚀 部署 (Deployment) - `docs/deploy/`
@@ -189,6 +211,16 @@
   - 已实现功能与未实现边界
   - 功能验收清单和测试覆盖
 
+- **学术格式规则**: [docs/dev/academic-paper-formatting-rules.md](./dev/academic-paper-formatting-rules.md) 🆕
+  - 学术论文格式检查开发计划
+  - 规则清单与实现方案
+  - 格式预设配置（IEEE/ACM/APA）
+
+- **可读性规则**: [docs/dev/clarity-readability-rules.md](./dev/clarity-readability-rules.md) 🆕
+  - 清晰度与可读性检查开发计划
+  - 问题标注、修改建议、前后对比实现方案
+  - 句子长度、标题误用、表格可读性等规则
+
 #### 性能优化
 
 - **博客性能优化**: [docs/dev/blog-performance-fix.md](./dev/blog-performance-fix.md)
@@ -202,12 +234,12 @@
 | 类别 | 文档数量 |
 |-----|---------|
 | 产品 | 2 |
-| 开发 | 7 |
+| 开发 | 10 |
 | 部署 | 0 |
 | UI/设计 | 0 |
 | 优化 | 0 |
 | 测试 | 4 |
-| **总计** | **13** |
+| **总计** | **16** |
 
 ---
 
@@ -295,7 +327,15 @@
 - ✅ 添加 i18n 技术实施文档
 - ✅ 添加多语言文案管理文档
 
+### 2024-12-19
+
+- ✅ 添加 Markdown 表格生成器开发计划
+  - 可视化表格编辑器功能设计
+  - DnD 拖拽排序实现方案（使用 @dnd-kit）
+  - P1 任务清单与里程碑
+  - 技术架构与接口设计
+
 ---
 
 **维护者**: 开发团队
-**最后更新**: 2024-12-18
+**最后更新**: 2024-12-19

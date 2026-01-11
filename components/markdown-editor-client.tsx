@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
 import { Link } from "@/navigation"
 import { EditorPinnedBanner } from "@/components/editor-pinned-banner"
+import { getLatestHistory, saveEditorHistory } from "@/lib/editor-history"
 
 const CodeMirrorEditor = dynamic(() => import("@/components/code-editor"), {
   ssr: false,
@@ -100,13 +101,61 @@ export function MarkdownEditorClient({ initialValue }: MarkdownEditorClientProps
   const dragStartHeight = useRef(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const editorContainerRef = useRef<HTMLDivElement>(null)
+  const hasRestoredHistory = useRef(false) // 标记是否已恢复历史记录
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // 组件加载时恢复历史记录
+  useEffect(() => {
+    if (hasRestoredHistory.current) return
+
+    try {
+      const latestHistory = getLatestHistory()
+      if (latestHistory && latestHistory.content.trim()) {
+        // 如果历史记录存在且不为空，且与初始值不同，则恢复历史记录
+        if (latestHistory.content !== initialValue) {
+          setMarkdown(latestHistory.content)
+          setDebouncedMarkdown(latestHistory.content)
+        }
+      }
+      hasRestoredHistory.current = true
+    } catch (err) {
+      console.error("Failed to restore editor history:", err)
+      hasRestoredHistory.current = true
+    }
+  }, [initialValue])
+
+  // 防抖更新预览
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedMarkdown(markdown)
     }, 300)
 
     return () => window.clearTimeout(timer)
+  }, [markdown])
+
+  // 自动保存历史记录（防抖，2秒后保存）
+  useEffect(() => {
+    // 如果还没有恢复历史记录，不保存
+    if (!hasRestoredHistory.current) return
+
+    // 如果内容为空，不保存
+    if (!markdown.trim()) return
+
+    // 清除之前的定时器
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+    }
+
+    // 设置新的定时器，2秒后保存
+    saveTimerRef.current = window.setTimeout(() => {
+      saveEditorHistory(markdown)
+    }, 2000)
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+      }
+    }
   }, [markdown])
 
   useEffect(() => {

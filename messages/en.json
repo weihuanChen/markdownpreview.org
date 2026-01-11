@@ -143,7 +143,7 @@
   "quickstart_source_prefix": "Authoritative reference:",
   "quickstart_source_name": "Markdown Guide",
   "quickstart_hint": "Use these cards as a fast lookup next to the editor.",
-  "quickstart_intro_title": "Basics",
+  "quickstart_intro_title": "Basic Syntax",
   "quickstart_intro_description": "Headings, emphasis, and links keep content readable without leaving plain text.",
   "quickstart_intro_snippet": "# Title\n\nPlain text paragraph with **bold**, *italic*, and a [link](https://example.com).",
   "quickstart_paragraphs_title": "Paragraphs & line breaks",

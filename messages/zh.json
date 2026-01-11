@@ -144,7 +144,7 @@
   "quickstart_source_name": "Markdown 指南",
   "quickstart_hint": "这些小卡片就是你的 Markdown 速查手册，边写边看超方便。",
 
-  "quickstart_intro_title": "入门基础",
+  "quickstart_intro_title": "基础语法",
   "quickstart_intro_description": "标题、强调、链接都保持纯文本的可读性。",
   "quickstart_intro_snippet": "# 标题\n\n普通段落包含 **加粗**、*斜体*，以及一个 [链接](https://example.com)。",
   "quickstart_paragraphs_title": "段落与换行",

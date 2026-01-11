@@ -37,6 +37,10 @@ import { RelatedTools } from "@/components/related-tools"
 import { EditorPinnedBanner } from "@/components/editor-pinned-banner"
 import { useFormatter, type FormatterMode } from "@/hooks/use-formatter"
 import {
+  getLatestFormatterHistory,
+  saveFormatterHistory,
+} from "@/lib/formatter-history"
+import {
   allRules,
   presets,
   presetMeta,
@@ -277,6 +281,85 @@ export function MarkdownFormatter() {
   const [isPinned, setIsPinned] = useState(false)
   const editorContainerRef = useRef<HTMLDivElement>(null)
   const mainContentRef = useRef<HTMLDivElement>(null)
+  
+  // 历史记录相关状态
+  const hasRestoredHistory = useRef(false) // 标记是否已恢复历史记录
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  
+  // 组件加载时恢复历史记录
+  useEffect(() => {
+    if (hasRestoredHistory.current) return
+
+    try {
+      const latestHistory = getLatestFormatterHistory()
+      if (latestHistory && latestHistory.content.trim()) {
+        // 恢复内容
+        setContent(latestHistory.content)
+        // 恢复模式
+        if (latestHistory.mode) {
+          setMode(latestHistory.mode)
+        }
+        // 恢复预设和规则状态
+        if (latestHistory.currentPreset) {
+          applyPreset(latestHistory.currentPreset)
+        }
+        // 恢复规则状态（需要延迟执行，确保预设已应用）
+        if (latestHistory.ruleStates && latestHistory.ruleStates.length > 0) {
+          setTimeout(() => {
+            // 创建历史记录中规则状态的映射
+            const historyRuleMap = new Map(
+              latestHistory.ruleStates.map((r) => [r.id, r.enabled])
+            )
+            // 比较当前规则状态和历史记录，只调整不同的规则
+            // 注意：这里需要在下一个 tick 执行，确保 ruleStates 已更新
+            setTimeout(() => {
+              ruleStates.forEach((currentRule) => {
+                const historyEnabled = historyRuleMap.get(currentRule.id)
+                if (historyEnabled !== undefined && historyEnabled !== currentRule.enabled) {
+                  toggleRule(currentRule.id)
+                }
+              })
+            }, 50)
+          }, 100)
+        }
+      }
+      hasRestoredHistory.current = true
+    } catch (err) {
+      console.error("Failed to restore formatter history:", err)
+      hasRestoredHistory.current = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 自动保存历史记录（防抖，2秒后保存）
+  useEffect(() => {
+    // 如果还没有恢复历史记录，不保存
+    if (!hasRestoredHistory.current) return
+
+    // 如果内容为空，不保存
+    if (!content.trim()) return
+
+    // 清除之前的定时器
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+    }
+
+    // 设置新的定时器，2秒后保存
+    saveTimerRef.current = window.setTimeout(() => {
+      saveFormatterHistory({
+        content,
+        mode,
+        ruleStates,
+        currentPreset,
+      })
+    }, 2000)
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+      }
+    }
+  }, [content, mode, ruleStates, currentPreset])
   
   // 解析 diff
   const diffData = useMemo(() => {

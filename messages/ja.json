@@ -144,7 +144,7 @@
   "quickstart_source_prefix": "信頼できるリファレンス：",
   "quickstart_source_name": "Markdown Guide",
   "quickstart_hint": "エディター横の簡易リファレンスとして使えます。",
-  "quickstart_intro_title": "基本",
+  "quickstart_intro_title": "基本構文",
   "quickstart_intro_description": "見出し・強調・リンクなど、プレーンテキストのまま読みやすさを保ちます。",
   "quickstart_intro_snippet": "# タイトル\n\n**太字**、*斜体*、[リンク](https://example.com) を含む通常の段落。",
   "quickstart_paragraphs_title": "段落と改行",
