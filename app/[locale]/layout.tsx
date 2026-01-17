@@ -2,25 +2,12 @@ import type React from "react"
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { Analytics } from "@vercel/analytics/next"
-import { Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google"
 import { locales } from '@/i18n';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
 import { EditorActionsProvider } from '@/components/editor-actions-provider';
 import "../globals.css"
-
-const display = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-display-primary",
-})
-
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono-primary",
-})
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -143,7 +130,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${display.variable} ${mono.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             <EditorActionsProvider>

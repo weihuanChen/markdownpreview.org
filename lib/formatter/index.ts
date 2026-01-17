@@ -48,6 +48,7 @@ export {
   listRules,
   blockquoteRules,
   codeBlockRules,
+  academicRules,
 } from './rules'
 
 // 导出快照管理

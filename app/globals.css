@@ -77,8 +77,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-display-primary), "Helvetica Neue", "Plus Jakarta Sans", "Maison Neue", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: var(--font-mono-primary), "IBM Plex Mono", "DM Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Plus Jakarta Sans", "Maison Neue", sans-serif;
+  --font-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

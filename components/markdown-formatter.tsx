@@ -214,10 +214,11 @@ const RULE_CATEGORIES: { id: RuleCategory; labelKey: string; icon: string }[] = 
   { id: 'blockquote', labelKey: 'formatter_category_blockquote', icon: '>' },
   { id: 'code', labelKey: 'formatter_category_code', icon: '`' },
   { id: 'writing', labelKey: 'formatter_category_writing', icon: '✍' },
+  { id: 'academic', labelKey: 'formatter_category_academic', icon: '🎓' },
 ]
 
 // 预设顺序
-const PRESET_ORDER: PresetName[] = ['standard', 'github', 'quality', 'writing', 'strict']
+const PRESET_ORDER: PresetName[] = ['standard', 'github', 'quality', 'writing', 'strict', 'ieee', 'acm', 'apa']
 
 const LINT_SEVERITY_META: Record<LintSeverity, { label: string; tone: string }> = {
   error: { label: 'Error', tone: 'text-red-600 dark:text-red-300 border-red-500/30 bg-red-500/5' },
@@ -232,6 +233,7 @@ const RULE_SEVERITY_BY_CATEGORY: Record<RuleCategory, LintSeverity> = {
   blockquote: 'info',
   code: 'warning',
   writing: 'warning',
+  academic: 'warning',
 }
 
 export function MarkdownFormatter() {
@@ -739,6 +741,7 @@ export function MarkdownFormatter() {
       blockquote: [],
       code: [],
       writing: [],
+      academic: [],
     }
     
     ruleStates.forEach(ruleState => {

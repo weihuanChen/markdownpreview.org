@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
-import { Moon, Sun, BookOpen, GitCompare, Wand2 } from "lucide-react"
+import { Moon, Sun, BookOpen, GitCompare, Wand2, GraduationCap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Link } from '@/navigation'
 import { useTheme } from "@/components/theme-provider"
@@ -47,6 +47,18 @@ export function Header() {
         >
           <Link href="/formatter">
             <Wand2 className="h-5 w-5 text-[var(--brand-blue)]" />
+          </Link>
+        </Button>
+
+        {/* Academic Check Navigation */}
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          aria-label={t("academic_check_nav")}
+        >
+          <Link href="/academic-check/submission">
+            <GraduationCap className="h-5 w-5 text-[var(--brand-blue)]" />
           </Link>
         </Button>
 

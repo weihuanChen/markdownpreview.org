@@ -30,8 +30,26 @@ export type FormatRuleId =
   // 写作质量规则（P3 预览）
   | 'heading-depth'
   | 'long-paragraph'
+  // 学术写作规则
+  | 'heading-numbering'
+  | 'figure-caption-format'
+  | 'table-caption-format'
+  | 'section-depth'
+  | 'paragraph-length'
+  | 'citation-format'
+  | 'reference-list-format'
+  | 'figure-reference'
+  | 'abstract-format'
+  | 'keywords-format'
 
-export type RuleCategory = 'whitespace' | 'heading' | 'list' | 'blockquote' | 'code' | 'writing'
+export type RuleCategory =
+  | 'whitespace'
+  | 'heading'
+  | 'list'
+  | 'blockquote'
+  | 'code'
+  | 'writing'
+  | 'academic'
 
 export interface RuleOptions {
   /** 段落间最大空行数，默认 1 */
@@ -50,6 +68,12 @@ export interface RuleOptions {
   maxHeadingDepth?: number
   /** 最大段落字符数（写作质量） */
   maxParagraphChars?: number
+  /** 期刊图标题格式（学术） */
+  figureFormat?: string
+  /** 期刊表格标题格式（学术） */
+  tableFormat?: string
+  /** 引用样式（学术预设） */
+  citationStyle?: 'ieee' | 'acm' | 'apa'
 }
 
 export interface LintContext {
@@ -132,6 +156,7 @@ const RULE_SEVERITY_MAP: Record<RuleCategory, LintSeverity> = {
   blockquote: 'info',
   code: 'warning',
   writing: 'warning',
+  academic: 'warning',
 }
 
 function getRuleSeverity(category: RuleCategory | undefined): LintSeverity {
@@ -179,6 +204,9 @@ class FormatEngine {
     codeFenceStyle: '```',
     maxHeadingDepth: 4,
     maxParagraphChars: 800,
+    figureFormat: 'Figure 1:',
+    tableFormat: 'Table 1:',
+    citationStyle: 'ieee',
   }
 
   /**

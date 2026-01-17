@@ -2,7 +2,7 @@
 
 > **版本**: v1.0  
 > **创建日期**: 2024-12-XX  
-> **状态**: 📋 规划中  
+> **状态**: ✅ P1 已完成｜✅ P2 增强完成  
 > **关联**: `lib/formatter/` 规则系统
 
 ---
@@ -250,6 +250,14 @@ export const academicPresets = {
 | 规则分组展示 | 按分类展示学术规则 |
 | 格式预设选择器 | 快速切换期刊格式 |
 
+### P2 规则验收
+
+- [x] `citation-format`: 支持 IEEE/ACM/APA 引用格式检测
+- [x] `reference-list-format`: 支持参考文献列表格式与编号连续性检测
+- [x] `figure-reference`: 检查图表引用是否在定义之后
+- [x] `abstract-format`: 检查摘要章节存在且非空
+- [x] `keywords-format`: 检查关键词章节存在、分隔符与数量合理
+
 ### 5.3 P3 阶段：高级功能（可选，预估 2-3 天）
 
 - 公式编号检查
@@ -374,20 +382,20 @@ messages/
 
 ### P1 功能验收
 
-- [ ] 新增 `academic` 规则分类
-- [ ] 实现 5 个核心规则（heading-numbering, figure-caption-format 等）
-- [ ] 支持 IEEE/ACM/APA 预设配置
-- [ ] 规则可在 UI 中启用/禁用
-- [ ] 5 语言翻译完整
-- [ ] Lint 结果正确显示在 Diff 视图中
+- [x] 新增 `academic` 规则分类
+- [x] 实现 5 个核心规则（heading-numbering, figure-caption-format 等）
+- [x] 支持 IEEE/ACM/APA 预设配置
+- [x] 规则可在 UI 中启用/禁用
+- [x] 5 语言翻译完整
+- [x] Lint 结果正确显示在 Diff 视图中
 
 ### P1 规则验收
 
-- [ ] `heading-numbering`: 能检测标题编号不一致
-- [ ] `figure-caption-format`: 能检测图表标题格式问题
-- [ ] `table-caption-format`: 能检测表格标题格式问题
-- [ ] `section-depth`: 能检测章节层级过深
-- [ ] `paragraph-length`: 能检测段落过长
+- [x] `heading-numbering`: 能检测标题编号不一致
+- [x] `figure-caption-format`: 能检测图表标题格式问题
+- [x] `table-caption-format`: 能检测表格标题格式问题
+- [x] `section-depth`: 能检测章节层级过深
+- [x] `paragraph-length`: 能检测段落过长
 
 ---
 
