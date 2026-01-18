@@ -402,6 +402,8 @@
   "formatter_run_to_lint": "Run Format to generate lint results",
   "formatter_passes_rules": "Your current content passes all enabled rules.",
   "formatter_lint_hint": "Lint results will appear after formatting.",
+  "formatter_lint_issues_remain": "but {count} issue(s) still need manual fixing.",
+  "formatter_lint_description": "Lint results show issues that remain after formatting. These are issues that cannot be automatically fixed and require manual correction.",
   "formatter_issue_count": "{count} issue",
   "formatter_issues_count": "{count} issues",
   "formatter_about_title": "About Markdown Formatter",

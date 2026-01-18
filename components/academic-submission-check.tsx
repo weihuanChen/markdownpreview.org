@@ -58,7 +58,6 @@ const SAMPLE_ACADEMIC_MARKDOWN = `# 1. Introduction
 This is a sample academic paper with some formatting issues.
 
 ## 1.1 Background
-
 The research focuses on improving document formatting.
 
 ## 1.2 Related Work
@@ -75,8 +74,7 @@ Table 1: Sample table caption
 
 ## References
 
-[1] Author, A. (2024). Title of the paper. Journal Name, 1(1), 1-10.
-`
+[1] Author, A. (2024). Title of the paper. Journal Name, 1(1), 1-10.`
 
 // ============================================================================
 // Diff 生成工具
@@ -85,12 +83,13 @@ Table 1: Sample table caption
 function createUnifiedDiff(original: string, formatted: string): string {
   const originalLines = original.split('\n')
   const formattedLines = formatted.split('\n')
-  
+
   let diff = 'diff --git a/original.md b/formatted.md\n'
   diff += 'index 0000000..0000000 100644\n'
   diff += '--- a/original.md\n'
   diff += '+++ b/formatted.md\n'
-  
+
+  // 简单的统一 diff 生成
   const maxLines = Math.max(originalLines.length, formattedLines.length)
   let hunkStart = -1
   let hunkLines: string[] = []
@@ -98,7 +97,7 @@ function createUnifiedDiff(original: string, formatted: string): string {
   let newStart = 1
   let oldCount = 0
   let newCount = 0
-  
+
   const flushHunk = () => {
     if (hunkLines.length > 0) {
       diff += `@@ -${oldStart},${oldCount} +${newStart},${newCount} @@\n`
@@ -106,15 +105,16 @@ function createUnifiedDiff(original: string, formatted: string): string {
       hunkLines = []
     }
   }
-  
+
   let i = 0
   let j = 0
-  
+
   while (i < originalLines.length || j < formattedLines.length) {
     const origLine = originalLines[i] ?? ''
     const formLine = formattedLines[j] ?? ''
-    
+
     if (i < originalLines.length && j < formattedLines.length && origLine === formLine) {
+      // 相同行
       if (hunkLines.length > 0) {
         hunkLines.push(` ${origLine}`)
         oldCount++
@@ -122,52 +122,53 @@ function createUnifiedDiff(original: string, formatted: string): string {
       }
       i++
       j++
-    } else if (i < originalLines.length && j < formattedLines.length) {
-      if (hunkLines.length === 0) {
-        oldStart = i + 1
-        newStart = j + 1
-        oldCount = 0
-        newCount = 0
-      }
-      hunkLines.push(`-${origLine}`)
-      hunkLines.push(`+${formLine}`)
-      oldCount++
-      newCount++
-      i++
-      j++
-    } else if (i < originalLines.length) {
-      if (hunkLines.length === 0) {
-        oldStart = i + 1
-        newStart = j + 1
-        oldCount = 0
-        newCount = 0
-      }
-      hunkLines.push(`-${origLine}`)
-      oldCount++
-      i++
     } else {
+      // 不同行
       if (hunkLines.length === 0) {
         oldStart = i + 1
         newStart = j + 1
         oldCount = 0
         newCount = 0
       }
-      hunkLines.push(`+${formLine}`)
-      newCount++
-      j++
+
+      if (i < originalLines.length && (j >= formattedLines.length || origLine !== formLine)) {
+        hunkLines.push(`-${origLine}`)
+        oldCount++
+        i++
+      }
+      if (j < formattedLines.length && (i >= originalLines.length || origLine !== formLine)) {
+        hunkLines.push(`+${formLine}`)
+        newCount++
+        j++
+      }
     }
-    
-    if (hunkLines.length >= 20) {
-      flushHunk()
-      oldStart = i + 1
-      newStart = j + 1
-      oldCount = 0
-      newCount = 0
+
+    // 如果连续多行相同，刷新 hunk
+    if (hunkLines.length > 0 && i < originalLines.length && j < formattedLines.length) {
+      let lookAhead = 0
+      while (
+        i + lookAhead < originalLines.length &&
+        j + lookAhead < formattedLines.length &&
+        originalLines[i + lookAhead] === formattedLines[j + lookAhead]
+      ) {
+        lookAhead++
+      }
+      if (lookAhead > 3) {
+        // 添加一些上下文行然后刷新
+        for (let k = 0; k < Math.min(3, lookAhead); k++) {
+          hunkLines.push(` ${originalLines[i + k]}`)
+          oldCount++
+          newCount++
+        }
+        i += Math.min(3, lookAhead)
+        j += Math.min(3, lookAhead)
+        flushHunk()
+      }
     }
   }
-  
+
   flushHunk()
-  
+
   return diff
 }
 
@@ -187,7 +188,7 @@ const LINT_SEVERITY_META: Record<LintSeverity, { label: string; tone: string }> 
 export function AcademicSubmissionCheck() {
   const t = useTranslations()
   const { theme } = useTheme()
-  
+
   // 使用 formatter hook
   const {
     content,
@@ -207,24 +208,24 @@ export function AcademicSubmissionCheck() {
     currentPreset,
     applyPreset,
   } = useFormatter({ initialContent: "" })
-  
+
   // 过滤出只属于学术分类的规则
   const academicRuleIds = useMemo(() => new Set(academicRules.map(r => r.id)), [])
   const academicRuleStates = useMemo(() => {
     return ruleStates.filter(r => academicRuleIds.has(r.id))
   }, [ruleStates, academicRuleIds])
-  
+
   // 只使用启用的学术规则进行格式化
-  const enabledAcademicRuleIds = useMemo(() => 
+  const enabledAcademicRuleIds = useMemo(() =>
     academicRuleStates.filter(r => r.enabled).map(r => r.id),
     [academicRuleStates]
   )
-  
+
   // 自定义格式化函数，只使用学术规则
   const runAcademicFormat = useCallback(() => {
     return runFormatWithRules(enabledAcademicRuleIds)
   }, [runFormatWithRules, enabledAcademicRuleIds])
-  
+
   // 启用所有学术规则
   const enableAllAcademicRules = useCallback(() => {
     academicRuleStates.forEach(rule => {
@@ -234,7 +235,7 @@ export function AcademicSubmissionCheck() {
     })
     // toggleRule 内部会清除预设，所以这里不需要手动清除
   }, [academicRuleStates, toggleRule])
-  
+
   // 禁用所有学术规则
   const disableAllAcademicRules = useCallback(() => {
     academicRuleStates.forEach(rule => {
@@ -244,7 +245,7 @@ export function AcademicSubmissionCheck() {
     })
     // toggleRule 内部会清除预设，所以这里不需要手动清除
   }, [academicRuleStates, toggleRule])
-  
+
   // UI 状态
   const [viewMode, setViewMode] = useState<"diff" | "preview">("diff")
   const [showRules, setShowRules] = useState(false)
@@ -252,33 +253,50 @@ export function AcademicSubmissionCheck() {
   const [diffType, setDiffType] = useState<"word" | "block">("word")
   const [showLintResultsPanel, setShowLintResultsPanel] = useState(true)
   const [exporting, setExporting] = useState(false)
-  
+
   // 文件上传相关状态
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   // 确保规则已初始化
   useEffect(() => {
     initializeRules()
   }, [])
-  
+
+  // 默认应用 IEEE 预设（只在组件挂载时执行一次）
+  useEffect(() => {
+    applyPreset('ieee')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 只在组件挂载时执行一次，applyPreset 是稳定的函数
+
   // 解析 diff
   const diffData = useMemo(() => {
     if (!result?.hasChanges) return null
-    
+
     try {
       const diffText = createUnifiedDiff(result.original, result.formatted)
+      if (!diffText || diffText.trim().length === 0) {
+        console.warn('Generated diff is empty')
+        return null
+      }
       const files = parseDiff(diffText)
+      if (!files || files.length === 0) {
+        console.warn('Parsed diff files is empty', { diffText })
+        return null
+      }
       return { files, diffText }
     } catch (error) {
-      console.error('Failed to parse diff:', error)
+      console.error('Failed to parse diff:', error, {
+        original: result.original?.substring(0, 100),
+        formatted: result.formatted?.substring(0, 100)
+      })
       return null
     }
   }, [result])
-  
+
   const hunks = diffData?.files?.[0]?.hunks ?? []
-  
+
   // Diff tokens
   const tokens = useMemo(() => {
     if (!hunks.length) return null
@@ -286,7 +304,7 @@ export function AcademicSubmissionCheck() {
       enhancers: [markEdits(hunks, { type: diffType })],
     })
   }, [hunks, diffType])
-  
+
   // Diff 主题样式
   const diffThemeStyles = useMemo<CSSProperties>(() => {
     const lightInsert = "#e6f7ea"
@@ -306,7 +324,7 @@ export function AcademicSubmissionCheck() {
       "--diff-selection-background-color": theme === "dark" ? "rgba(59,130,246,0.18)" : "#b3d7ff",
     }
   }, [theme])
-  
+
   // 处理复制
   const handleCopy = useCallback(async () => {
     const textToCopy = result?.formatted ?? content
@@ -318,12 +336,12 @@ export function AcademicSubmissionCheck() {
       console.error('Failed to copy:', error)
     }
   }, [result, content])
-  
+
   // 加载示例
   const loadSample = useCallback(() => {
     setContent(SAMPLE_ACADEMIC_MARKDOWN)
   }, [setContent])
-  
+
   // 文件上传相关函数
   const ALLOWED_FILE_TYPES = [".md", ".markdown", ".txt"]
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -401,18 +419,18 @@ export function AcademicSubmissionCheck() {
   // Lint 结果统计
   const lintStats = useMemo(() => {
     if (!result?.lintResults) return null
-    
+
     const bySeverity: Record<LintSeverity, number> = {
       error: 0,
       warning: 0,
       info: 0,
     }
-    
+
     result.lintResults.forEach((r) => {
       const severity = r.severity ?? 'warning'
       bySeverity[severity] = (bySeverity[severity] ?? 0) + 1
     })
-    
+
     return {
       total: result.lintResults.length,
       bySeverity,
@@ -422,7 +440,7 @@ export function AcademicSubmissionCheck() {
   // 按行号分组 lint 结果
   const lintResultsByLine = useMemo(() => {
     if (!result?.lintResults) return new Map<number, LintResult[]>()
-    
+
     const map = new Map<number, LintResult[]>()
     result.lintResults.forEach((r) => {
       if (r.line) {
@@ -455,7 +473,7 @@ export function AcademicSubmissionCheck() {
             const preset = presets[presetName]
             const meta = presetMeta[presetName]
             const isActive = currentPreset === presetName
-            
+
             return (
               <Button
                 key={presetName}
@@ -592,44 +610,80 @@ export function AcademicSubmissionCheck() {
           </div>
 
           {/* Diff 视图 */}
-          {viewMode === "diff" && result?.hasChanges && (
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
-                <span className="font-medium text-sm">{t('formatter_changes')}</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDiffType(diffType === "word" ? "block" : "word")}
-                  >
-                    {diffType === "word" ? t('formatter_word_diff') : t('formatter_line_diff')}
-                  </Button>
-                </div>
-              </div>
-              <div className="overflow-auto max-h-[600px]" style={diffThemeStyles}>
-                {tokens && hunks.length > 0 ? (
-                  <Diff viewType="unified" diffType={diffType} tokens={tokens}>
-                    {(hunks) =>
-                      hunks.map((hunk) => (
-                        <Hunk key={hunk.content} hunk={hunk}>
-                          {(tokens) =>
-                            tokens.map((token, i) => (
-                              <Decoration key={`${hunk.content}-${i}`} token={token}>
-                                {(children) => <div>{children}</div>}
-                              </Decoration>
-                            ))
-                          }
-                        </Hunk>
-                      ))
-                    }
-                  </Diff>
-                ) : (
-                  <div className="p-8 text-center text-muted-foreground">
-                    {t('formatter_no_changes')}
+          {viewMode === "diff" && (
+            <>
+              {result?.hasChanges && tokens && hunks.length > 0 ? (
+                <div className="bg-card border border-border rounded-lg overflow-hidden">
+                  <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+                    <span className="font-medium text-sm">{t('formatter_changes')}</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDiffType(diffType === "word" ? "block" : "word")}
+                      >
+                        {diffType === "word" ? t('formatter_word_diff') : t('formatter_line_diff')}
+                      </Button>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
+                  <div className="overflow-auto max-h-[600px]" style={diffThemeStyles}>
+                    <Diff viewType="unified" diffType={diffType} tokens={tokens}>
+                      {(hunks) =>
+                        hunks.map((hunk) => (
+                          <Hunk key={hunk.content} hunk={hunk}>
+                            {(tokens) =>
+                              tokens.map((token, i) => (
+                                <Decoration key={`${hunk.content}-${i}`} token={token}>
+                                  {(children) => <div>{children}</div>}
+                                </Decoration>
+                              ))
+                            }
+                          </Hunk>
+                        ))
+                      }
+                    </Diff>
+                  </div>
+                </div>
+              ) : result && !result.hasChanges ? (
+                <div className="bg-card border border-border rounded-lg p-12 text-center">
+                  <div className="flex flex-col items-center space-y-3">
+                    {result.lintResults && result.lintResults.length > 0 ? (
+                      <>
+                        <AlertTriangle className="h-12 w-12 text-amber-500" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{t('formatter_no_changes')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t('formatter_well_formatted')} {t('formatter_lint_issues_remain', { count: result.lintResults.length })}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-12 w-12 text-green-500" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{t('formatter_no_changes')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{t('formatter_well_formatted')}</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : !result ? (
+                <div className="bg-card border border-border rounded-lg p-12 text-center">
+                  <div className="flex flex-col items-center space-y-2">
+                    <GitCompare className="h-10 w-10 text-muted-foreground/50" />
+                    <p className="text-sm text-muted-foreground">{t('formatter_click_format')}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-lg p-12 text-center">
+                  <div className="flex flex-col items-center space-y-2">
+                    <FileCheck className="h-12 w-12 text-muted-foreground" />
+                    <p className="text-muted-foreground">{t('formatter_no_result')}</p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {/* 预览视图 */}
@@ -649,14 +703,6 @@ export function AcademicSubmissionCheck() {
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* 无结果提示 */}
-          {!result && viewMode === "diff" && (
-            <div className="bg-card border border-border rounded-lg p-12 text-center">
-              <FileCheck className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">{t('formatter_no_result')}</p>
             </div>
           )}
         </div>
@@ -680,12 +726,17 @@ export function AcademicSubmissionCheck() {
               {showLintResultsPanel ? <ChevronUp /> : <ChevronDown />}
             </Button>
           </div>
+          <div className="mb-3 p-3 bg-muted/50 rounded-md">
+            <p className="text-xs text-muted-foreground">
+              {t('formatter_lint_description')}
+            </p>
+          </div>
           <div className="space-y-2 max-h-[400px] overflow-auto">
             {result.lintResults.map((lint) => {
               const severity = lint.severity ?? 'warning'
               const meta = LINT_SEVERITY_META[severity]
               const ruleName = getRuleDisplayName(lint.ruleId)
-              
+
               return (
                 <div
                   key={lint.id}
@@ -740,7 +791,7 @@ export function AcademicSubmissionCheck() {
             {academicRuleStates.map((ruleState) => {
               const rule = academicRules.find(r => r.id === ruleState.id)
               if (!rule) return null
-              
+
               return (
                 <div
                   key={ruleState.id}
